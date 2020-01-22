@@ -1,4 +1,6 @@
-# ezgoo-front
+# ezgoo
+
+A RESTful API, use Node + Express.
 
 ## Project setup
 ```
