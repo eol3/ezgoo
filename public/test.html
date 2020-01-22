@@ -1,0 +1,18 @@
+<html>
+	<body>
+		hello
+		<button onclick="test()">test</button>
+	</body>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+	<script>
+	  var socket = io.connect('http://64.111.98.77:8080/');
+	  socket.on('news', function (data) {
+	    console.log(data);
+	    
+	  });
+	  function test() {
+	  	console.log('test')
+	  	socket.emit('my other event', [{ my: 'data' },{ a: 'b' }]);
+	  }
+	</script>
+</html>
