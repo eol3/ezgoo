@@ -15,6 +15,14 @@ app.use(compression())
 
 app.use(express.static(process.cwd() + '/public/dist', { maxAge: 31557600000 }))
 
+app.get('/*', (req, res, next) => {
+  if (req.originalUrl.startsWith('/api')) {
+      next();
+  } else {
+    res.sendFile(process.cwd() + '/public/dist/index.html');
+  }
+})
+
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
@@ -44,7 +52,7 @@ app.get('/', (req, res, next) => {
   res.json({msg: 'hello'})
 })
 
-// 400 表單錯誤、資料驗證錯誤, 403 禁止存取, 404 找不到資料, 500 系統錯誤
+// 400 表單錯誤、資料驗證錯誤, 403 禁止存取, 404 找不到資料, 422 資料錯誤, 500 系統錯誤
 app.use(function (err, req, res, next) {
   if (err.statusCode !== undefined) {
     res.status(err.statusCode)

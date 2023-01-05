@@ -4,14 +4,25 @@ const Product = require(process.cwd() + '/models/product')
 
 module.exports = router
 
-router.get('/', async function(req, res, next) {
+router.get('/:productId', async function(req, res, next) {
 	
-	let result = await Product.getOne({ id: 1 })
+	const useData = {
+		id: req.params.productId
+	}
 	
-	res.json(result)
-  // if (req.session.admin) {
-  //   res.json(true)
-  // } else {
-  //   res.json(false)
-  // }
+	const validator = wrapValidator(useData, {
+	  id: 'required|numeric|min:0',
+  }, 'product')
+  
+  if (validator.fails()) {
+  	return next({statusCode: 404, msg: '查無此內容' })
+  }
+	
+	let result = await Product.getOne({ id: useData.id })
+	
+	if (!result) {
+	  return next({statusCode: 404, msg: '查無此內容' })
+	} else {
+	  res.json(result)
+	}
 })

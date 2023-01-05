@@ -18,8 +18,7 @@ validatorjs.register('enum', function(value, requirement, attribute) {
 validatorjs.register('idStringArray', function(value) {
 	let arr = value.split('-')
 	for (let i in arr) {
-		if (arr[i] === '0') return true
-		else if (!Number(arr[i])) {
+		if (!Number(arr[i])) {
 			return false
 		}
 	}
@@ -70,9 +69,9 @@ function wrapValidator (data, rules, extModelName) {
 	validator.transType = function() {
 		for (const key in rules) {
 			if (data[key]) {
-				if (rules[key].indexOf('boolean') > -1) {
+				if (rules[key] === 'boolean') {
 					data[key] = (data[key] === 'true')
-				} else if (rules[key].indexOf('numeric') > -1) {
+				} else if (rules[key] === 'numeric') {
 					data[key] = Number(data[key])
 				} else if (rules[key] === 'idStringArray') {
 					let arr = data[key].split('-')
@@ -102,13 +101,25 @@ const extModel = {
 			password: '密碼',
 		}
 	},
-	product: {
+	content: {
 		attributeNames: {
-			id: '產品編號',
-			name: '產品名稱',
+			id: '內容編號',
+			name: '內容名稱',
+			price: '內容價格',
+			status: '內容狀態',
+			categories: '內容分類',
 		},
 		enumerationValues: {
 			push: ['all', '0', '1'],
+			sortBy: ['id', 'hot_order']
+		}
+	},
+	label: {
+		attributeNames: {
+			id: '分類編號',
+			name: '分類名稱',
+		},
+		enumerationValues: {
 			sortBy: ['id', 'hot_order']
 		}
 	},
