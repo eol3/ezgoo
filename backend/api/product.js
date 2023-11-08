@@ -14,15 +14,43 @@ router.get('/:productId', async function(req, res, next) {
 	  id: 'required|numeric|min:0',
   }, 'product')
   
-  if (validator.fails()) {
+  if (validator.fail) {
   	return next({statusCode: 404, msg: '查無此內容' })
   }
-	
-	let result = await Product.getOne({ id: useData.id })
+	console.log(useData)
+	let result = await Product.getOne(useData)
 	
 	if (!result) {
 	  return next({statusCode: 404, msg: '查無此內容' })
 	} else {
 	  res.json(result)
 	}
+})
+
+router.get('/', async function(req, res, next) {
+	
+	const useData = {
+		withImages: req.query.withImages || false,
+		sortBy: req.query.sortBy,
+	  orderBy: req.query.orderBy,
+		limit: req.query.limit || 10,
+		offset: req.query.offset || 0
+	}
+	
+	const validator = wrapValidator(useData, {
+	  withImages: 'boolean',
+	  withLabels: 'boolean',
+	  sortBy: 'string|enum:sortBy',
+	  orderBy: 'string|enum:orderBy',
+	  limit: 'numeric|min:0',
+	  offset: 'numeric|min:0'
+  }, 'product')
+  
+  if (validator.fail) {
+  	return next({statusCode: 400, ...validator.errors})
+  }
+	
+	let result = await Product.getList(useData)
+	
+	res.json(result)
 })

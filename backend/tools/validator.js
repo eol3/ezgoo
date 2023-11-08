@@ -1,7 +1,7 @@
 let validatorjs = require('validatorjs');
 let en = require('validatorjs/src/lang/en');
 
-validatorjs.setMessages('en', en);
+validatorjs.useLang('zh_TW');
 
 validatorjs.register('script', function(value) {
 	if (value.indexOf('script>') > 0) {
@@ -27,23 +27,19 @@ validatorjs.register('idStringArray', function(value) {
 }, 'The :attribute have to be spec string.');
 
 let errorMsg = {
-	required: '請輸入:attribute',
-	numeric: ':attribute必須是數字',
-	string: ':attribute必須是字串',
-	boolean: ':attribute必須是布林值',
-  email: ':attribute格式不符',
-  min: ':attribute長度至少為:min',
-  max: ':attribute長度最多為:max',
-  confirmed: "輸入兩次:attribute不相符",
   script: "請勿輸入不合法字串",
   digits: ":attribute必須為:digits碼",
+  idStringArray: ":attribute 必須是特殊字串",
+  enum: ":attribute 必須是特殊字串",
 }
 
 let attributeNames = {
 	account: '帳號',
 	password: '密碼',
 	pageNum: '頁數',
-	pageSize: '每頁筆數'
+	pageSize: '每頁筆數',
+	sortBy: '排序欄位',
+	orderBy: '排序方式',
 }
 
 function wrapValidator (data, rules, extModelName) {
@@ -66,26 +62,38 @@ function wrapValidator (data, rules, extModelName) {
 	let validator = new validatorjs(data, rules, errorMsg)
 	
 	validator.setAttributeNames(attributeNames)
-	
-	validator.transType = function() {
-		for (const key in rules) {
-			if (data[key]) {
-				if (rules[key].indexOf('boolean') > -1) {
-					data[key] = (data[key] === 'true')
-				} else if (rules[key].indexOf('numeric') > -1) {
-					data[key] = Number(data[key])
-				} else if (rules[key] === 'idStringArray') {
-					let arr = data[key].split('-')
-					for (let i in arr) {
-						arr[i] = Number(arr[i])
-					}
-					data[key] = arr
-				}
-			}
+
+	if (validator.fails()) {
+		return {
+			fail: true,
+			errors: validator.errors
+		}
+	} else {
+		transType(data, rules)
+		return {
+			fail: false
 		}
 	}
 	
 	return validator
+}
+
+function transType(data, rules) {
+	for (const key in rules) {
+		if (data[key]) {
+			if (rules[key].indexOf('boolean') > -1) {
+				data[key] = (data[key] === 'true')
+			} else if (rules[key].indexOf('numeric') > -1) {
+				data[key] = Number(data[key])
+			} else if (rules[key] === 'idStringArray') {
+				let arr = data[key].split('-')
+				for (let i in arr) {
+					arr[i] = Number(arr[i])
+				}
+				data[key] = arr
+			}
+		}
+	}
 }
 
 var currentEnum = {
@@ -109,7 +117,7 @@ const extModel = {
 		},
 		enumerationValues: {
 			push: ['all', '0', '1'],
-			sortBy: ['id', 'hot_order']
+			sortBy: ['id', 'name', 'hotOrder']
 		}
 	},
 	post: {

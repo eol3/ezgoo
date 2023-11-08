@@ -36,7 +36,7 @@ var sess = {
   secret: '542A4D5AABF7A3D8531BB8A465F51',
   saveUninitialized: false,
   resave: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 }
+  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }
 if(process.env.NODE_ENV === 'production'){
 	app.set('trust proxy', 1) // trust first proxy
@@ -47,10 +47,6 @@ app.use(session(sess))
 //set routes
 const router = require('./config/routes');
 app.use('/', router);
-
-app.get('/', (req, res, next) => {
-  res.json({msg: 'hello'})
-})
 
 // 400 表單錯誤、資料驗證錯誤, 403 禁止存取, 404 找不到資料, 422 資料錯誤, 500 系統錯誤
 app.use(function (err, req, res, next) {

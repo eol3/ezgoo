@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "start": "NODE_ENV=production node app.js"
+    "start": "NODE_ENV=production node app.js",
+    "knex": "node node_modules/.bin/knex --knexfile database/knexfile"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
