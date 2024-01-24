@@ -1,0 +1,22 @@
+
+.alert {
+	width: 40%;
+	margin: 30px auto;
+	--#{$prefix}alert-color: #{$bs-heading-color};
+	--#{$prefix}alert-bg: #fff;
+	border-top: none;
+	border-right: none;
+	border-bottom: none;
+	border-left-width: 6px;
+	box-shadow: 0 4px 15px 0 rgb(31 43 58 / 20%);
+}
+
+.alert .icon-close {
+	color: #{$bs-heading-color};
+	font-size: 18px;
+	position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1.25rem 1rem;
+  cursor: pointer;
+}

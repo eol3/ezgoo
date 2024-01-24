@@ -1,0 +1,128 @@
+<template>
+	<div :class="['slider h-100', {'active': $store.state.showSlider.left}]">
+    <nav class="navbar navbar-expand p-3">
+      <ul class="navbar-nav">
+  			<li class="nav-item cursor-pointer d-xl-none" @click="clickCloseSlider">
+  				<span class="nav-link icon-link">
+  	      	<i class="fas fa-bars fa-fw"></i>
+  	      </span>
+  			</li>
+  			<li class="nav-link nav-item">
+  				<router-link to="/" class="d-flex align-items-center text-gray-800 text-decoration-none">
+  		      <img width="100" src="@/assets/logo.png" />
+  		    </router-link>
+  			</li>
+  		</ul>
+		</nav>
+    <ul class="nav nav-pills flex-column mb-auto py-1 px-3">
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('home')}]">
+        <router-link :to="getUrl('')" @click="clickCloseSlider" class="nav-link link-dark">
+          <i class="fas fa-th-large fa-fw me-2"></i>
+          總覽
+        </router-link>
+      </li>
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('post')}]">
+        <router-link :to="getUrl('post')" @click="clickCloseSlider" class="nav-link" aria-current="page">
+          <i class="fas fa-bullhorn fa-fw me-2"></i>
+          貼文管理
+        </router-link>
+      </li>
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('product')}]">
+        <router-link :to="getUrl('product')" @click="clickCloseSlider" class="nav-link" aria-current="page">
+          <i class="fas fa-cube fa-fw me-2"></i>
+          產品管理
+        </router-link>
+      </li>
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('order')}]">
+        <router-link :to="getUrl('order')" @click="clickCloseSlider" class="nav-link" aria-current="page">
+          <i class="fas fa-shopping-bag fa-fw me-2"></i>
+          訂單管理
+        </router-link>
+      </li>
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('member')}]">
+        <router-link :to="getUrl('member')" @click="clickCloseSlider" class="nav-link">
+          <i class="fas fa-users fa-fw me-2"></i>
+          會員
+        </router-link>
+      </li>
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('setting')}]">
+        <router-link :to="getUrl('setting')" @click="clickCloseSlider" class="nav-link">
+          <i class="fas fa-sliders-h fa-fw me-2"></i>
+          設定
+        </router-link>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  emits: ["close-slider"],
+  methods: {
+    clickCloseSlider() {
+      this.$emit('close-slider', false)
+    },
+    getUrl(path) {
+      return '/manage/store/' + this.$route.params.storeId + '/' + path
+    },
+    checkUrl(path) {
+      if (path === 'home') {
+        if (this.$route.path === this.getUrl('')) return true
+      }
+      if (this.$route.path.indexOf(path) > 0) {
+        return true
+      } else return false
+    }
+  }
+}
+</script>
+
+<style lang="scss">
+.slider {
+  background-color: $white;
+	transform: translateX(-100%);
+	position: fixed;
+	max-height: 100vh;
+	width: 290px;
+	border-right: 1px solid $gray-300;
+	transition: transform 450ms ease,width 450ms ease;
+  box-shadow: 0px 1px 3px 0px rgba(54, 74, 99, 0.05);
+  z-index: 4;
+}
+
+.overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  background: rgba(51,51,51,0.1);
+  z-index: 1;
+}
+
+.slider.active {
+  transform: translateX(0);
+}
+
+.slider-right {
+  background-color: $white;
+	transform: translateX(100%);
+	position: fixed;
+	max-height: 100vh;
+	width: 290px;
+	transition: transform 450ms ease,width 450ms ease;
+  box-shadow: 0px 1px 3px 0px rgba(54, 74, 99, 0.05);
+  z-index: 2;
+  top: 72px;
+  right: 0;
+}
+
+.slider-right.active {
+  transform: translateX(0);
+}
+
+@media (min-width: 1200px) {
+	.slider {
+		transform: translateX(0);
+	}
+}
+</style>
