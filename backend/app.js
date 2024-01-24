@@ -7,7 +7,6 @@ const session = require('express-session')
 const cookieParser = require('cookie-parser');
 const FileStore = require('session-file-store')(session)
 
-
 // app.use(require('prerender-node').set('prerenderServiceUrl', 'http://64.111.98.77:8085/'))
 
 const compression = require('compression')
@@ -36,6 +35,7 @@ var sess = {
   secret: '542A4D5AABF7A3D8531BB8A465F51',
   saveUninitialized: false,
   resave: false,
+  rolling: true, // 不停延長session
   cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
 }
 if(process.env.NODE_ENV === 'production'){
@@ -53,12 +53,12 @@ app.use(function (err, req, res, next) {
   if (err.statusCode !== undefined) {
     res.status(err.statusCode)
     delete err.statusCode
-    if (err.msg === undefined) err.msg = 'bad request'
+    // if (err.msg === undefined) err.msg = 'bad request'
     res.json(err)
   } else {
     console.error(err)
     res.status(500)
-    res.json({msg: '系統錯誤'})
+    res.json({msg: 'Internal Server Error'})
   }
 })
 

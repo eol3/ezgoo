@@ -1,10 +1,10 @@
 <template>
   <div id="carouselControls" class="carousel slide" data-ride="carousel">
-    <ol class="carousel-indicators">
-      <li data-bs-target="#carouselControls" data-bs-slide-to="0" class="active"></li>
-      <li data-bs-target="#carouselControls" data-bs-slide-to="1"></li>
-      <li data-bs-target="#carouselControls" data-bs-slide-to="2"></li>
-    </ol>
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselControls" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselControls" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselControls" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
     <div class="carousel-inner">
       <div class="carousel-item active">
         <div class="carousel-caption d-none d-md-block">hello1</div>
@@ -61,23 +61,12 @@
           test
         </router-link>
       </li>
+      <li>
+        <button class="btn btn-primary" @click="test()">
+          test
+        </button>
+      </li>
     </ul>
-    <select class="form-select" aria-label="Default select example">
-      <option selected>Open this select menu</option>
-      <option value="1">One</option>
-      <option value="2">Two</option>
-      <option value="3">Three</option>
-    </select>
-    <div class="dropdown">
-      <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Dropdown button
-      </button>
-      <ul class="dropdown-menu">
-        <li><a class="dropdown-item" href="#">Action</a></li>
-        <li><a class="dropdown-item" href="#">Another action</a></li>
-        <li><a class="dropdown-item" href="#">Something else here</a></li>
-      </ul>
-    </div>
   </div>
 </template>
 
@@ -112,6 +101,14 @@ export default {
       wrap: false
     })
     // carousel.to(1)
+  },
+  methods: {
+    test() {
+      this.$store.dispatch('show_alert', {
+				type: 'success',
+      	text: 'test'
+			})
+    }
   }
 }
 </script>

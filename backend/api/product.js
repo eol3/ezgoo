@@ -15,13 +15,13 @@ router.get('/:productId', async function(req, res, next) {
   }, 'product')
   
   if (validator.fail) {
-  	return next({statusCode: 404, msg: '查無此內容' })
+  	return next({statusCode: 404 })
   }
 	console.log(useData)
 	let result = await Product.getOne(useData)
 	
 	if (!result) {
-	  return next({statusCode: 404, msg: '查無此內容' })
+	  return next({statusCode: 404 })
 	} else {
 	  res.json(result)
 	}

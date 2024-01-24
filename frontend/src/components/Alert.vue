@@ -51,13 +51,14 @@ export default {
 }
 </script>
 
-<style scope>
+<style lang="scss">
+@import '@/assets/main.scss';
 .alert {
 	width: 40%;
 	margin: 30px auto;
-	color: #e11477;
+	color: $primary;
   background-color: #fff;
-  border: 1px solid #e11477;
+  border: 1px solid $primary;
 }
 @media (max-width: 768px) {
 	.alert {

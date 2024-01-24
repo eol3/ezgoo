@@ -5,11 +5,16 @@ const config = {
     host: process.env.DB_HOST,
 	  user: process.env.DB_USER,
 	  password: process.env.DB_PASS,
-    database: "ezgoo"
+    database: "ezgoo",
   },
   pool: {
     min: 0,
     max: 10,
+    afterCreate: function(connection, callback) {
+      connection.query("SET time_zone = '+0:00';", function(err) {
+        callback(err, connection);
+      });
+    }
   }
 }
 

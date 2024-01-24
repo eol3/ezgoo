@@ -1,5 +1,5 @@
 let validatorjs = require('validatorjs');
-let en = require('validatorjs/src/lang/en');
+// let en = require('validatorjs/src/lang/en');
 
 validatorjs.useLang('zh_TW');
 
@@ -101,13 +101,19 @@ var currentEnum = {
 }
 
 const extModel = {
-	member: {
+	user: {
 		attributeNames: {
 			email: 'E-mail',
 			account: '帳號',
+			name: '姓名',
 			nickname: '暱稱',
-			verify_code: '認證碼',
+			verifyCode: '認證碼',
 			password: '密碼',
+		}
+	},
+	store: {
+		attributeNames: {
+			name: '商店名稱',
 		}
 	},
 	product: {

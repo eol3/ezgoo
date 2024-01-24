@@ -1,7 +1,7 @@
 let validatorjs = require('validatorjs');
-let en = require('validatorjs/src/lang/en');
-
-validatorjs.setMessages('en', en);
+// let zh_TW = require('validatorjs/src/lang/zh_TW');
+validatorjs.useLang('zh')
+// validatorjs.setMessages('zh_TW', zh_TW);
 
 validatorjs.register('script', function(value) {
 	if (value.indexOf('script>') > 0) {
@@ -65,26 +65,38 @@ function wrapValidator (data, rules, extModelName) {
 	let validator = new validatorjs(data, rules, errorMsg)
 	
 	validator.setAttributeNames(attributeNames)
-	
-	validator.transType = function() {
-		for (const key in rules) {
-			if (data[key]) {
-				if (rules[key] === 'boolean') {
-					data[key] = (data[key] === 'true')
-				} else if (rules[key] === 'numeric') {
-					data[key] = Number(data[key])
-				} else if (rules[key] === 'idStringArray') {
-					let arr = data[key].split('-')
-					for (let i in arr) {
-						arr[i] = Number(arr[i])
-					}
-					data[key] = arr
-				}
-			}
+
+	if (validator.fails()) {
+		return {
+			fail: true,
+			errors: validator.errors
+		}
+	} else {
+		// transType(data, rules)
+		return {
+			fail: false
 		}
 	}
 	
 	return validator
+}
+
+function transType(data, rules) {
+	for (const key in rules) {
+		if (data[key]) {
+			if (rules[key].indexOf('boolean') > -1) {
+				data[key] = (data[key] === 'true')
+			} else if (rules[key].indexOf('numeric') > -1) {
+				data[key] = Number(data[key])
+			} else if (rules[key] === 'idStringArray') {
+				let arr = data[key].split('-')
+				for (let i in arr) {
+					arr[i] = Number(arr[i])
+				}
+				data[key] = arr
+			}
+		}
+	}
 }
 
 var currentEnum = {
@@ -92,35 +104,29 @@ var currentEnum = {
 }
 
 const extModel = {
-	member: {
+	user: {
 		attributeNames: {
 			email: 'E-mail',
 			account: '帳號',
+			name: '姓名',
 			nickname: '暱稱',
-			verify_code: '認證碼',
+			verifyCode: '認證碼',
 			password: '密碼',
 		}
 	},
-	content: {
+	store: {
 		attributeNames: {
-			id: '內容編號',
-			name: '內容名稱',
-			price: '內容價格',
-			status: '內容狀態',
-			categories: '內容分類',
+			name: '商店名稱',
+		}
+	},
+	product: {
+		attributeNames: {
+			id: '產品編號',
+			name: '產品名稱',
 		},
 		enumerationValues: {
 			push: ['all', '0', '1'],
-			sortBy: ['id', 'hot_order']
-		}
-	},
-	label: {
-		attributeNames: {
-			id: '分類編號',
-			name: '分類名稱',
-		},
-		enumerationValues: {
-			sortBy: ['id', 'hot_order']
+			sortBy: ['id', 'name', 'hotOrder']
 		}
 	},
 	post: {

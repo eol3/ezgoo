@@ -12,27 +12,28 @@
       <img v-show="!is_home" width="100" src="@/assets/logo.png" alt="EzGOO - 易購網路購物平台" />
     </router-link>
     <ul class="navbar-nav ms-auto">
-      <li class="nav-item">
-        <router-link class="nav-link" to="/cart">
-          <!--<img v-if="is_home" width="20" class="pb-1" :src="cart_white" />-->
-          <!--<img v-else width="20" class="pb-1" :src="cart_black" />-->
-          <i v-if="is_home" class="fas fa-shopping-cart text-white"></i>
-          <i v-else class="fas fa-shopping-cart text-black"></i>
-        </router-link>
-      </li>
-      <li class="nav-item pointer" data-bs-toggle="modal" data-bs-target="#registerModal">
-        <span :class="['nav-link', 'cursor-pointer', {'text-white': is_home } ]">註冊</span>
-      </li>
-      <li class="nav-item pointer" data-bs-toggle="modal" data-bs-target="#loginModal">
-        <span :class="['nav-link', 'cursor-pointer', {'text-white': is_home } ]">登入</span>
-      </li>
-    </ul>
+    	<li class="nav-item">
+    		<router-link class="nav-link me-0" to="/cart">
+    			<i class="fas fa-shopping-cart text-black"></i>
+  			</router-link>
+  		</li>
+  		<li class="nav-item">
+    		<router-link class="nav-link" to="/login">
+    			<i class="fas fa-user text-black"></i>
+  			</router-link>
+  		</li>
+  	</ul>
   </nav>
 	<router-view v-slot="{ Component }">
     <keep-alive include="">
       <component :is="Component"/>
     </keep-alive>
   </router-view>
+  <div class="footer">
+    <div class="text-center p-3 bg-2">
+      © 2021 EzGOO
+    </div>
+  </div>
 	<alert />
 </template>
 
@@ -54,3 +55,9 @@ export default {
 }
 
 </script>
+
+<style>
+.navbar {
+  border-bottom: 1px solid $gray-300;
+}
+</style>

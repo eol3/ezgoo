@@ -1,3 +1,32 @@
+import router from "../router/index";
+import store from "../store/index";
+import { axios } from "@/tools/request";
+
+export function checkLogin(type) {
+  if (!store.state.localUser) {
+		userRedirect(type)
+	} else if (!store.state.user) {
+  	axios.get('/user').then(response => {
+      store.commit('setUser', response.data)
+  	}).catch(error => {
+  	  if (error.response.status === 403) {
+        userRedirect(type)
+      }
+  	})
+	}
+}
+
+export function userRedirect(type) {
+  if (!type) type = 'login'
+  store.dispatch('userLogout')
+  store.dispatch("showAlert", {
+    type: "warning",
+    text: (type === 'login') ? '請先登入' : '請先註冊'
+  })
+  
+  router.push('/' + type + '?redirect=' + encodeURI(window.location.pathname))
+}
+
 
 export function listToTree(list) {
   var map = {}, node, roots = [], i;

@@ -1,17 +1,37 @@
 <template>
-	<h5>layout</h5>
-	<router-link to='/'>home</router-link>
-	<router-link to='/cart'>cart</router-link>
-	<button class="btn btn-primary">aa</button>
+	<nav class="navbar navbar-expand navbar-border-bottom px-3">
+		<router-link class="navbar-brand pb-1" to="/">
+      <img width="100" src="@/assets/logo.png" alt="EzGOO"/>
+    </router-link>
+    <ul class="navbar-nav ms-auto">
+    	<li class="nav-item">
+    		<router-link class="nav-link me-0" to="/cart">
+    			<i class="fas fa-shopping-cart text-black"></i>
+  			</router-link>
+  		</li>
+  		<li class="nav-item">
+    		<router-link class="nav-link" :to="$store.state.localUser ? '/user' : '/login'">
+    			<i class="fas fa-user text-black"></i>
+  			</router-link>
+  		</li>
+  	</ul>
+	</nav>
   <router-view/>
+  <div class="footer">
+    <div class="text-center p-3 bg-2">
+      © 2021 EzGOO
+    </div>
+  </div>
 </template>
 
+
 <script>
+import '@/assets/main.scss';
+
 export default {
+  components: {
+  },
 	created() {
-		this.axios.get('/user').then(response => {
-			console.log(response)
-		})
 	}
 }
 </script>

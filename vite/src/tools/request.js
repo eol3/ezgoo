@@ -39,6 +39,9 @@ function handleError(error) {
     if (process.env.NODE_ENV === "development") {
       console.log(error);
     }
+    if (error.config.selfErrorHandle) {
+      return Promise.reject(error);
+    }
     let msg = "";
     if (typeof error.response.data.msg !== "undefined") {
       msg = error.response.data.msg;
@@ -50,49 +53,43 @@ function handleError(error) {
     
     // 403 禁止存取
     if (error.response.status === 403) {
-      if (store.state.member) {
-        store.dispatch("show_alert", {
-          type: "warning",
-          text: "登入逾時，請重新登入"
-        })
+      if (store.state.localUser) {
+        msg = "登入逾時，請重新登入"
       } else {
-        store.dispatch("show_alert", {
-          type: "warning",
-          text: msg
-        })
+        msg = "請先登入"
       }
+      store.dispatch('userLogout')
+      store.dispatch("showAlert", {
+        type: "warning",
+        text: msg
+      })
       
-      store.dispatch('memberLogout')
-      
-      if (window.location.pathname !== '/member/login') {
-        router.push('/member/login?redirect=' + encodeURI(window.location.pathname))
-      } else {
-        router.push('/')
-      }
+      router.push('/login?redirect=' + encodeURI(window.location.pathname))
       
     }
     
     // 404 找不到網頁
+    if (error.response.status === 404) {
+      store.dispatch("showAlert", {
+        type: "warning",
+        text: "查無此內容"
+      });
+      router.push('/')
+    }
+    
     // 422 422 Unprocessable Entity
     // 資料格式錯誤，與400區別，以利前端分別顯示錯誤方式
     // 多用於post, put
-    if (error.response.status === 404 || error.response.status === 422) {
-      
-      store.dispatch("show_alert", {
+    if (error.response.status === 422) {
+      store.dispatch("showAlert", {
         type: "warning",
         text: msg
       });
-      
-      if (error.response.status === 404) {
-        router.push('/')
-      } else {
-        // do nothing
-      }
     }
     
     // 500 系統錯誤
     if (error.response.status === 500) {
-      store.dispatch("show_alert", {
+      store.dispatch("showAlert", {
         type: "danger",
         text: msg
       });

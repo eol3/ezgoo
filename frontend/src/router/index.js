@@ -9,7 +9,20 @@ const routes = [
       {
         path: "",
         component: () => import("../views/Home.vue")
-      }
+      },
+      {
+        path: "login",
+        component: () => import("../views/user/Login.vue")
+      },
+      {
+        path: "register",
+        component: () => import("../views/user/Register.vue")
+      },
+      {
+        path: "/store/:storeId",
+        name: "storeHead",
+        component: () => import("../views/store/Head.vue")
+      },
     ]
   },
   {

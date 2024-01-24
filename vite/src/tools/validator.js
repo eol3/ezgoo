@@ -1,15 +1,37 @@
 import validatorjs from 'validatorjs';
 import en from 'validatorjs/src/lang/en';
-
 validatorjs.setMessages('en', en);
+// validatorjs.useLang('zh');
+
+// import zh_TW from 'validatorjs/src/lang/zh_TW';
+// validatorjs.setMessages('zh_TW', zh_TW);
+
+// validatorjs.useLang('zh_TW');
 
 // 以下變更需和後端同步
 
-validatorjs.register('script', function(value) { // requirement parameter defaults to null
+validatorjs.register('script', function(value) {
 	if (value.indexOf('script>') > 0) {
 		return false
 	} else return true
 }, 'The :attribute phone number is not in the format XXX-XXX-XXXX.');
+
+validatorjs.register('enum', function(value, requirement, attribute) {
+	if (currentEnum[requirement].includes(value)) {
+		return true
+	} else return false
+}, ':attribute value have to be spec word.');
+
+validatorjs.register('idStringArray', function(value) {
+	let arr = value.split('-')
+	for (let i in arr) {
+		if (arr[i] === '0') return true
+		else if (!Number(arr[i])) {
+			return false
+		}
+	}
+	return true
+}, 'The :attribute have to be spec string.');
 
 let errorMsg = {
 	required: '請輸入:attribute',
@@ -20,13 +42,18 @@ let errorMsg = {
   max: ':attribute長度最多為:max',
   confirmed: "輸入兩次:attribute不相符",
   script: "請勿輸入不合法字串",
+  digits: ":attribute必須為:digits碼",
+  idStringArray: ":attribute 必須是特殊字串",
+  enum: ":attribute 必須是特殊字串",
 }
 
 let attributeNames = {
 	account: '帳號',
 	password: '密碼',
 	pageNum: '頁數',
-	pageSize: '每頁筆數'
+	pageSize: '每頁筆數',
+	sortBy: '排序欄位',
+	orderBy: '排序方式',
 }
 
 function wrapValidator (data, rules, extModelName) {
@@ -40,33 +67,77 @@ function wrapValidator (data, rules, extModelName) {
 			...attributeNames,
 			...extModel[extModelName].attributeNames
 		}
+		currentEnum = {
+			...currentEnum,
+			...extModel[extModelName].enumerationValues
+		}
 	}
 	
 	let validator = new validatorjs(data, rules, errorMsg)
 	
 	validator.setAttributeNames(attributeNames)
+
+	if (validator.fails()) {
+		return {
+			fail: true,
+			errors: validator.errors
+		}
+	} else {
+		// transType(data, rules)
+		return {
+			fail: false
+		}
+	}
 	
 	return validator
 }
 
-const extModel = {
-	store: {
-		attributeNames: {
-			account: '商店帳號',
+function transType(data, rules) {
+	for (const key in rules) {
+		if (data[key]) {
+			if (rules[key].indexOf('boolean') > -1) {
+				data[key] = (data[key] === 'true')
+			} else if (rules[key].indexOf('numeric') > -1) {
+				data[key] = Number(data[key])
+			} else if (rules[key] === 'idStringArray') {
+				let arr = data[key].split('-')
+				for (let i in arr) {
+					arr[i] = Number(arr[i])
+				}
+				data[key] = arr
+			}
 		}
-	},
+	}
+}
+
+var currentEnum = {
+	orderBy: ['asc', 'desc']
+}
+
+const extModel = {
 	user: {
 		attributeNames: {
-			name: '姓名',
 			email: 'E-mail',
-			account: 'E-mail或手機',
+			account: '帳號',
+			name: '姓名',
+			nickname: '暱稱',
+			verifyCode: '認證碼',
+			password: '密碼',
+		}
+	},
+	store: {
+		attributeNames: {
+			name: '商店名稱',
 		}
 	},
 	product: {
 		attributeNames: {
-			id: '商品編號',
-			status: '商品狀態',
-			categories: '商品分類',
+			id: '產品編號',
+			name: '產品名稱',
+		},
+		enumerationValues: {
+			push: ['all', '0', '1'],
+			sortBy: ['id', 'name', 'hotOrder']
 		}
 	},
 	post: {
