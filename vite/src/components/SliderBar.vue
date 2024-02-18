@@ -15,8 +15,8 @@
   		</ul>
 		</nav>
     <ul class="nav nav-pills flex-column mb-auto py-1 px-3">
-      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('home')}]">
-        <router-link :to="getUrl('')" @click="clickCloseSlider" class="nav-link link-dark">
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('')}]">
+        <router-link :to="getUrl('')" @click="clickCloseSlider" class="nav-link">
           <i class="fas fa-th-large fa-fw me-2"></i>
           總覽
         </router-link>
@@ -63,15 +63,17 @@ export default {
       this.$emit('close-slider', false)
     },
     getUrl(path) {
-      return '/manage/store/' + this.$route.params.storeId + '/' + path
+      return '/manage/store/' + this.$route.params.storeId + (path === '' ? '' : '/' + path)
     },
     checkUrl(path) {
-      if (path === 'home') {
-        if (this.$route.path === this.getUrl('')) return true
-      }
-      if (this.$route.path.indexOf(path) > 0) {
-        return true
-      } else return false
+      // if (path === 'home') {
+      //   if (this.$route.path === this.getUrl('')) return true
+      // }
+      let url = '/manage/store/' + this.$route.params.storeId + (path === '' ? '' : '/' + path)
+      if (this.$route.path === url) return true
+      // if (this.$route.path.indexOf(path) > 0) {
+      //   return true
+      // } else return false
     }
   }
 }
@@ -79,7 +81,6 @@ export default {
 
 <style lang="scss">
 .slider {
-  background-color: $white;
 	transform: translateX(-100%);
 	position: fixed;
 	max-height: 100vh;
@@ -88,6 +89,10 @@ export default {
 	transition: transform 450ms ease,width 450ms ease;
   box-shadow: 0px 1px 3px 0px rgba(54, 74, 99, 0.05);
   z-index: 4;
+}
+
+[data-bs-theme=dark] .slider {
+  border-right: 1px solid $gray-600;
 }
 
 .overlay {
@@ -104,7 +109,6 @@ export default {
 }
 
 .slider-right {
-  background-color: $white;
 	transform: translateX(100%);
 	position: fixed;
 	max-height: 100vh;

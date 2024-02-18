@@ -25,7 +25,7 @@
       <span class="sr-only"></span>
     </a>
   </div>
-  <div class="container">
+  <div class="container" data-bs-theme="dark">
     <h1>EzGOO 易購網路購物平台</h1>
     <h4>特色</h4>
     <ul>
@@ -116,5 +116,4 @@ export default {
 #carouselControls .carousel-item {
   height: 280px;
 }
-
 </style>

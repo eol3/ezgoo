@@ -16,6 +16,9 @@
 					</li>
 				</ul>
 				<ul class="navbar-nav ms-auto">
+					<li class="nav-item d-flex align-items-center" @click="switchTeme()">
+						light / dark
+					</li>
 	        <li class="nav-item dropdown">
 	        	<router-link class="nav-link icon-link" to="/" id="dropdownStore" data-bs-toggle="dropdown" aria-expanded="false">
 	        		<i class="fa-solid fa-store fa-fw"></i>
@@ -73,7 +76,10 @@ export default {
 	      right: false,
 	      overlay: false,
 	    })
-  	}
+  	},
+		switchTeme() {
+			this.$store.dispatch('switchTheme')
+		}
   }
 }
 </script>

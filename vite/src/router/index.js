@@ -58,14 +58,36 @@ const routes = [
     ],
   },
   {
-    path: '/manage',
+    path: '/manage/store/:storeId',
     component: () => import('../views/manage/Layout.vue'),
     meta: { requiresAuth: true, redirect: 'login' },
     children: [
       {
-        path: 'store/:storeId',
-        component: () => import("../views/manage/Home.vue")
-      }
+        path: '',
+        component: () => import("../views/manage/Home.vue"),
+      },
+      {
+        path: 'post',
+        component: () => import("../views/manage/Post.vue"),
+      },
+      {
+        path: "product",
+        component: () => import("../views/manage/product/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/product/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/product/Form.vue"),
+          },
+          {
+            path: "edit/:product_id",
+            component: () => import("../views/manage/product/Form.vue"),
+          }
+        ]
+      },
     ]
   }
 ]

@@ -11,7 +11,7 @@ export default defineConfig({
   },
   plugins: [vue()],
   server: {
-    host: '64.111.98.77',
+    host: 'localhost',
   	port: '8081',
   	proxy: {
       '/api': {
