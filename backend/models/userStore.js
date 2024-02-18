@@ -2,16 +2,29 @@ const knex = require(process.cwd() + '/database/init').knex
 
 var model = {}
 module.exports = model
-var tableName = 'product'
+var tableName = 'userStore'
 
 model.getOne = async function (condition) {
 	
 	let result = {}
 	let query = knex(tableName)
 	
-	if (Object.hasOwn(condition, 'id')) {
-		query.where({ 'id': condition.id })
+	if (condition.userId) {
+		query.where({ 'userId': condition.userId })
 	}
+	
+	if (condition.storeId) {
+		query.where({ 'storeId': condition.storeId })
+	}
+	
+	if (condition.role) {
+		query.where(function() {
+			for (const item of condition.role) {
+				this.orWhere({ 'role': item })
+			}
+		})
+	}
+	
 	// console.log(query.toString())
 	result = await query.first();
 	
@@ -23,7 +36,11 @@ model.getList = async function (condition) {
 	let result = {}
 	let query = knex(tableName)
 	
-	if (Object.hasOwn(condition, 'storeId')) {
+	if (condition.userId) {
+		query.where({ 'userId': condition.userId })
+	}
+	
+	if (condition.storeId) {
 		query.where({ 'storeId': condition.storeId })
 	}
 	
@@ -34,6 +51,7 @@ model.getList = async function (condition) {
 	if (typeof condition.limit !== 'undefined') {
 		query.limit(condition.limit, {skipBinding: true})
 	}
+	
 	if (condition.offset) {
 		query.offset(condition.offset, {skipBinding: true})	
 	}
@@ -53,6 +71,14 @@ model.update = async function (condition, data) {
 	
 	if (condition.id) {
 		query.where({ 'id': condition.id })
+	}
+	
+	if (condition.userId) {
+		query.where({ 'userId': condition.userId })
+	}
+	
+	if (condition.storeId) {
+		query.where({ 'storeId': condition.storeId })
 	}
 	
 	return await query.update({

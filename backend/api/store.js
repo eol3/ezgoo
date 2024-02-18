@@ -5,6 +5,26 @@ const auth = require(process.cwd() + "/tools/middlewares.js").auth
 
 module.exports = router
 
+router.get('/:storeId/dashboard', async function(req, res, next) {
+  
+  const useData = {
+		account: req.params.storeId
+	}
+	
+  const authUserStoreRoleGroup = require(process.cwd() + '/tools/libs').authUserStoreRoleGroup
+  if (!await authUserStoreRoleGroup(req, useData.account, 'manage')) {
+  	return next({statusCode: 403 })
+  }
+  
+  let result = await Store.getOne(useData)
+	
+	if (!result) {
+	  return next({statusCode: 404 })
+	} else {
+	  res.json(result)
+	}
+})
+
 router.get('/:storeId', async function(req, res, next) {
 	
 	const useData = {
@@ -18,7 +38,7 @@ router.get('/:storeId', async function(req, res, next) {
   if (validator.fail) {
   	return next({statusCode: 404 })
   }
-	// console.log(useData)
+	
 	let result = await Store.getOne(useData)
 	
 	if (!result) {
@@ -26,6 +46,22 @@ router.get('/:storeId', async function(req, res, next) {
 	} else {
 	  res.json(result)
 	}
+})
+
+router.get('/', async function(req, res, next) {
+  
+  const useData = {
+		createBy: req.query.createBy
+	}
+	
+	if (useData.createBy) {
+	  if (req.session.user.id !== useData.userId) {
+	    res.status(403).json({msg: 'Forbidden'})
+	  }
+	}
+  
+  let result = await Store.getList(useData)
+  res.json(result)
 })
 
 router.post('/', auth, async function(req, res, next) {
@@ -45,10 +81,21 @@ router.post('/', auth, async function(req, res, next) {
   }
   
   result = await Store.create(useData)
+  let newStoreId = result[0]
   if (!useData.account) {
-    await Store.update({ id: result[0] }, { account: result[0] })
+    await Store.update({ id: newStoreId }, { account: newStoreId })
   }
-  result = await Store.getOne({ id: result[0] })
+  result = await Store.getOne({ id: newStoreId })
+  
+  const userStore = require(process.cwd() + '/models/userStore')
+  await userStore.create({
+    userId: useData.createBy,
+    storeId: newStoreId,
+    roleGroup: 'manage',
+    role: 'owner',
+    createBy: useData.createBy,
+    updateBy: useData.createBy,
+  })
   
   res.status(200).json({
     msg: '新增成功',
