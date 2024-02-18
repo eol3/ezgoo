@@ -11,7 +11,7 @@ export default {
     }
   },
   created() {
-    this.axios.get('/store/' + this.$route.params.storeId).then(response => {
+    this.axios.get('/store/' + this.$route.params.storeId + '/dashboard').then(response => {
       this.store = response.data
     })
   },

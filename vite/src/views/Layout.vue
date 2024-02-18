@@ -6,12 +6,12 @@
     <ul class="navbar-nav ms-auto">
     	<li class="nav-item">
     		<router-link class="nav-link me-0" to="/cart">
-    			<i class="fas fa-shopping-cart text-black"></i>
+    			<i class="fas fa-shopping-cart"></i>
   			</router-link>
   		</li>
   		<li class="nav-item">
     		<router-link class="nav-link" :to="$store.state.localUser ? '/user' : '/login'">
-    			<i class="fas fa-user text-black"></i>
+    			<i class="fas fa-user"></i>
   			</router-link>
   		</li>
   	</ul>
@@ -26,8 +26,6 @@
 
 
 <script>
-import '@/assets/main.scss';
-
 export default {
   components: {
   },
@@ -35,3 +33,7 @@ export default {
 	}
 }
 </script>
+
+<style lang="scss">
+@import '@/assets/main.scss';
+</style>

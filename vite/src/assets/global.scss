@@ -1,9 +1,7 @@
 /* 自訂bootstrap */
 
 $primary: #ae2079;
-$success: #1ee0ac;
-$warning: #f4bd0e;
-$danger: #e85347;
+$success: #1ab188;
 
 $bs-heading-color: #364a63;
 
@@ -17,32 +15,21 @@ $white: #fff;
 
 @import "bootstrap";
 
+.btn-outline-success:hover,
+.btn-outline-success:active {
+  color: white;
+}
+
+.btn-success,
+.btn-success:hover,
+.btn-success:active {
+  color: white;
+}
+
+// [data-bs-theme="dark"] {
+// 	--bs-primary: green;
+// }
+
 /* alert */
-.alert {
-	width: 40%;
-	margin: 30px auto;
-	--#{$prefix}alert-color: #{$bs-heading-color};
-	--#{$prefix}alert-bg: #fff;
-	border-top: none;
-	border-right: none;
-	border-bottom: none;
-	border-left-width: 6px;
-	box-shadow: 0 4px 15px 0 rgb(31 43 58 / 20%);
-}
+@import "alert";
 
-.alert .icon-close {
-	color: #{$bs-heading-color};
-	font-size: 18px;
-	position: absolute;
-  top: 0;
-  right: 0;
-  padding: 1.25rem 1rem;
-  cursor: pointer;
-}
-
-@media (max-width: 768px) {
-	.alert{ width: 60%; }
-}
-@media (max-width: 576px) {
-	.alert{ width: 90%; }
-}

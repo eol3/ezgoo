@@ -94,8 +94,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/main.scss';
-
 #carouselStoreControls .carousel-item {
   height: 40vh;
 }

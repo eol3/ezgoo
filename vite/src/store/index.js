@@ -16,6 +16,7 @@ export default createStore({
       right: false,
       overlay: false,
     },
+    theme: 'light', // light, dark
   },
   getters: {
   },
@@ -31,6 +32,9 @@ export default createStore({
     },
     setShowSlider(state, val) {
       state.showSlider = val;
+    },
+    setTheme(state, val) {
+      state.theme = val;
     }
   },
   actions: {
@@ -77,6 +81,14 @@ export default createStore({
         });
       }
     },
+    switchTheme(context) {
+      if (context.state.theme === 'light') {
+        context.commit("setTheme", "dark")
+      } else if (context.state.theme === 'dark') {
+        context.commit("setTheme", "light")
+      }
+      document.documentElement.dataset.bsTheme = context.state.theme
+    }
   },
   modules: {
   }
