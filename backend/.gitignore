@@ -2,8 +2,10 @@
 node_modules
 public/dist/
 public/filedata/
+public/uploads/
 public/ads/
 sessions/
+tmp/
 
 # local env files
 .env
