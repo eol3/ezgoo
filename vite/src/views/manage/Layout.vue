@@ -17,21 +17,23 @@
 				</ul>
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item d-flex align-items-center" @click="switchTeme()">
-						light / dark
+						<div class="nav-link icon-link cursor-pointer">
+							<i class="fa-solid fa-circle-half-stroke"></i>
+						</div>
 					</li>
 	        <li class="nav-item dropdown">
-	        	<router-link class="nav-link icon-link" to="/" id="dropdownStore" data-bs-toggle="dropdown" aria-expanded="false">
+	        	<div class="nav-link icon-link cursor-pointer" id="dropdownStore" data-bs-toggle="dropdown" aria-expanded="false">
 	        		<i class="fa-solid fa-store fa-fw"></i>
-	        	</router-link>
+						</div>
 	        	<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownStore">
 					    <li><router-link class="dropdown-item" :to="'/store/' + $route.params.storeId">商店首頁</router-link></li>
 					    <li><a class="dropdown-item" href="#">預覽模式</a></li>
 					  </ul>
 	        </li>
 	        <li class="nav-item dropdown">
-	        	<router-link class="nav-link icon-link" to="/" id="dropdownNotify" data-bs-toggle="dropdown" aria-expanded="false">
+	        	<div class="nav-link icon-link cursor-pointer" id="dropdownNotify" data-bs-toggle="dropdown" aria-expanded="false">
 	        		<i class="fa-solid fa-bell fa-fw"></i>
-	        	</router-link>
+						</div>
 	        	<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownNotify">
 					    <li><a class="dropdown-item" href="#">訂單成立...</a></li>
 					    <li><a class="dropdown-item" href="#">待出貨...</a></li>
@@ -47,7 +49,7 @@
 	        </li>
         </ul>
 			</nav>
-			<div class="manage-body p-4">
+			<div class="manage-body px-2 py-3 p-md-4">
 				<router-view></router-view>
 			</div>
 		</div>

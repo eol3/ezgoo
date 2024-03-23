@@ -52,8 +52,37 @@ const routes = [
       },
       {
         path: "/store/:storeId",
-        name: "storeHead",
-        component: () => import("../views/store/Head.vue")
+        component: () => import("../views/store/Head.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/store/Home.vue")
+          },
+          {
+            path: "product",
+            component: () => import("../views/store/product/List.vue")
+          },
+          {
+            path: "product/:productId",
+            component: () => import("../views/store/product/Detail.vue")
+          },
+          {
+            path: "post",
+            component: () => import("../views/store/post/List.vue")
+          },
+          {
+            path: "post/:postId",
+            component: () => import("../views/store/post/Detail.vue")
+          },
+          {
+            path: "about",
+            component: () => import("../views/store/About.vue")
+          },
+        ]
+      },
+      {
+        path: "/product/:productId",
+        component: () => import("../views/store/product/Detail.vue"),
       },
     ],
   },
@@ -67,15 +96,12 @@ const routes = [
         component: () => import("../views/manage/Home.vue"),
       },
       {
-        path: 'post',
-        component: () => import("../views/manage/Post.vue"),
-      },
-      {
         path: "product",
         component: () => import("../views/manage/product/Layout.vue"),
         children: [
           {
             path: "",
+            name: "ProductList",
             component: () => import("../views/manage/product/List.vue"),
           },
           {
@@ -83,8 +109,80 @@ const routes = [
             component: () => import("../views/manage/product/Form.vue"),
           },
           {
-            path: "edit/:product_id",
+            path: ":productId/edit",
             component: () => import("../views/manage/product/Form.vue"),
+          }
+        ]
+      },
+      {
+        path: "post",
+        component: () => import("../views/manage/post/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/post/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/post/Form.vue"),
+          },
+          {
+            path: ":postId/edit",
+            component: () => import("../views/manage/post/Form.vue"),
+          }
+        ]
+      },
+      {
+        path: "order",
+        component: () => import("../views/manage/order/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/order/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/order/Form.vue"),
+          },
+          {
+            path: "edit/:orderId",
+            component: () => import("../views/manage/order/Form.vue"),
+          }
+        ]
+      },
+      {
+        path: "member",
+        component: () => import("../views/manage/member/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/member/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/member/Form.vue"),
+          },
+          {
+            path: "edit/:memberId",
+            component: () => import("../views/manage/member/Form.vue"),
+          }
+        ]
+      },
+      {
+        path: "setting",
+        component: () => import("../views/manage/setting/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/setting/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/setting/Form.vue"),
+          },
+          {
+            path: "edit/:postId",
+            component: () => import("../views/manage/setting/Form.vue"),
           }
         ]
       },

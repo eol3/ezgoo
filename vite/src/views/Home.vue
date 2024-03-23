@@ -57,10 +57,10 @@
         </router-link>
       </li>
       <li>
-        <router-link class="btn btn-primary" to="/store/create">立即建立商店</router-link>
+        <button class="d-block my-2 btn btn-primary" @click="$router.push('/store/create')">立即建立商店</button>
       </li>
       <li>
-        <button class="btn btn-primary" @click="test()">test</button>
+        <button class="d-block my-2 btn btn-primary" @click="test()">test</button>
       </li>
     </ul>
   </div>

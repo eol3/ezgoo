@@ -44,7 +44,7 @@ let errorMsg = {
   script: "請勿輸入不合法字串",
   digits: ":attribute必須為:digits碼",
   idStringArray: ":attribute 必須是特殊字串",
-  enum: ":attribute 必須是特殊字串",
+  enum: ":attribute 必須是特定字串",
 }
 
 let attributeNames = {
@@ -83,13 +83,11 @@ function wrapValidator (data, rules, extModelName) {
 			errors: validator.errors
 		}
 	} else {
-		// transType(data, rules)
+		transType(data, rules)
 		return {
 			fail: false
 		}
 	}
-	
-	return validator
 }
 
 function transType(data, rules) {
@@ -134,9 +132,11 @@ const extModel = {
 		attributeNames: {
 			id: '產品編號',
 			name: '產品名稱',
+			status: '產品狀態'
 		},
 		enumerationValues: {
-			push: ['all', '0', '1'],
+			statusQuery: ['all', '0', '1'],
+			status: [0, 1],
 			sortBy: ['id', 'name', 'hotOrder']
 		}
 	},

@@ -41,7 +41,7 @@
           <li class="nav-item">
             <router-link
               :class="['nav-link']"
-              :to="'/store/' + $route.params.storeId + '/product' + queryString"
+              :to="'/store/' + $route.params.storeId + '/product'"
             >
               商品
             </router-link>
@@ -64,7 +64,7 @@
       </div>
     </div>
   </div>
-  <div class="bg-1">
+  <div>
     <div class="container">
       <router-view v-slot="{ Component }">
         <keep-alive>

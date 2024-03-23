@@ -3,13 +3,9 @@
 		<div class="d-flex justify-content-between pb-3">
 			<div class="fs-5 fw-5 my-auto">{{ title }}</div>
 			<div>
-				<router-link v-show="!showBack" class="btn btn-outline-success btn-sm me-1" :to="'/manage/store/' + $route.params.storeId + '/product/'">
-					<i class="fa-solid fa-folder-open"></i>
-					管理商品分類
-				</router-link>
 				<router-link v-show="!showBack" class="btn btn-outline-primary btn-sm" :to="'/manage/store/' + $route.params.storeId + '/product/new'">
 					<i class="fa-solid fa-plus"></i>
-					新增商品
+					新增貼文
 				</router-link>
 				<a v-show="showBack" class="btn btn-outline-secondary btn-sm" @click="$router.go(-1)">
 					<i class="fas fa-arrow-left"></i>
@@ -17,9 +13,9 @@
 				</a>
 			</div>
 		</div>
-		<router-view v-slot="{ Component, route  }" @updateLayoutStatus="updateStatus">
+		<router-view v-slot="{ Component, route  }" @updateStatus="updateStatus">
 			<keep-alive>
-				<component :is="Component" :key="route.path"/>
+				<component :is="Component"  />
 			</keep-alive>
 		</router-view>
 	</div>
@@ -30,9 +26,8 @@
 export default {
 	data() {
     return {
-      title: '商品列表',
+      title: '貼文列表',
       showBack: false,
-			clearCache: true,
     };
   },
   methods: {
@@ -40,17 +35,7 @@ export default {
   		this.title = status.title
   		this.showBack = status.showBack
   	}
-  },
-	// watch: {
-	// 	'$store.state.updateData': function(to) {
-	// 		if (to) {
-	// 			console.log('update data')
-	// 			this.$nextTick(() => {
-	// 				this.$store.state.updateData = false
-	// 			})
-	// 		}
-	// 	}
-	// }
+  }
 }
 
 </script>

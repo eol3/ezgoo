@@ -1,6 +1,9 @@
 <template>
-  about
+	<div>
+    Listd
+  </div>
 </template>
 
 <script setup>
+
 </script>

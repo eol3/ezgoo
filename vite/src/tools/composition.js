@@ -1,18 +1,19 @@
 
-import { ref, reactive, computed } from 'vue';
+import { ref } from 'vue';
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { axios } from "@/tools/request";
 
-export const page = reactive({
-  num: 1,
-  size: 10,
-  total: 1
-})
+export const firstLoad = ref(true)
+export const loading = ref(false)
 
-export function setPageTotal(total) {
-  page.total = Math.ceil(total / page.size)
-}
+export const currentPage = ref(1)
+export const perPage = ref(10)
+export const totalData = ref(0)
 
-export function changePage(pageNum) {
-  page.num = pageNum
+export const listTools = function () {
+  const test = ref(true)
+  return {
+    test
+  }
 }

@@ -15,7 +15,7 @@
   		</ul>
 		</nav>
     <ul class="nav nav-pills flex-column mb-auto py-1 px-3">
-      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('')}]">
+      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('home')}]">
         <router-link :to="getUrl('')" @click="clickCloseSlider" class="nav-link">
           <i class="fas fa-th-large fa-fw me-2"></i>
           總覽
@@ -55,32 +55,33 @@
   </div>
 </template>
 
-<script>
-export default {
-  emits: ["close-slider"],
-  methods: {
-    clickCloseSlider() {
-      this.$emit('close-slider', false)
-    },
-    getUrl(path) {
-      return '/manage/store/' + this.$route.params.storeId + (path === '' ? '' : '/' + path)
-    },
-    checkUrl(path) {
-      // if (path === 'home') {
-      //   if (this.$route.path === this.getUrl('')) return true
-      // }
-      let url = '/manage/store/' + this.$route.params.storeId + (path === '' ? '' : '/' + path)
-      if (this.$route.path === url) return true
-      // if (this.$route.path.indexOf(path) > 0) {
-      //   return true
-      // } else return false
-    }
+<script setup>
+import { useRoute } from "vue-router";
+const route = useRoute();
+
+const emit = defineEmits(['close-slider'])
+
+function clickCloseSlider() {
+  emit('close-slider', false)
+}
+function getUrl(path) {
+  return '/manage/store/' + route.params.storeId + (path === '' ? '' : '/' + path)
+}
+function checkUrl(path) {
+  let baseUrl = '/manage/store/' + route.params.storeId
+  if (path === 'home') {
+    if (route.path === baseUrl) return true
   }
+  let url = baseUrl + (path === 'home' ? '' : '/' + path)
+  if (path === 'home') {
+    if (route.path === url) return true
+  } else if (route.path.indexOf(url) > -1) return true
 }
 </script>
 
 <style lang="scss">
 .slider {
+  background-color: white;
 	transform: translateX(-100%);
 	position: fixed;
 	max-height: 100vh;
@@ -89,6 +90,12 @@ export default {
 	transition: transform 450ms ease,width 450ms ease;
   box-shadow: 0px 1px 3px 0px rgba(54, 74, 99, 0.05);
   z-index: 4;
+}
+
+[data-bs-theme="dark"] {
+  .slider {
+    background-color: black;
+  }
 }
 
 [data-bs-theme=dark] .slider {
