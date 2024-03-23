@@ -12,8 +12,8 @@ router.get('/:storeId/dashboard', async function(req, res, next) {
 	}
 	
   const authUserStoreRoleGroup = require(process.cwd() + '/tools/libs').authUserStoreRoleGroup
-  if (!await authUserStoreRoleGroup(req, useData.account, 'manage')) {
-  	return next({statusCode: 403 })
+  if (!await authUserStoreRoleGroup(req, next, useData.account, 'manage')) {
+  	return
   }
   
   let result = await Store.getOne(useData)

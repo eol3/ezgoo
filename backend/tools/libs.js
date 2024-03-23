@@ -1,7 +1,15 @@
 
-async function authUserStoreRoleGroup (req, storeId, roleGroup) {
+module.exports = {
+  authUserStoreRoleGroup,
+  authUserStoreRole,
+	getIp,
+	escape
+}
+
+async function authUserStoreRoleGroup (req, next, storeId, roleGroup) {
   
   if (!req.session.user) {
+    next({statusCode: 403, msg: 'No login' })
     return false
   }
   
@@ -15,7 +23,10 @@ async function authUserStoreRoleGroup (req, storeId, roleGroup) {
       roleGroup: roleGroup
     })
     
-    if (!result) return false
+    if (!result) {
+      next({statusCode: 403 })
+      return false
+    }
     
     req.session.user.currentStore = {
       id: result.id,
@@ -27,13 +38,20 @@ async function authUserStoreRoleGroup (req, storeId, roleGroup) {
   if (roleGroup.includes(req.session.user.currentStore.roleGroup)) {
     return true
   } else {
+    next({statusCode: 403 })
     return false
   }
 }
 
-async function authUserStoreRole (req, storeId, role) {
+async function authUserStoreRole (req, next, storeId, role) {
   
   if (!req.session.user) {
+    next({statusCode: 403, msg: 'No login' }) //前端判斷關鍵字
+    return false
+  }
+
+  if (storeId === undefined) {
+    next({statusCode: 403 })
     return false
   }
   
@@ -47,7 +65,10 @@ async function authUserStoreRole (req, storeId, role) {
       role: role
     })
     
-    if (!result) return false
+    if (!result) {
+      next({statusCode: 403 })
+      return false
+    }
     
     req.session.user.currentStore = {
       id: result.id,
@@ -59,6 +80,7 @@ async function authUserStoreRole (req, storeId, role) {
   if (role.includes(req.session.user.currentStore.role)) {
     return true
   } else {
+    next({statusCode: 403 })
     return false
   }
 }
@@ -84,11 +106,4 @@ function escape(s) {
         '>': "&gt;"
     };
     return s.replace( /[&"'<>]/g, c => lookup[c] );
-}
-
-module.exports = {
-  authUserStoreRoleGroup,
-  authUserStoreRole,
-	getIp,
-	escape
 }

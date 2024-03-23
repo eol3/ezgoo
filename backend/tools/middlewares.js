@@ -6,7 +6,7 @@ module.exports = {
 
 function auth (req, res, next) {
   if (!req.session.user) {
-    res.status(403).json({msg: 'Forbidden'})
+    res.status(403).json({msg: 'No login'})
   } else {
   	next()
   }

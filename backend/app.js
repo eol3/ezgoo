@@ -12,6 +12,7 @@ const FileStore = require('session-file-store')(session)
 const compression = require('compression')
 app.use(compression())
 
+app.use('/uploads', express.static(process.cwd() + '/public/uploads', { maxAge: 31557600000 }))
 app.use(express.static(process.cwd() + '/public/dist', { maxAge: 31557600000 }))
 
 app.get('/*', (req, res, next) => {
