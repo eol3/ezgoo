@@ -82,8 +82,8 @@ function transType(data, rules) {
 			if (rules[key].indexOf('boolean') > -1) {
 				data[key] = (data[key] === 'true')
 			} else if (rules[key].indexOf('numeric') > -1) {
-				data[key] = Number(data[key])
-			} else if (rules[key] === 'idStringArray') {
+				// data[key] = Number(data[key])
+			} else if (rules[key].indexOf('idStringArray') > -1) {
 				let arr = data[key].split('-')
 				for (let i in arr) {
 					arr[i] = Number(arr[i])
@@ -123,7 +123,7 @@ const extModel = {
 		enumerationValues: {
 			statusQuery: ['all', '0', '1'],
 			status: [0, 1],
-			sortBy: ['id', 'name', 'hotOrder']
+			sortBy: ['id', 'name', 'priority']
 		}
 	},
 	post: {

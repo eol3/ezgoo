@@ -49,23 +49,16 @@ model.getList = async function (condition) {
 	let query = knex(tableName)
 
 	if (selectObj) {
-		query.select(selectObj)
+		query.select(tableName + '.' + selectObj)
+	} else {
+		query.select(tableName + '.*')
 	}
-	
-	if (condition.storeId) {
-		query.where({ 'storeId': condition.storeId })
-	}
+	query.distinct(tableName + '.id')
 
-	if (condition.account) {
-		query.where({ 'account': condition.account })
-	}
-
-	if (condition.status) {
-		query.where({ 'status': condition.status })
-	}
+	attachCondition(condition, query)
 	
 	if (condition.sortBy && condition.orderBy) {
-		query.orderBy(condition.sortBy, condition.orderBy)
+		query.orderBy(tableName + '.' + condition.sortBy, condition.orderBy)
 	}
 	
 	if (typeof condition.limit !== 'undefined') {
@@ -86,6 +79,17 @@ model.getCount = async function(condition) {
 	let result = {}
 	let query = knex(tableName)
 	
+	attachCondition(condition, query)
+
+	query.countDistinct(tableName + '.id as total')
+	
+	result = await query
+	result = result[0]
+	
+	return result
+}
+
+function attachCondition(condition, query) {
 	if (condition.storeId) {
 		query.where({ 'storeId': condition.storeId })
 	}
@@ -98,12 +102,15 @@ model.getCount = async function(condition) {
 		query.where({ 'status': condition.status })
 	}
 
-	query.countDistinct(tableName + '.id as total')
-	
-	result = await query
-	result = result[0]
-	
-	return result
+	if (condition.categoris) {
+		query.join('productCategoriesOnProducts', 'product.id', 'productCategoriesOnProducts.productId')
+		query.where(function() {
+			for (let item of condition.categoris) {
+				this.orWhere({ 'productCategoriesOnProducts.productCategoryId': item })
+			}
+		})
+	}
+
 }
 
 model.create = async function (data) {

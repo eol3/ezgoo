@@ -18,6 +18,8 @@ app.use(express.static(process.cwd() + '/public/dist', { maxAge: 31557600000 }))
 app.get('/*', (req, res, next) => {
   if (req.originalUrl.startsWith('/api')) {
       next();
+  } else if (req.originalUrl.startsWith('/uploads')) {
+    res.status(404).send()
   } else {
     res.sendFile(process.cwd() + '/public/dist/index.html');
   }

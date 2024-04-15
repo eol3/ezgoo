@@ -1,6 +1,7 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const ProductImage = require(process.cwd() + '/models/product/productImage')
+const Product = require(process.cwd() + '/models/product/product')
 const multer  = require('multer')
 const upload = multer({ dest: 'tmp' })
 const { authUserStoreRole }= require(process.cwd() + '/tools/libs')
@@ -11,7 +12,7 @@ router.get('/', async function(req, res, next) {
   const useData = {
 		storeId: req.query.storeId,
     productId: req.params.productId,
-		status: req.query.status,
+		status: req.query.status || '1',
   }
 
   const validator = wrapValidator(useData, {
@@ -24,13 +25,12 @@ router.get('/', async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
   
-  if (useData.status != '1') {
-	  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-	  	return
-	  }
-  } else {
+  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
+    return
+  }
+
+  if (useData.status === '1') {
     // 公開圖片需跟隨產品狀態是否上架，這樣可不必維護productImage.status的資料
-    const Product = require(process.cwd() + '/models/product/product')
     let product = await Product.getOne({ id: useData.productId })
     if (product.status !== 1) return next({statusCode: 403 })
   }
@@ -56,7 +56,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     productId: req.params.productId,
     priority: req.body.priority,
     createBy: req.session.user.id,
-		updateBy: req.session.user.id,
+		updateBy: req.session.user.id
 	}
 
   const validator = wrapValidator(useData, {
@@ -88,7 +88,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
       fs.unlinkSync('tmp/' + file.filename);
     }
     return next({statusCode: 400,
-      errors: { productImages: [ '商品格式必須是jpg或png' ] }
+      errors: { productImages: [ '商品圖片格式必須是jpg或png' ] }
     })
   }
 
@@ -109,7 +109,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     
     let dir = '/uploads/product-images/' + result[0];
 
-    await ProductImage.update({ id: result[0] }, { path: dir })
+    await ProductImage.update({ id: result[0] }, { path: dir, priority: result[0] })
 
     // 移動檔案
     dir = './public' + dir
