@@ -2,26 +2,26 @@ import router from "../router/index";
 import store from "../store/index";
 import axios from "axios";
 
-// import { setupCache } from 'axios-cache-adapter'
+import { setupCache } from 'axios-cache-adapter'
 
-// const cache = setupCache({
-//   maxAge: 15 * 60 * 1000,
-//   exclude: {
-//     query: false,
-//     methods: ['put', 'patch', 'delete']
-//   },
-//   invalidate: async (config, request) => {
-//     if (request.clearCacheEntry) {
-//       await config.store.removeItem(config.uuid)
-//     }
-//     if (request.method === 'post' || request.method === 'put' || request.method === 'delete') {
-//       await config.store.clear()
-//     }
-//   }
-// })
+const cache = setupCache({
+  maxAge: 15 * 60 * 1000,
+  exclude: {
+    query: false,
+    methods: ['put', 'patch', 'delete']
+  },
+  invalidate: async (config, request) => {
+    if (request.clearCacheEntry) {
+      await config.store.removeItem(config.uuid)
+    }
+    if (request.method === 'post' || request.method === 'put' || request.method === 'delete') {
+      await config.store.clear()
+    }
+  }
+})
 
 const customAxios = axios.create({
-  // adapter: cache.adapter,
+  adapter: cache.adapter,
   // timeout: 10000 // request timeout
 })
 

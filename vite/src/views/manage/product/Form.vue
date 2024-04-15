@@ -1,97 +1,105 @@
 <template>
 	<div>
 		<div class="row mt-3 justify-content-md-center">
-			<div class="col-md-auto">
-				<div class="form-group">
-			    <label class="form-label">商品圖片</label>
-					<div class="row-image-wrap d-flex align-items-center mb-1" ref="rowImageWrap">
-						<div class="no-image d-flex align-items-center justify-content-center mx-1 mb-2" v-if="!loading && productImages.length === 0">
-							<i>尚無圖片</i>
+			<div class="col-lg-10">
+				<div class="row">
+					<div class="col-md-6">
+						<ImageUploader
+							:feildName="'商品圖片'"
+							:modelId="itemId"
+							:parentLoading="loading"
+							:parentModelName="'product'"
+							@needNewItem="needNewItem"
+						></ImageUploader>
+						<div class="form-group mt-2">
+							<label class="form-label">商品名稱</label>
+							<input type="text" class="form-control" v-model="formData.name" @focus="formValidClear()" :disabled="loading" placeholder="請輸入商品名稱">
+							<div class="form-text text-danger">
+								{{ formValidFeild('name') ? formValid.errors.name[0] : '' }}
+							</div>
 						</div>
-						<div v-for="(item, key) in productImages" :key="key">
-							<div class="mx-1 mb-2">
-								<loading-spin v-if="item.loading === true"></loading-spin>
-								<div class="image-item d-flex align-items-center" v-else>
-									<img :src="item.baseUrl + item.path + '/' + item.filename"/>
-								</div>
+						<div class="form-group mt-2">
+							<label class="form-label">售價</label>
+							<input type="number" class="form-control" v-model="formData.price" @focus="formValidClear()" :disabled="loading">
+							<div class="form-text text-danger">
+								{{ formValidFeild('price') ? formValid.errors.price[0] : '' }}
 							</div>
-							<div v-if="item.loading" class="d-flex option-wrap mx-1 mb-2" style="width: 120px;height: 32px;">
-							</div>
-							<div v-else class="d-flex option-wrap mx-1 mb-2">
-								<div class="p-2 flex-fill d-flex justify-content-center cursor-pointer" @click="moveLeft(key)">
-									<i class="fa-solid fa-arrow-left"></i>
+						</div>
+						<div class="form-group mt-2">
+							<label class="form-label">數量</label>
+							<input type="number" class="form-control" v-model="formData.number" :disabled="loading">
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mt-2">
+							<label class="form-label">選項</label><br />
+							<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#productOptionsModal">
+								設定商品選項
+							</button>
+							<div class="ms-3 mt-2" v-if="productOptions.length > 0">
+								<div v-for="(item, key) in productOptions">
+									<span class="fw-bold">{{ item.name }}</span>
+									<div class="ms-2">
+										<span v-for="(value, key) in item.values">
+											{{ value }},
+										</span>
+									</div>
 								</div>
-								<div class="p-2 flex-fill d-flex justify-content-center cursor-pointer" @click="deleteImage(item)">
-									<i class="fa-regular fa-trash-can"></i>
-								</div>
-								<div class="p-2 flex-fill d-flex justify-content-center cursor-pointer" @click="moveRight(key)">
+								<router-link :to="baseUrl + itemId + '/variant'" class="mt-2 btn btn-outline-secondary btn-sm">
+									設定對應商品
 									<i class="fa-solid fa-arrow-right"></i>
-								</div>
+								</router-link>
+							</div>
+						</div>
+						<div class="form-group mt-2">
+							<label class="form-label">分類</label>
+							<div class="d-flex align-items-center">
+								<CategoryStatusRow
+									v-model="categoryIds"
+								></CategoryStatusRow>
+							</div>
+						</div>
+						<div class="form-group mt-2">
+							<label class="form-label">描述</label>
+							<textarea class="form-control" rows="5" v-model="formData.describe" :disabled="loading"></textarea>
+						</div>
+						<hr />
+						<div class="form-group mt-2">
+							<label class="form-label">狀態</label>
+							<select class="form-select" v-model="formData.status" :disabled="loading">
+								<option selected value="0">未上架</option>
+								<option value="1">上架</option>
+							</select>
+							<div class="form-text text-danger">
+								{{ formValidFeild('status') ? formValid.errors.status[0] : '' }}
 							</div>
 						</div>
 					</div>
-			    <input type="file" class="form-control" name="productImages" multiple="multiple" @focus="formValidClear()" :disabled="loading || uploading" @change="selectedFile" ref="fileupload">
-					<div class="form-text text-danger">
-			    	{{ formValidFeild('productImages') ? formValid.errors.productImages[0] : '' }}
-			    </div>
-			  </div>
-				<div class="form-group">
-			    <label class="form-label">商品名稱</label>
-			    <input type="text" class="form-control" v-model="formData.name" @focus="formValidClear()" :disabled="loading" placeholder="請輸入商品名稱">
-					<div class="form-text text-danger">
-			    	{{ formValidFeild('name') ? formValid.errors.name[0] : '' }}
-			    </div>
-			  </div>
-				<div class="form-group mt-2">
-			    <label class="form-label">售價</label>
-			    <input type="number" class="form-control" v-model="formData.price" @focus="formValidClear()" :disabled="loading">
-					<div class="form-text text-danger">
-			    	{{ formValidFeild('price') ? formValid.errors.price[0] : '' }}
-			    </div>
-			  </div>
-				<div class="form-group mt-2">
-			    <label class="form-label">數量</label>
-			    <input type="number" class="form-control" v-model="formData.number">
-			  </div>
-			  <div class="form-group mt-2">
-			    <label class="form-label">規格</label>
-			    <input type="text" class="form-control">
-			  </div>
-			  <div class="form-group mt-2">
-			    <label class="form-label">分類</label>
-			    <input type="text" class="form-control">
-			  </div>
-			  <div class="form-group mt-2">
-			    <label class="form-label">描述</label>
-			    <textarea class="form-control" rows="3" v-model="formData.describe"></textarea>
-			  </div>
-			  <hr />
-			  <div class="form-group mt-2">
-			    <label class="form-label">狀態</label>
-			    <select class="form-select" v-model="formData.status">
-					  <option selected value="0">未上架</option>
-					  <option value="1">上架</option>
-					</select>
-					<div class="form-text text-danger">
-			    	{{ formValidFeild('status') ? formValid.errors.status[0] : '' }}
-			    </div>
-			  </div>
-		  </div>
+				</div>
+			</div>
 		</div>
 		<div class="row mt-3 justify-content-md-center">
 			<div class="col-md-auto">
-				<button class="btn btn-outline-success" @click="save">儲存</button>
+				<button class="btn btn-outline-success" @click="save" :disabled="loading">儲存</button>
 			</div>
 		</div>
 	</div>
+	<ProductOptionsModal
+		ref="productOptionsModalRef"
+		:productId="itemId"
+		@needNewItem="needNewItem"
+		@selectedOptions="selectedOptions"
+	></ProductOptionsModal>
 </template>
 
 <script setup>
-import { onActivated, ref, nextTick  } from 'vue'
+import { onMounted, onActivated, ref  } from 'vue'
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
-import { axios } from "@/tools/request";
-import LoadingSpin from "@/components/LoadingSpin.vue";
+import { axios } from "@/tools/requestCache";
+import ImageUploader from "@/components/ImageUploader.vue";
+import CategoryStatusRow from '@/components/category/StatusRow.vue';
+import ProductOptionsModal from '@/components/modals/ProductOptionsModal.vue';
 import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -100,26 +108,52 @@ const route = useRoute()
 const router = useRouter()
 const emit = defineEmits(['updateLayoutStatus'])
 
-const { loading, baseUrl,
-	modelName, formMode, formData, initFormData,
+const { loading, baseUrl, storeId, itemId,
+	modelName, formMode, formData, defineFormData,
 	formValid, formValidFeild, formValidClear,
 	getItem, saveItem } = CRUDTools()
 
 modelName.value = 'product'
-baseUrl.value = '/manage/store/' + route.params.storeId + '/' + modelName.value + '/'
+storeId.value = route.params.storeId
+baseUrl.value = '/manage/store/' + storeId.value + '/' + modelName.value + '/'
+itemId.value = route.params.productId
 
-const cacheItemId = ref(false)
-const fileupload = ref(null)
-const rowImageWrap = ref(null)
-const uploading = ref(null)
-const productImages = ref([{loading: true}])
+let originalCategoryIds = ''
+const categoryIds = ref('')
+// const oldSelectedCagegoryis = ref([])
+// const categoryStatusRowRef = ref(null)
 
-let productId = route.params.productId
+const productOptionsModalRef = ref(null)
+const productOptions = ref([])
 
-onActivated(async () => {
+defineFormData({
+	name: '',
+	price: 0,
+	number: 0,
+	describe: '',
+	status: 0,
+})
+
+onMounted(async () => {
 	window.scrollTo(0, 0)
-	if (productId === undefined) {
-		initFormData({
+	if (route.params.productId !== undefined) {		
+		loading.value = true
+		Promise.all([
+			getItem(),
+			getProductsOnCategories()
+		]).then((response) => {
+			productOptions.value = response[0].data.options === null ? [] : JSON.parse(response[0].data.options)
+			productOptionsModalRef.value.setParentOptions(productOptions.value)
+			// oldSelectedCagegoryis.value = categoryStatusRowRef.value.getSelectedCategories().map(a => ({...a}))
+		}).finally(() => {
+			loading.value = false
+		})
+	}
+})
+
+onActivated(() => {
+	if (route.params.productId === undefined) {
+		defineFormData({
 			name: '',
 			price: 0,
 			number: 0,
@@ -131,163 +165,103 @@ onActivated(async () => {
 			showBack: true,
 		})
 		formMode.value = 'new'
-		cacheItemId.value = false
-		fileupload.value.value = null
-		productImages.value = []
+		itemId.value = null
+		productOptions.value = []
+		productOptionsModalRef.value.setParentOptions(productOptions.value)
+		// oldSelectedCagegoryis.value = []
+		categoryIds.value = ''
+		// console.log(categoryIds.value)
+		// setTimeout(() => {
+		// 	categoryIds.value = ''
+		// }, 1)
+		
+		// console.log(categoryIds.value)
 	} else {
 		formMode.value = 'edit'
 		emit('updateLayoutStatus', {
 			title: '編輯商品',
 			showBack: true,
 		})
-		
-		if (cacheItemId.value !== route.params.productId) {
-			cacheItemId.value = route.params.productId
-			loading.value = true
-			Promise.all([
-				getItem(route.params.productId, { storeId: route.params.storeId }),
-				getProductImages()
-			]).then(() => {
-				// productImages.value.push({ loading: true })
-				loading.value = false
-			})
-		}
 	}
 })
 
-async function selectedFile(e) {
-	store.state.updateData = true
-	uploading.value = true
-	if (formMode.value === 'new') {
-		let response = await saveItem(productId, { storeId: route.params.storeId })
-		formMode.value = 'edit'
-		productId = response.data.id
-	}
-
-  var files = e.target.files || e.dataTransfer.files;
-  if (!files.length)
-    return;
-	
-	let estimate = productImages.value.length + files.length
-	if (estimate > 50) {
-		formValid.value = {
-			fails: true,
-			errors: { productImages: [ '商品圖片數量不能超過50個' ] }
-		}
-		return
-	}
-
-	let formDataArr = []
-	let i = 0
-	for (const file of files) {
-		const formData = new FormData();
-		formData.append('storeId', route.params.storeId)
-    formData.append('files', file)
-		let priority = productImages.value.length + 1
-		formData.append('priority', priority)
-		productImages.value.push({ loading: true })
-		formDataArr.push(formData)
-		i++
-		if ((i % 5) === 0) {
-			await uploadImages(formDataArr)
-			formDataArr = []
-		} else if (i === files.length) {
-			await uploadImages(formDataArr)
-		}
-  }
-	uploading.value = false
-	fileupload.value.value = null
-}
-
-async function uploadImages(formDataArr) {
-	let multiRequest = []
-	const multiHeader = {
-		headers: {
-			"Content-Type": "multipart/form-data",
-		}
-	}
-	for(const formData of formDataArr) {
-		multiRequest.push(
-			axios.post("/product/" + productId + "/images" , formData, multiHeader)
-		)
-	}
-	nextTick().then(() => {
-		rowImageWrap.value.scrollLeft += 10000;
+async function needNewItem(callback, data) {
+	let response = await saveItem()
+	store.dispatch('showAlert', {
+		type: 'success',
+		text: '新增商品成功'
 	})
-	
-	try {
-		await Promise.all(multiRequest)
-	} catch(error) {
-		if (error && error.response && error.response.status === 400) {
-			formValid.value = {
-				fails: true,
-				errors: error.response.data.errors
-			}
+	formMode.value = 'edit'
+	itemId.value = String(response.data.id)
+	setTimeout(() => {
+		callback(data)
+	}, 1);
+}
+
+function getProductsOnCategories() {
+	return axios.get("/product/" + itemId.value + "/product-category").then((response) => {
+		let ids = ''
+		for (const item of response.data) {
+			ids += item.productCategoryId + '-'
+		}
+		ids = ids.slice(0, -1)
+		originalCategoryIds = ids
+		categoryIds.value = ids
+	})
+}
+
+async function compareCagegory() {
+	let oldIdsArr = originalCategoryIds.split('-')
+	let newIdsArr = categoryIds.value.split('-')
+	let newIds = ''
+	for (const newId of newIdsArr) {
+		if (newId === '') break;
+		const found = oldIdsArr.find((element) => element === newId);
+		if (!found) {
+			newIds += newId + '-'
 		}
 	}
-	await getProductImages()
-}
-
-async function getProductImages() {
-	let response = await axios.get("/product/" + productId + "/images", {
-		params: { storeId: route.params.storeId }
-	})
-	productImages.value = response.data
-}
-
-async function moveLeft(key) {
-	if (uploading.value) return
-	if (key === 0) return
-	moveImagePriority(key, key - 1)
-}
-
-async function moveRight(key) {
-	if (uploading.value) return
-	if (key === productImages.value.length-1) return
-	moveImagePriority(key, key + 1)
-}
-
-async function moveImagePriority(key, targetKey) {
-	if (loading.value) return
-	productImages.value[key].loading = true
-	productImages.value[targetKey].loading = true
-	loading.value = true
-	try {
-		await Promise.all([
-			axios.put("/product/" + productId + "/images/" + productImages.value[key].id, {
-				priority: productImages.value[targetKey].priority
-			}, {
-				params: { storeId: route.params.storeId }
-			}),
-			axios.put("/product/" + productId + "/images/" + productImages.value[targetKey].id, {
-				priority: productImages.value[key].priority
-			}, {
-				params: { storeId: route.params.storeId }
-			})
-		])
-		await getProductImages()
-	} catch(error) {
-	}
-	loading.value = false
-}
-
-async function deleteImage(item) {
-	if (item.loading) return
-	item.loading = true
-	await axios.delete("/product/" + productId + "/images/" + item.id, {
-		params: { storeId: route.params.storeId }
-	})
-	// getProductImages()
-	for (let i in productImages.value) {
-		if (productImages.value[i].id === item.id) {
-			productImages.value.splice(i, 1)
+	newIds = newIds.slice(0, -1)
+	let delIds = ''
+	for (const oldId of oldIdsArr) {
+		if (oldId === '') break;
+		const found = newIdsArr.find((element) => element === oldId);
+		if (!found) {
+			delIds += oldId + '-'
 		}
 	}
+	delIds = delIds.slice(0, -1)
+	addProductCategory(newIds)
+	delProductCategory(delIds)
+}
+
+async function addProductCategory(productCategoryIds) {
+	if (productCategoryIds === '') return
+	return axios.post("/product/" + itemId.value + "/product-category", {
+		productCategoryIds: productCategoryIds
+	}, {
+		params: { storeId: storeId.value}
+	}).then((response) => {
+	})
+}
+
+async function delProductCategory(productCategoryIds) {
+	if (productCategoryIds === '') return
+	return axios.delete("/product/" + itemId.value + "/product-category/", {
+		params: {
+			storeId: storeId.value,
+			productCategoryIds: productCategoryIds
+		}
+	}).then((response) => {
+	})
+}
+
+function selectedOptions(options) {
+	productOptions.value = JSON.parse(JSON.stringify(options))
 }
 
 async function save() {
 	if (loading.value) return
-	cacheItemId.value = false
 	// 轉數字
 	formData.value.status = Number(formData.value.status)
 	
@@ -307,11 +281,14 @@ async function save() {
 		}
 		return
 	}
-
-	let response = await saveItem(productId, { storeId: route.params.storeId })
-  
-	store.state.updateData = true
-
+	
+	let response = await saveItem()
+	if (formMode.value === 'new') {
+		itemId.value = String(response.data.id)
+	}
+	await compareCagegory()
+	originalCategoryIds = categoryIds.value
+	
 	let msg = ''
 	if (response.data.msg) {
 		msg = response.data.msg
@@ -342,12 +319,12 @@ async function save() {
   width: 120px;
   height: 160px;
   border-radius: 5%;
-  background-color: $gray-200;
+	background-color: var(--d-gray-200);
 	color: $gray-600;
 }
 
 .row-image-wrap {
-	width: 360px;
+	width: 100%;
 	overflow-x: auto;
 }
 
@@ -364,17 +341,4 @@ async function save() {
 	width: 100%;
 }
 
-.option-wrap {
-	background-color: $gray-300;
-	border-radius: 5%;
-}
-
-[data-bs-theme="dark"] {
-	.no-image {
-		background-color: $gray-700;
-	}
-	.option-wrap {
-		background-color: $gray-600;
-	}
-}
 </style>

@@ -32,7 +32,7 @@
 
 <script setup>
 import { ref, computed, nextTick } from 'vue'
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps({
 	totalData: {
@@ -51,6 +51,7 @@ const props = defineProps({
 
 const emit = defineEmits(['change-page'])
 
+const route = useRoute()
 const router = useRouter();
 
 const currentPage = defineModel()
@@ -80,7 +81,11 @@ async function changePage(i) {
 	window.scrollTo(0, 0)
 	emit('change-page', i)
 	currentPage.value = i
-	router.push({ query: { page: i }})
+	router.push({ query: {
+			...route.query,
+			...{ page: i }
+		}
+	})
 }
 function isCurrentPage(i) {
 	return (currentPage.value === i) ? true : false

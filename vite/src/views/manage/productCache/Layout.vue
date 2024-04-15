@@ -18,9 +18,7 @@
 			</div>
 		</div>
 		<router-view v-slot="{ Component, route  }" @updateLayoutStatus="updateStatus">
-			<keep-alive>
-				<component :is="Component" :key="route.path"/>
-			</keep-alive>
+      <component :is="Component"/>
 		</router-view>
 	</div>
 </template>
@@ -41,16 +39,6 @@ export default {
   		this.showBack = status.showBack
   	}
   },
-	// watch: {
-	// 	'$store.state.updateData': function(to) {
-	// 		if (to) {
-	// 			console.log('update data')
-	// 			this.$nextTick(() => {
-	// 				this.$store.state.updateData = false
-	// 			})
-	// 		}
-	// 	}
-	// }
 }
 
 </script>

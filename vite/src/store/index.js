@@ -6,7 +6,7 @@ export default createStore({
     localUser: null, // null 未曾登入, 有資料表示曾經有登入
     user: null, //null 未取得, false 未登入, 有資料表示有登入
     handleForbidden: false,
-    updateData: false, // 有快取時，用這個值來更新資料，更新完需設回false
+    cache: [], // [{ key: 'productList', value: [] }, { key: 'productCategory', value: [] }]
     alert: {
       show: false,
       disappear_seconds: 0,
@@ -64,6 +64,19 @@ export default createStore({
     }
   },
   actions: {
+    setCache(context, payload) {
+      let found = context.state.cache.find((element) => element.key === payload.key)
+      if (!found) context.state.cache.push(payload)
+      else found = payload
+    },
+    getCache(context, payload) {
+      return context.state.cache.find((element) => element.key === payload)
+    },
+    delCache(context, payload) {
+      context.state.cache = context.state.cache.filter(function(element) {
+        return element.key !== payload
+      })
+    },
     getLocalUser(context) {
       if (localStorage.getItem('user')) {
       	try {

@@ -32,16 +32,21 @@ export function listToTree(list) {
   var map = {}, node, roots = [], i;
   
   for (i = 0; i < list.length; i += 1) {
-    if (list[i].parent_id === null) list[i].parent_id = 0
+    if (list[i].parentId === null) list[i].parentId = 0
     map[list[i].id] = i; // initialize the map
     list[i].children = []; // initialize the children
-    list[i].hasExpand = false;
-    list[i].subExpand = false;
+    if (!list[i].hasExpand) list[i].hasExpand = false;
+    if (!list[i].subExpand) list[i].subExpand = false;
   }
+  
   for (i = 0; i < list.length; i += 1) {
     node = list[i];
-    if (node.parent_id !== 0) {
-      list[map[node.parent_id]].children.push(node);
+    if (node.parentId !== 0) {
+      // console.log(list)
+      // console.log(node)
+      // console.log(node.parentId)
+      // console.log(map[node.parentId])
+      list[map[node.parentId]].children.push(node);
     } else {
       roots.push(node);
     }

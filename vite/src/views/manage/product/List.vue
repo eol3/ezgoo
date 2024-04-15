@@ -1,22 +1,23 @@
 <template>
 	<div>
 		<div class="row justify-content-between">
-			<div class="col-12 col-md-4 mb-3 mb-md-0">
+			<div class="col-12 col-md-8 mb-3 mb-md-0">
 				<div class="row">
 					<div class="col-auto pe-0">
-						<button class="btn btn-outline-secondary btn-sm">批次修改</button>
+						<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#multiSetCategoryModal">批次修改</button>
 					</div>
-					<div class="col-auto">
+					<div class="col-auto pe-0 d-flex align-items-center">
+						<CategoryStatusRow
+							v-model="queryObj.categoris"
+							:relateQuery="true"
+						></CategoryStatusRow>
 					</div>
 				</div>
 			</div>
-			<div class="col-12 col-md-6">
+			<div class="col-12 col-md-4">
 				<div class="row justify-content-end">
 					<div class="col-auto pe-0">
-						<button class="btn btn-outline-secondary btn-sm">選擇分類</button>
-					</div>
-					<div class="col-auto pe-0">
-						<input type="text" class="form-control">
+						<input type="text" class="form-control form-control-sm">
 					</div>
 					<div class="col-auto my-auto">
 						<button class="btn btn-outline-secondary btn-sm">搜尋</button>
@@ -61,7 +62,7 @@
 				</div>
 				<div class="col-4 col-md-7 d-flex align-items-center">
 					<div>
-						<img src="https://placehold.co/200" width='30' class="me-3">
+						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' class="me-3">
 					</div>
 					<div class="cut-text">
 						{{ item.name }}
@@ -90,10 +91,10 @@
 				</div>
 				<div class="col-2 col-md-2">
 					<div class="d-none d-md-block d-flex justify-content-center">
-						<router-link class="btn btn-outline-secondary btn-sm" :to="'/product/' + item.id + '?storeId=' + route.params.storeId + '&preview=true'">
+						<router-link class="btn btn-outline-secondary btn-sm" :to="'/product/' + item.id + '?storeId=' + storeId + '&preview=true'">
 							預覽
 						</router-link>
-						<router-link class="btn btn-outline-secondary btn-sm" :to="'/manage/store/' + route.params.storeId + '/product/' + item.id + '/edit'">
+						<router-link class="btn btn-outline-success btn-sm" :to="baseUrl + item.id + '/edit'">
 							編輯
 						</router-link>
 						<button class="btn btn-outline-danger btn-sm" @click="deleteItemInModal(item)">
@@ -106,12 +107,12 @@
 						</div>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownNotify">
 							<li>
-								<button class="dropdown-item" @click="goMobileDropdownItem('/' + modelName + '/' + item.id  + '?storeId=' + route.params.storeId + '&preview=true')">
+								<button class="dropdown-item" @click="goMobileDropdownItem('/' + modelName + '/' + item.id  + '?storeId=' + storeId + '&preview=true')">
 									預覽
 								</button>
 							</li>
 							<li>
-								<button class="dropdown-item" @click="goMobileDropdownItem('/manage/store/' + route.params.storeId + '/' + modelName + '/' + item.id + 'edit/')">
+								<button class="dropdown-item" @click="goMobileDropdownItem(baseUrl + item.id + '/edit')">
 									編輯
 								</button>
 							</li>
@@ -137,11 +138,12 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated, watch  } from 'vue'
+import { onMounted, onActivated, ref, watch  } from 'vue'
 import { useStore } from "vuex";
 import { useRoute, useRouter, onBeforeRouteUpdate  } from "vue-router";
 import Pagination from "@/components/Pagination.vue";
 import ConfirmModal from "@/components/modals/ConfirmModal.vue";
+import CategoryStatusRow from '@/components/category/StatusRow.vue';
 
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -151,16 +153,23 @@ const router = useRouter()
 const emit = defineEmits(['updateLayoutStatus'])
 
 const { firstLoad,
-	modelName,
+	modelName, baseUrl, storeId, itemId,
 	queryObj, list,
 	initQueryObj, getList, getListCount, deleteItem,
 	currentPage, perPage, totalData } = CRUDTools()
 
 modelName.value = 'product'
+storeId.value = route.params.storeId
+baseUrl.value = '/manage/store/' + storeId.value + '/' + modelName.value + '/'
 
 initQueryObj({
-	storeId: route.params.storeId,
+	//移除storeId,查詢自帶storeId
+	categoris: null,
 	status: 'all',
+	sortBy: 'id',
+	orderBy: 'desc',
+	limit: perPage.value,
+	offset: perPage.value * (currentPage.value - 1),
 })
 
 onMounted(async () => {
@@ -174,8 +183,8 @@ onActivated(async () => {
 		title: '商品列表',
 		showBack: false,
 	})
-	if (!firstLoad.value && store.state.updateData === true) {
-		store.state.updateData = false
+	
+	if (!firstLoad.value) {
 		setQueryObj(route)
 		getListAndCount()
 	}
@@ -188,6 +197,8 @@ onBeforeRouteUpdate((to) => {
 });
 
 function setQueryObj(route) {
+	if (route.query.categoris) queryObj.categoris = route.query.categoris
+	else queryObj.categoris = null
 	if (route.query.page) currentPage.value = Number(route.query.page)
 	else currentPage.value = 1
 	queryObj.offset = perPage.value * (currentPage.value - 1)
@@ -197,9 +208,9 @@ async function getListAndCount() {
 	await Promise.all([
 		getList(queryObj),
 		getListCount({
-			storeId: queryObj.storeId,
+			categoris: queryObj.categoris,
 			status: queryObj.status,
-		})
+		}),
 	])
 }
 
@@ -215,7 +226,8 @@ function deleteItemInModal(item) {
 		text: "<p>確認刪除商品「" + item.name + "」?</p>",
 		confirmCallback: async () => {
 			store.state.modal.loading = true
-			await deleteItem(item.id, { storeId: route.params.storeId })
+			itemId.value = item.id
+			await deleteItem()
 			await getListAndCount()
 			store.state.modal.show = false
 			store.dispatch('showAlert', {
@@ -226,119 +238,4 @@ function deleteItemInModal(item) {
 	})
 }
 
-// const firstLoad = ref(true)
-
-// const currentPage = ref(1)
-// const perPage = ref(10)
-// const totalData = ref(0)
-
-// const list = ref([])
-// const queryObj = ref({
-// 	storeId: route.params.storeId,
-// 	status: 'all',
-// 	sortBy: 'id',
-// 	orderBy: 'desc',
-// 	limit: perPage.value,
-// 	offset: perPage.value * (currentPage.value - 1),
-// })
-
-// onMounted(async () => {	
-	
-// })
-
-// onActivated(async () => {
-// 	emit('updateLayoutStatus', {
-// 		title: '商品列表',
-// 		showBack: false,
-// 	})
-// 	setQueryObj()
-// 	await getList()
-// 	await getListCount()
-// 	firstLoad.value = false
-// })
-
-// function setQueryObj() {
-// 	if (route.query.page) currentPage.value = Number(route.query.page)
-// 	queryObj.limit = perPage.value
-// 	queryObj.offset = perPage.value * (currentPage.value - 1)
-// }
-
-// async function getList() {
-// 	let response = {}
-// 	try {
-// 		response = await axios.get("/product", {
-// 			params: queryObj
-// 		})
-// 		list.value = response.data
-// 	} catch(e) {
-// 		console.log(e)
-// 	}
-// }
-
-// async function getListCount() {
-// 	let response = {}
-// 	try {
-// 		response = await axios.get("/product/count", {
-// 			params: {
-// 				storeId: queryObj.storeId,
-// 				status: queryObj.status,
-// 			}
-// 		})
-		
-// 		totalData.value = response.data.total
-// 	} catch(e) {
-// 		console.log(e)
-// 	}
-// }
-
-// function goEdit(productId) {
-// 	setTimeout(() => {
-// 		router.push('/manage/store/' + route.params.storeId + '/product/edit/' + productId)
-// 	}, 1);
-// }
-
-// function deleteProduct(productId) {
-// 	store.commit('setModal', {
-// 		show: true,
-// 		text: "<p>確認刪除商品?</p>",
-// 		confirmCallback: async () => {
-// 			store.state.modal.loading = true
-// 			let response = {}
-// 			try {
-// 				response = await axios.delete('/product/' + productId)
-// 			} catch(e) {
-// 				console.log(e)
-// 			}
-// 			await getList()
-// 			await getListCount()
-// 			store.state.modal.show = false
-// 			store.dispatch('showAlert', {
-// 				type: 'success',
-// 				text: response.data.msg
-// 			})
-// 		}
-// 	})
-// }
-
-// watch(() => route.query.page, () => {
-// 	console.log('watch')
-// 	if (route.path !== '/manage/store/' + route.params.storeId + '/product') return 
-// 	setQueryObj()
-// 	getList()
-// 	getListCount()
-// })
-
-</script>
-
-<script>
-// export default {
-// 	watch: {
-//     $route (to, from) {
-//       console.log('1', to.name, from.name)
-// 			if (to.name !== 'ProductList' && from.name !== 'ProductList') return
-// 			this.setQueryObj()
-// 			this.getListAndCount()
-//     }
-//   },
-// }
 </script>

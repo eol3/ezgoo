@@ -8,6 +8,7 @@
         </div>
         <div class="modal-body">
           <div v-html="$store.state.modal.text"></div>
+          <slot></slot>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="cancel()" :disabled="$store.state.modal.loading">

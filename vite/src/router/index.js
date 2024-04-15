@@ -111,7 +111,33 @@ const routes = [
           {
             path: ":productId/edit",
             component: () => import("../views/manage/product/Form.vue"),
-          }
+          },
+          {
+            path: ":productId/variant",
+            component: () => import("../views/manage/product/Variant.vue"),
+          },
+        ]
+      },
+      {
+        path: "product/category", // 避免在layout cache
+        component: () => import("../views/manage/product/Category.vue"),
+      },
+      {
+        path: "productCache",
+        component: () => import("../views/manage/productCache/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/productCache/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/productCache/Form.vue"),
+          },
+          {
+            path: ":productId/edit",
+            component: () => import("../views/manage/productCache/Form.vue"),
+          },
         ]
       },
       {

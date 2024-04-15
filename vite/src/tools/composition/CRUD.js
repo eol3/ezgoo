@@ -1,5 +1,6 @@
 import { ref, reactive } from 'vue';
-import { axios } from "@/tools/request";
+// import { axios } from "@/tools/request";
+import { axios } from "@/tools/requestCache";
 
 export const updateListData = ref(false)
 
@@ -12,7 +13,9 @@ export default () => {
 
   const modelName = ref('')
   const baseUrl = ref('')
-
+  const apiBaseUrl = ref('')
+  const storeId = ref(null)
+  const itemId = ref(null)
 
   // 列表相關
 
@@ -21,12 +24,7 @@ export default () => {
   const totalData = ref(0)
 
   const list = ref([])
-  const queryObj = reactive({
-    sortBy: 'id',
-    orderBy: 'desc',
-    limit: perPage.value,
-    offset: perPage.value * (currentPage.value - 1),
-  })
+  const queryObj = reactive({})
 
   function initQueryObj(obj) {
     for (const [key, value] of Object.entries(obj)) {
@@ -37,8 +35,14 @@ export default () => {
   async function getList(params) {
     let response = {}
     try {
-      response = await axios.get("/" + modelName.value, { params: params })
+      response = await axios.get(apiBaseUrl.value + "/" + modelName.value, {
+        params: {
+          ...{ storeId: storeId.value },
+          ...params
+        }
+      })
       list.value = response.data
+      return response
     } catch(error) {
       console.log(error)
       throw error;
@@ -48,7 +52,12 @@ export default () => {
   async function getListCount(params) {
     let response = {}
     try {
-      response = await axios.get("/" + modelName.value + "/count", { params: params })
+      response = await axios.get("/" + modelName.value + "/count", {
+        params: {
+          ...{ storeId: storeId.value },
+          ...params
+        }
+      })
       totalData.value = response.data.total
     } catch(error) {
       console.log(error)
@@ -56,9 +65,14 @@ export default () => {
     }
   }
 
-  async function deleteItem(itemId, params) {
+  async function deleteItem(params) {
     try {
-      await axios.delete('/' + modelName.value + '/' + itemId, { params: params })
+      await axios.delete(apiBaseUrl.value + '/' + modelName.value + '/' + itemId.value, {
+        params: {
+          ...{ storeId: storeId.value },
+          ...params
+        }
+      })
     } catch(error) {
       console.log(error)
       throw error
@@ -85,20 +99,32 @@ export default () => {
 	}
 
 
-  const formMode = ref('new')
+  const formMode = ref('new') // edit
   const formData = ref({})
 
-  function initFormData(obj) {
-    for (const [key, value] of Object.entries(obj)) {
-      formData.value[key] = value
-    }
+  function defineFormData(obj) {
+    formData.value = obj
   }
 
-  async function getItem(itemId, params) {
+  function setFormData(obj) {
+    for (const [key, value] of Object.entries(obj)) {
+      if (formData.value.hasOwnProperty(key)) formData.value[key] = value
+    }
+  }
+  
+
+  async function getItem(params) {
     let response = {}
     try {
-      response = await axios.get("/" + modelName.value + "/" + itemId, { params: params })
-      formData.value = response.data;
+      response = await axios.get(apiBaseUrl.value + "/" + modelName.value + "/" + itemId.value, {
+        params: {
+          ...{ storeId: storeId.value },
+          ...params
+        }
+      })
+      setFormData(response.data)
+      return response
+      // formData.value = response.data;
     } catch(error) {
       console.log(error)
       throw error
@@ -107,7 +133,12 @@ export default () => {
 
   async function newItem(params) {
     try {
-      return await axios.post('/' + modelName.value, formData.value, { params: params })
+      return await axios.post('/' + modelName.value, formData.value, {
+        params: {
+          ...{ storeId: storeId.value },
+          ...params
+        }
+      })
     } catch(error) {
       if (error.response.status === 400) {
         formValid.value = {
@@ -119,9 +150,14 @@ export default () => {
     }
   }
 
-  async function editItem(itemId, params) {
+  async function editItem(params) {
     try {
-      return await axios.put('/' + modelName.value + '/' + itemId, formData.value, { params: params })
+      return await axios.put('/' + modelName.value + '/' + itemId.value, formData.value, {
+        params: {
+          ...{ storeId: storeId.value },
+          ...params
+        }
+      })
     } catch(error) {
       if (error.response.status === 400) {
         formValid.value = {
@@ -133,14 +169,14 @@ export default () => {
     }
   }
 
-  async function saveItem(itemId, params) {
+  async function saveItem(params) {
     let response = {}
     loading.value = true
     try {
       if (formMode.value === 'new') {
         response = await newItem(params)
       } else {
-        response = await editItem(itemId, params)
+        response = await editItem(params)
       }
     } catch(error) {
       throw error
@@ -155,6 +191,8 @@ export default () => {
     loading,
     modelName,
     baseUrl,
+    apiBaseUrl,
+    storeId,
     list,
     queryObj,
     currentPage,
@@ -163,6 +201,7 @@ export default () => {
     initQueryObj,
     getList,
     getListCount,
+    itemId,
     deleteItem,
     formValid,
     formValidFeild,
@@ -170,7 +209,7 @@ export default () => {
     getItem,
     formMode,
     formData,
-    initFormData,
+    defineFormData,
     newItem,
     editItem,
     saveItem,
