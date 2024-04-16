@@ -62,7 +62,7 @@
 				</div>
 				<div class="col-4 col-md-7 d-flex align-items-center">
 					<div>
-						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' class="me-3">
+						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
 					</div>
 					<div class="cut-text">
 						{{ item.name }}

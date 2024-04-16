@@ -49,7 +49,7 @@
 	        </li>
         </ul>
 			</nav>
-			<div class="manage-body px-2 py-3 p-md-4">
+			<div class="container manage-body p-3 p-md-4">
 				<router-view></router-view>
 			</div>
 		</div>

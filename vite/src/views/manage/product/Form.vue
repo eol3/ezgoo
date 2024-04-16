@@ -78,8 +78,8 @@
 				</div>
 			</div>
 		</div>
-		<div class="row mt-3 justify-content-md-center">
-			<div class="col-md-auto">
+		<div class="row mt-3 justify-content-center">
+			<div class="col-auto">
 				<button class="btn btn-outline-success" @click="save" :disabled="loading">儲存</button>
 			</div>
 		</div>

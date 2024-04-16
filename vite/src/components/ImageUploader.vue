@@ -279,13 +279,10 @@ async function deleteImage(key, item) {
 	overflow-x: auto;
 }
 
-.image-item-wrap {
-	height: 160px;
-}
-
 .image-item {
 	width: 120px;
   height: 120px;
+	overflow: hidden;
 }
 
 .image-item img {
