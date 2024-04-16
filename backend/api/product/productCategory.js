@@ -1,0 +1,143 @@
+const router = require("express-promise-router")({ mergeParams: true })
+const wrapValidator = require(process.cwd() + '/tools/validator')
+const productCategory = require(process.cwd() + '/models/product/productCategory')
+const { authUserStoreRole, authUserStoreRoleGroup }= require(process.cwd() + '/tools/libs')
+
+module.exports = router
+
+router.get('/', async function(req, res, next) {
+	
+	const useData = {
+		storeId: req.query.storeId,
+    status: req.query.status || '1',
+    sortBy: req.query.sortBy,
+	  orderBy: req.query.orderBy,
+	}
+	
+	const validator = wrapValidator(useData, {
+		storeId: 'required|numeric|min:1',
+    status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    sortBy: 'string|enum:sortBy',
+	  orderBy: 'string|enum:orderBy',
+  }, 'product')
+  
+  if (validator.fail) {
+  	return next({statusCode: 400, ...validator.errors})
+  }
+
+  if (!await authUserStoreRoleGroup(req, next, useData.storeId, 'manage')) {
+    return
+  }
+
+  if (useData.status === '1') {
+    // 公開商品分類，跟隨商店狀態是否公開
+    const Store = require(process.cwd() + '/models/store')
+    let store = await Store.getOne({ id: useData.storeId })
+    if (store.status !== 1) return next({statusCode: 403 })
+  }
+	
+	let result = await productCategory.getList(useData)
+	
+	res.json(result)
+})
+
+router.get('/:productCategoryId', async function(req, res, next) {
+})
+
+router.post('/', async function(req, res, next) {
+	
+	const useData = {
+    storeId: req.query.storeId,
+    parentId: req.body.parentId,
+    name: req.body.name,
+    children: req.body.children,
+    priority: req.body.priority,
+		createBy: req.session.user.id,
+		updateBy: req.session.user.id,
+  }
+  
+  const validator = wrapValidator(useData, {
+    storeId: 'required|numeric|min:1',
+    parentId: 'numeric|min:1',
+    name: 'string',
+    children: 'numeric',
+    priority: 'numeric'
+  }, 'product');
+  
+  if (validator.fail) {
+    next({statusCode: 400, ...validator.errors}); return;
+  }
+  
+  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
+  	return
+  }
+
+  result = await productCategory.create(useData)
+
+  await productCategory.update({ id: result[0] }, { priority: result[0] })
+  // console.log(result)
+  res.status(200).json({ id: result[0] });
+})
+
+router.put('/:productCategoryId', async function(req, res, next) {
+	
+	const useData = {
+    id: req.params.productCategoryId,
+    storeId: req.query.storeId,
+    parentId: req.body.parentId,
+    name: req.body.name,
+    children: req.body.children,
+    priority: req.body.priority,
+		createBy: req.session.user.id,
+		updateBy: req.session.user.id,
+  }
+  
+  const validator = wrapValidator(useData, {
+    id: 'required|numeric|min:1',
+    storeId: 'required|numeric|min:1',
+    parentId: 'numeric|min:1',
+    name: 'string',
+    children: 'numeric',
+    priority: 'numeric'
+  }, 'product');
+  
+  if (validator.fail) {
+    next({statusCode: 400, ...validator.errors}); return;
+  }
+  
+  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
+  	return
+  }
+  
+  result = await productCategory.update({ id: useData.id }, useData)
+  
+  res.status(200).json();
+})
+
+router.delete('/:productCategoryId', async function(req, res, next) {
+  const useData = {
+		id: req.params.productCategoryId,
+    storeId: req.query.storeId,
+  }
+
+  const validator = wrapValidator(useData, {
+		id: 'required|numeric|min:1',
+    storeId: 'required|numeric|min:1',
+  }, 'product');
+  
+  if (validator.fail) {
+    next({statusCode: 400, ...validator.errors}); return;
+  }
+  
+  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
+  	return
+  }
+
+  let currentCategory = await productCategory.getOne({ id: useData.id })
+  await productCategory.update({ parentId: useData.id }, { parentId: currentCategory.parentId })
+  
+  result = await productCategory.delete({ id: useData.id })
+  
+  res.status(200).json();
+
+})

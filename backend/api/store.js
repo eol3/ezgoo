@@ -5,7 +5,7 @@ const auth = require(process.cwd() + "/tools/middlewares.js").auth
 
 module.exports = router
 
-router.get('/:storeId/dashboard', async function(req, res, next) {
+router.get('/:storeId/dashboard', auth, async function(req, res, next) {
   
   const useData = {
 		account: req.params.storeId
@@ -28,11 +28,13 @@ router.get('/:storeId/dashboard', async function(req, res, next) {
 router.get('/:storeId', async function(req, res, next) {
 	
 	const useData = {
-		account: req.params.storeId
+		account: req.params.storeId,
+    status: req.params.status
 	}
 	
 	const validator = wrapValidator(useData, {
 	  account: 'required|string',
+    status: 'enum:statusQuery', // 0:未公開, 1:已公開, 2:僅展示，不能下單, 3:暫時關閉維護中, -1: 系統禁用
   }, 'store')
   
   if (validator.fail) {

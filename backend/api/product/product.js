@@ -10,11 +10,13 @@ router.get('/count', async function(req, res, next) {
 	const useData = {
 		storeId: req.query.storeId,
 		status: req.query.status,
+    categoris: req.query.categoris,
 	}
 	
 	const validator = wrapValidator(useData, {
 		storeId: 'numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    categoris: 'idStringArray',
   }, 'product')
   
   if (validator.fail) {
@@ -74,7 +76,8 @@ router.get('/', async function(req, res, next) {
 	
 	const useData = {
 		storeId: req.query.storeId,
-		status: req.query.status,
+		status: req.query.status || '1',
+    categoris: req.query.categoris,
 		withImages: req.query.withImages || false,
 		sortBy: req.query.sortBy,
 	  orderBy: req.query.orderBy,
@@ -85,6 +88,7 @@ router.get('/', async function(req, res, next) {
 	const validator = wrapValidator(useData, {
 		storeId: 'required|numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    categoris: 'idStringArray',
 	  withImages: 'boolean',
 	  withLabels: 'boolean',
 	  sortBy: 'string|enum:sortBy',
@@ -105,6 +109,12 @@ router.get('/', async function(req, res, next) {
 	
   Product.setRoleFilter(req.session.user)
 	let result = await Product.getList(useData)
+
+  for(const item of result) {
+    if (item.thumbnail) {
+      item.thumbnail = process.env.BASE_URL + item.thumbnail
+    }
+  }
 	
 	res.json(result)
 })
@@ -115,7 +125,7 @@ router.post('/', async function(req, res, next) {
     storeId: req.query.storeId,
     name: req.body.name,
     price: req.body.price, // -1:未標示售價, -2:僅展示
-    number: req.body.price,
+    number: req.body.number,
     describe: req.body.describe,
     status: req.body.status, // 0:未公開, 1:已公開
 		createBy: req.session.user.id,
@@ -151,8 +161,10 @@ router.put('/:productId', async function(req, res, next) {
     storeId: req.query.storeId,
     name: req.body.name,
     price: req.body.price, // -1:未標示售價, -2:僅展示
-    number: req.body.price,
+    number: req.body.number,
+    options: req.body.options,
     describe: req.body.describe,
+    thumbnail: req.body.thumbnail,
     status: req.body.status, // 0:未公開, 1:已公開
 		updateBy: req.session.user.id,
   }
@@ -164,6 +176,7 @@ router.put('/:productId', async function(req, res, next) {
     price: 'numeric',
     number: 'numeric',
     describe: 'string',
+    thumbnail: 'string',
     status: 'enum:status',
   }, 'product');
   
@@ -173,6 +186,10 @@ router.put('/:productId', async function(req, res, next) {
   
   if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
   	return
+  }
+
+  if (useData.options) {
+    useData.options = JSON.stringify(useData.options)
   }
   
   result = await Product.update({ id: useData.id }, useData)

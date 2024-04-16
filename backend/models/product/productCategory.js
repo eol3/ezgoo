@@ -2,29 +2,17 @@ const knex = require(process.cwd() + '/database/init').knex
 
 var model = {}
 module.exports = model
-var tableName = 'store'
+var tableName = 'productCategory'
 
 model.getOne = async function (condition) {
 	
-	let result = {}
 	let query = knex(tableName)
 	
-	if (Object.hasOwn(condition, 'id')) {
+	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
-	
-	if (Object.hasOwn(condition, 'account')) {
-		query.where({ 'account': condition.account })
-	}
-
-	if (condition.status) {
-		query.where({ 'status': condition.status })
-	}
-	
-	// console.log(query.toString())
-	result = await query.first();
-	
-	return result
+		
+	return await query.first()
 }
 
 model.getList = async function (condition) {
@@ -32,16 +20,12 @@ model.getList = async function (condition) {
 	let result = {}
 	let query = knex(tableName)
 	
-	if (Object.hasOwn(condition, 'id')) {
+	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
 
-	if (condition.status) {
-		query.where({ 'status': condition.status })
-	}
-	
-	if (condition.createBy) {
-		query.where({ 'createBy': condition.createBy })
+	if (condition.storeId) {
+		query.where({ 'storeId': condition.storeId })
 	}
 	
 	if (condition.sortBy && condition.orderBy) {
@@ -71,9 +55,20 @@ model.update = async function (condition, data) {
 	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
+
+	if (condition.parentId) {
+		query.where({ 'parentId': condition.parentId })
+	}
 	
-	return await query.update({
+	let result = await query.update({
 		...data,
 		updateAt: knex.fn.now()
 	})
+
+	// console.log(query.toString())
+	return result
+}
+
+model.delete = async function (condition) {
+	return await knex(tableName).where('id', condition.id).del()
 }
