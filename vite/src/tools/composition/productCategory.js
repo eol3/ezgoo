@@ -6,6 +6,7 @@ import { useRoute, useRouter  } from "vue-router";
 export default () => {
   const route = useRoute()
   const router = useRouter()
+  const modelName = ref('')
   const categoryIds = ref('')
   const categoryList = ref([])
   const treeList = ref([])
@@ -18,8 +19,9 @@ export default () => {
   })
   const isNeedChangeRoute = ref(false)
 
-  async function getProductCategory() {
-    return axios.get('/product-category/', {
+  async function getCategory() {
+    if (modelName.value === '') return
+    return axios.get('/'+modelName.value+'/', {
       params: categoryQueryObj
     }).then((response) => {
       categoryList.value = response.data
@@ -95,6 +97,7 @@ export default () => {
   return {
     categoryIds,
     selectedCategories,
+    modelName,
     categoryList,
     treeList,
     categoryQueryObj,
@@ -102,7 +105,7 @@ export default () => {
     parseIds,
     setAndParseIds,
     changeRoute,
-    getProductCategory,
+    getCategory,
     selectedItem,
     unSelectedItem
   }

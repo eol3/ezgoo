@@ -73,3 +73,33 @@ $white: #fff;
   width: 100%; 
   white-space: nowrap;
 }
+
+.bg-1 {
+  background-color: var(--d-gray-100);
+}
+
+.bg-2 {
+  background-color: var(--d-gray-200);
+}
+
+.narmal-link-wrap,
+.narmal-link-wrap a {
+  color: var(--d-gray-600);
+  text-decoration: none;
+}
+
+.narmal-link-wrap span {
+  border-left: 2px solid var(--d-gray-100);
+}
+
+.narmal-link-wrap.active,
+.narmal-link-wrap.active a,
+.narmal-link-wrap:hover,
+.narmal-link-wrap:hover a {
+  color: $primary;
+  background-color: var(--d-gray-300);
+}
+
+.fs-sm {
+  font-size: 0.9rem;
+}

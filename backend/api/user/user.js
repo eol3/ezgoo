@@ -1,6 +1,6 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
-const User = require(process.cwd() + '/models/user')
+const User = require(process.cwd() + '/models/user/user')
 const Password = require(process.cwd() + '/tools/password')
 const auth = require(process.cwd() + "/tools/middlewares.js").auth
 

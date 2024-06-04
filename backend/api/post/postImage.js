@@ -1,45 +1,47 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
-const ProductImage = require(process.cwd() + '/models/product/productImage')
-const Product = require(process.cwd() + '/models/product/product')
+const postImage = require(process.cwd() + '/models/post/postImage')
+const Post = require(process.cwd() + '/models/post/post')
 const multer  = require('multer')
 const upload = multer({ dest: 'tmp' })
-const { authUserStoreRole }= require(process.cwd() + '/tools/libs')
+const { authStore }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
 
 router.get('/', async function(req, res, next) {
   const useData = {
 		storeId: req.query.storeId,
-    productId: req.params.productId,
+    postId: req.params.postId,
 		status: req.query.status || '1',
   }
 
   const validator = wrapValidator(useData, {
 		storeId: 'numeric|min:1',
-    productId: 'required|numeric|min:1',
+    postId: 'required|numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
-  }, 'product')
+  }, 'post')
   
   if (validator.fail) {
   	return next({statusCode: 400, ...validator.errors})
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-    return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    status: useData.status,
+    role: ['owner', 'editor']
+  })) return
 
   if (useData.status === '1') {
-    // 公開圖片需跟隨產品狀態是否上架，這樣可不必維護productImage.status的資料
-    let product = await Product.getOne({ id: useData.productId })
-    if (product.status !== 1) return next({statusCode: 403 })
+    // 公開圖片需跟隨產品狀態是否上架，這樣可不必維護postImage.status的資料
+    let post = await Post.getOne({ id: useData.postId })
+    if (post.status !== 1) return next({statusCode: 403 })
   }
 
   delete useData.status
   useData.sortBy = 'priority'
   useData.orderBy = 'ASC'
 	
-	let result = await ProductImage.getList(useData)
+	let result = await postImage.getList(useData)
 
   for(const key in result) {
     result[key].baseUrl = process.env.BASE_URL
@@ -53,7 +55,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
   
   const useData = {
 		storeId: req.body.storeId,
-    productId: req.params.productId,
+    postId: req.params.postId,
     priority: req.body.priority,
     createBy: req.session.user.id,
 		updateBy: req.session.user.id
@@ -61,17 +63,18 @@ router.post('/', upload.any('files'), async function (req, res, next) {
 
   const validator = wrapValidator(useData, {
 		storeId: 'required|numeric|min:1',
-    productId: 'required|numeric|min:1',
+    postId: 'required|numeric|min:1',
     priority: 'numeric'
-  }, 'product')
+  }, 'post')
   
   if (validator.fail) {
   	return next({statusCode: 400, ...validator.errors})
   }
 
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
 
   // 檢查檔案格式
   const fs = require('fs');
@@ -88,7 +91,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
       fs.unlinkSync('tmp/' + file.filename);
     }
     return next({statusCode: 400,
-      errors: { productImages: [ '商品圖片格式必須是jpg或png' ] }
+      errors: { images: [ '圖片格式必須是jpg或png' ] }
     })
   }
 
@@ -105,11 +108,11 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     useData.originalname = file.originalname
     useData.filename = 'default' + ext
     useData.size = file.size
-    let result = await ProductImage.create(useData)
+    let result = await postImage.create(useData)
     
-    let dir = '/uploads/product-images/' + result[0];
+    let dir = '/uploads/post-images/' + result[0];
 
-    await ProductImage.update({ id: result[0] }, { path: dir, priority: result[0] })
+    await postImage.update({ id: result[0] }, { path: dir, priority: result[0] })
 
     // 移動檔案
     dir = './public' + dir
@@ -125,12 +128,12 @@ router.post('/', upload.any('files'), async function (req, res, next) {
   res.status(200).json();
 });
 
-router.put('/:productImageId', async function(req, res, next) {
+router.put('/:postImageId', async function(req, res, next) {
 	
 	const useData = {
-		id: req.params.productImageId,
+		id: req.params.postImageId,
     storeId: req.query.storeId,
-    productId: req.params.productId,
+    postId: req.params.postId,
     priority: req.body.priority,
 		updateBy: req.session.user.id,
   }
@@ -138,49 +141,51 @@ router.put('/:productImageId', async function(req, res, next) {
   const validator = wrapValidator(useData, {
 		id: 'required|numeric|min:1',
     storeId: 'required|numeric|min:1',
-    productId: 'required|numeric|min:1',
+    postId: 'required|numeric|min:1',
     priority: 'numeric'
-  }, 'product');
+  }, 'post');
   
   if (validator.fail) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
   
-  result = await ProductImage.update({ id: useData.id }, useData)
+  result = await postImage.update({ id: useData.id }, useData)
   
   res.status(200).json();
 })
 
-router.delete('/:productImageId', async function(req, res, next) {
+router.delete('/:postImageId', async function(req, res, next) {
   const useData = {
-		id: req.params.productImageId,
+		id: req.params.postImageId,
     storeId: req.query.storeId,
-    productId: req.params.productId,
+    postId: req.params.postId,
   }
 
   const validator = wrapValidator(useData, {
 		id: 'required|numeric|min:1',
     storeId: 'required|numeric|min:1',
-    productId: 'required|numeric|min:1',
-  }, 'product');
+    postId: 'required|numeric|min:1',
+  }, 'post');
   
   if (validator.fail) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
   
-  await ProductImage.delete({ id: useData.id })
+  await postImage.delete({ id: useData.id })
   
   // 刪除圖片
   const fs = require('fs');
-  let dir = './public/uploads/product-images/' + useData.id
+  let dir = './public/uploads/post-images/' + useData.id
   fs.rm(dir, { recursive: true, force: true }, () => {})
 
   res.status(200).json();

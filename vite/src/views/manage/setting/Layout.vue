@@ -1,15 +1,25 @@
 <template>
 	<div>
-		<div class="d-flex justify-content-between pb-3">
-			<div class="fs-5 fw-5 my-auto">{{ title }}</div>
-			<div>
-				<a v-show="showBack" class="btn btn-outline-secondary btn-sm" @click="$router.go(-1)">
-					<i class="fas fa-arrow-left"></i>
-					返回
-				</a>
+		<div class="row justify-content-between pb-3">
+			<div class="col-12 col-md-3">
+				<div class="fs-5 fw-5 my-auto">{{ title }}</div>
+			</div>
+			<div class="col-12 col-md-6 text-end">
+				<router-link class="btn btn-outline-success btn-sm me-1" :to="'/manage/store/' + $route.params.storeId + '/setting'">
+					<i class="fa-solid fa-circle-info"></i>
+					基本資料
+				</router-link>
+				<router-link class="btn btn-outline-success btn-sm me-1" :to="'/manage/store/' + $route.params.storeId + '/setting/payment'">
+					<i class="fa-regular fa-credit-card"></i>
+					付款設定
+				</router-link>
+				<router-link class="btn btn-outline-success btn-sm me-1" :to="'/manage/store/' + $route.params.storeId + '/setting/shipping-method'">
+					<i class="fa-solid fa-truck-fast"></i>
+					運送方式設定
+				</router-link>
 			</div>
 		</div>
-		<router-view v-slot="{ Component, route  }" @updateStatus="updateStatus">
+		<router-view v-slot="{ Component, route  }" @updateLayoutStatus="updateStatus">
 			<keep-alive>
 				<component :is="Component" :key="route.path" />
 			</keep-alive>

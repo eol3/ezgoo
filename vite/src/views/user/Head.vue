@@ -1,7 +1,7 @@
 <template>
   <div class="container my-3">
     <div class="row">
-		  <div class="col-md-6 mx-auto">
+		  <div class="col-lg-8 mx-auto">
 		    <ul class="nav nav-tabs">
           <li class="nav-item">
             <router-link class="nav-link" :class="{ active: $route.path === '/user' }" to="/user">

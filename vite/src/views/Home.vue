@@ -62,6 +62,11 @@
         </router-link>
       </li>
       <li>
+        <router-link class="d-block py-2 px-2 text-decoration-none" to="/store/16">
+          測試商店
+        </router-link>
+      </li>
+      <li>
         <button class="d-block my-2 btn btn-primary" @click="$router.push('/store/create')">立即建立商店</button>
       </li>
       <li>

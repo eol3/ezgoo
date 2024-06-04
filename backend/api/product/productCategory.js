@@ -1,7 +1,7 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const productCategory = require(process.cwd() + '/models/product/productCategory')
-const { authUserStoreRole, authUserStoreRoleGroup }= require(process.cwd() + '/tools/libs')
+const { authStore }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
 
@@ -9,14 +9,14 @@ router.get('/', async function(req, res, next) {
 	
 	const useData = {
 		storeId: req.query.storeId,
-    status: req.query.status || '1',
+    status: req.query.status,
     sortBy: req.query.sortBy,
 	  orderBy: req.query.orderBy,
 	}
 	
 	const validator = wrapValidator(useData, {
 		storeId: 'required|numeric|min:1',
-    status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    status: 'enum:statusQuery', // 跟隨store.status, all:查詢全部, 0:未公開, 1:已公開
     sortBy: 'string|enum:sortBy',
 	  orderBy: 'string|enum:orderBy',
   }, 'product')
@@ -24,17 +24,14 @@ router.get('/', async function(req, res, next) {
   if (validator.fail) {
   	return next({statusCode: 400, ...validator.errors})
   }
-
-  if (!await authUserStoreRoleGroup(req, next, useData.storeId, 'manage')) {
-    return
-  }
-
-  if (useData.status === '1') {
-    // 公開商品分類，跟隨商店狀態是否公開
-    const Store = require(process.cwd() + '/models/store')
-    let store = await Store.getOne({ id: useData.storeId })
-    if (store.status !== 1) return next({statusCode: 403 })
-  }
+  
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    status: useData.status,
+    group: ['manage']
+  })) return
+  
+  if (useData.status === 'all') delete useData.status
 	
 	let result = await productCategory.getList(useData)
 	
@@ -68,9 +65,10 @@ router.post('/', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
 
   result = await productCategory.create(useData)
 
@@ -105,9 +103,10 @@ router.put('/:productCategoryId', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
   
   result = await productCategory.update({ id: useData.id }, useData)
   
@@ -129,14 +128,20 @@ router.delete('/:productCategoryId', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
 
   let currentCategory = await productCategory.getOne({ id: useData.id })
   await productCategory.update({ parentId: useData.id }, { parentId: currentCategory.parentId })
   
   result = await productCategory.delete({ id: useData.id })
+  // 刪除ProductCategoriesOnProducts
+  const ProductCategoriesOnProducts = require(process.cwd() + '/models/product/productCategoriesOnProducts')
+  ProductCategoriesOnProducts.delete({
+    productCategoryId: currentCategory.id
+  })
   
   res.status(200).json();
 

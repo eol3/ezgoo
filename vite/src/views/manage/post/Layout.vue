@@ -1,9 +1,13 @@
 <template>
 	<div>
 		<div class="d-flex justify-content-between pb-3">
-			<div class="fs-5 fw-5 my-auto">{{ title }}</div>
+			<div class="manage-title fs-5 fw-5 my-auto">{{ title }}</div>
 			<div>
-				<router-link v-show="!showBack" class="btn btn-outline-primary btn-sm" :to="'/manage/store/' + $route.params.storeId + '/product/new'">
+				<router-link v-show="!showBack" class="btn btn-outline-success btn-sm me-1" :to="'/manage/store/' + $route.params.storeId + '/post/category'">
+					<i class="fa-solid fa-folder-open"></i>
+					管理貼文分類
+				</router-link>
+				<router-link v-show="!showBack" class="btn btn-outline-primary btn-sm" :to="'/manage/store/' + $route.params.storeId + '/post/new'">
 					<i class="fa-solid fa-plus"></i>
 					新增貼文
 				</router-link>
@@ -13,9 +17,9 @@
 				</a>
 			</div>
 		</div>
-		<router-view v-slot="{ Component, route  }" @updateStatus="updateStatus">
+		<router-view v-slot="{ Component, route  }" @updateLayoutStatus="updateStatus">
 			<keep-alive>
-				<component :is="Component"  />
+				<component :is="Component" :key="route.path"/>
 			</keep-alive>
 		</router-view>
 	</div>

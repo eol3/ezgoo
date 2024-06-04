@@ -1,17 +1,39 @@
 <template>
-  <div class="wrap">
+  <div class="wrap" :style="customWrapStyle">
     <div class="loader"></div>
   </div>
 </template>
 
+<script setup>
+import { reactive  } from 'vue'
+
+const props = defineProps({
+	width: {
+		type: Number,
+		default: 120
+	},
+  height: {
+		type: Number,
+		default: 120
+	},
+  borderRadius: {
+		type: String,
+		default: '5%'
+	},
+})
+
+const customWrapStyle = reactive({
+  width: props.width + 'px',
+  height: props.height + 'px',
+  'padding-top': (props.width - 60 ) / 2 + 'px',
+  'padding-left': (props.height - 60 ) / 2 + 'px',
+  'border-radius': props.borderRadius
+})
+</script>
+
 <style lang="scss" scoped>
 
 .wrap {
-  width: 120px;
-  height: 120px;
-  border-radius: 5%;
-  padding-top: 30px;
-  padding-left: 30px;
   background-color: $gray-200;
 }
 

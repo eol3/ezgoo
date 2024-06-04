@@ -1,47 +1,23 @@
 <template>
-  <nav class="navbar navbar-expand">
-    <router-link class="navbar-brand" to="/">
-      <img width="100" :src="logo" />
-    </router-link>
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-        <router-link class="nav-link" to="/cart">
-          <img width="20" class="pb-1" :src="cart" />
-        </router-link>
-      </li>
-      <li class="nav-item pointer" data-toggle="modal" data-target="#registerModal">
-        <span class="nav-link">註冊</span>
-      </li>
-      <li class="nav-item pointer" data-toggle="modal" data-target="#loginModal">
-        <span class="nav-link">登入</span>
-      </li>
-    </ul>
-  </nav>
-  <router-view v-slot="{ Component }">
-    <keep-alive>
-      <component :is="Component" />
-    </keep-alive>
+  <div v-if="store.state.preview" class="bg-success p-2 text-white text-center">
+    預覽模式
+  </div>
+  <router-view v-slot="{ Component, route  }">
+    <component :is="Component"/>
   </router-view>
-  <alert />
-  <modals />
 </template>
-<script>
-// import { reactive } from "vue";
-import Alert from "@/components/Alert.vue";
-import Modals from "@/components/Modals.vue";
-import logo from "@/assets/logo.png";
-import cart from "@/assets/icons/cart_black.jpg";
+<script setup>
+import { ref } from "vue";
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
 
-export default {
-  components: {
-    Alert,
-    Modals
-  },
-  data() {
-    return {
-      logo: logo,
-      cart: cart,
-    }
-  },
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+
+if (route.query.preview) {
+  store.commit('setPreview', true)
+} else {
+  store.commit('setPreview', false)
 }
 </script>

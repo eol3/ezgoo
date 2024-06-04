@@ -32,6 +32,13 @@ model.getList = async function (condition) {
 		query.where({ 'productId': condition.productId })
 	}
 	
+	if (condition.status) {
+		query.select(tableName + '.*')
+		query.select('product.status')
+		query.join('product', 'product.id', tableName + '.productId')
+		query.where({ 'product.status': condition.status })
+	}
+	
 	if (condition.sortBy && condition.orderBy) {
 		query.orderBy(condition.sortBy, condition.orderBy)
 	}
@@ -50,6 +57,11 @@ model.getList = async function (condition) {
 }
 
 model.create = async function (data) {
+	
+	if (data.productOption) {
+    data.productOption = JSON.stringify(data.productOption)
+  }
+  
 	return await knex(tableName).insert(data)
 }
 
@@ -59,6 +71,14 @@ model.update = async function (condition, data) {
 	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
+	
+	if (condition.productId) {
+		query.where({ 'productId': condition.productId })
+	}
+	
+	if (data.productOption) {
+    data.productOption = JSON.stringify(data.productOption)
+  }
 	
 	return await query.update({
 		...data,

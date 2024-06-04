@@ -73,9 +73,17 @@ model.delete = async function (condition) {
 	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
+	
+	if (condition.productId) {
+		query.where({ 'productId': condition.productId })
+	}
 
 	if (condition.productCategoryId) {
 		query.where({ 'productCategoryId': condition.productCategoryId })
+	}
+	
+	if (condition.productCategoryIds) {
+		query.whereIn('productCategoryId', condition.productCategoryIds)
 	}
 	
 	return await query.del()

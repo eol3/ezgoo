@@ -24,7 +24,9 @@ export default ({ mode }) => {
     },
     build: {
       target: 'es2020',
-      polyfillModulePreload: false
+      modulePreload: {
+        polyfill: false
+      }
     },
     css: {
       preprocessorOptions: {

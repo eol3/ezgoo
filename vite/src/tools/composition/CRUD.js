@@ -1,10 +1,11 @@
 import { ref, reactive } from 'vue';
 // import { axios } from "@/tools/request";
 import { axios } from "@/tools/requestCache";
-
-export const updateListData = ref(false)
+import { useStore } from "vuex";
 
 export default () => {
+
+  const store = useStore()
 
   // 常用共用
 
@@ -133,7 +134,7 @@ export default () => {
 
   async function newItem(params) {
     try {
-      return await axios.post('/' + modelName.value, formData.value, {
+      return await axios.post(apiBaseUrl.value + '/' + modelName.value, formData.value, {
         params: {
           ...{ storeId: storeId.value },
           ...params
@@ -152,7 +153,7 @@ export default () => {
 
   async function editItem(params) {
     try {
-      return await axios.put('/' + modelName.value + '/' + itemId.value, formData.value, {
+      return await axios.put(apiBaseUrl.value + '/' + modelName.value + '/' + itemId.value, formData.value, {
         params: {
           ...{ storeId: storeId.value },
           ...params
@@ -181,7 +182,7 @@ export default () => {
     } catch(error) {
       throw error
     }
-
+    store.dispatch('clearCache')
     loading.value = false
     return response
   }
@@ -203,6 +204,7 @@ export default () => {
     getListCount,
     itemId,
     deleteItem,
+    setFormData,
     formValid,
     formValidFeild,
     formValidClear,

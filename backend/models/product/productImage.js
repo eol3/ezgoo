@@ -11,7 +11,8 @@ model.getOne = async function (condition) {
 	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
-		
+	
+	// console.log(query.toString())
 	return await query.first()
 }
 
@@ -30,6 +31,12 @@ model.getList = async function (condition) {
 
 	if (condition.productId) {
 		query.where({ 'productId': condition.productId })
+	}
+
+	if (condition.productOption) {
+		query.where(
+			knex.raw('JSON_CONTAINS(`productOption` , ?)', [condition.productOption])
+		)
 	}
 	
 	if (condition.sortBy && condition.orderBy) {
@@ -50,6 +57,7 @@ model.getList = async function (condition) {
 }
 
 model.create = async function (data) {
+	
 	return await knex(tableName).insert(data)
 }
 

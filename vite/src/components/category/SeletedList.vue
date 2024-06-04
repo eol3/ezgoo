@@ -3,6 +3,7 @@
     class="ms-1 btn btn-outline-primary btn-sm d-flex align-items-center"
     v-for="(item, key) in selectedCategories"
     :key="key"
+    :disabled="loading"
     @click="unSelectedItem(item)"
   >
     {{ item.name }}
@@ -16,6 +17,10 @@ const props = defineProps({
 		type: Array,
 		default: []
 	},
+	loading: {
+	  type: Boolean,
+	  default: false
+	}
 })
 
 const emit = defineEmits(['unselected-item'])

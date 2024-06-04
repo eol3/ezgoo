@@ -41,6 +41,7 @@
 <script>
 import formValidTools from '@/tools/formValid'
 import wrapValidator from '@/tools/validator'
+import { mergeCart } from '@/tools/libs'
 
 export default {
 	setup() {
@@ -84,6 +85,7 @@ export default {
         let localUser = { id: response.data.user.id }
         localStorage.setItem('user', JSON.stringify(localUser))
         this.$store.commit('setLocalUser', localUser)
+				mergeCart()
         // this.$store.commit('setUser', response.data.user)
         if (this.$route.query.redirect) {
 					this.$router.push(decodeURI(this.$route.query.redirect))

@@ -9,6 +9,10 @@
 	background-color: var(--d-gray-100);
 }
 
+.manage-body.manage-title {
+	line-break: anywhere;
+}
+
 .manage-head {
 	background-color: var(--d-gray-0);
 	border-bottom: 1px solid $gray-300;
@@ -72,24 +76,6 @@
 	.manage-table > div {
 		padding: 0.8rem 0;
 	}
-}
-
-.narmal-link-wrap,
-.narmal-link-wrap a {
-  color: var(--d-gray-600);
-  text-decoration: none;
-}
-
-.narmal-link-wrap span {
-  border-left: 2px solid var(--d-gray-100);
-}
-
-.narmal-link-wrap.active,
-.narmal-link-wrap.active a,
-.narmal-link-wrap:hover,
-.narmal-link-wrap:hover a {
-  color: $primary;
-  background-color: var(--d-gray-300);
 }
 
 .icon-link{

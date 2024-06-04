@@ -16,7 +16,7 @@
 					</li>
 				</ul>
 				<ul class="navbar-nav ms-auto">
-					<li class="nav-item d-flex align-items-center" @click="switchTeme()">
+					<li class="nav-item d-flex align-items-center" @click="switchTheme()">
 						<div class="nav-link icon-link cursor-pointer">
 							<i class="fa-solid fa-circle-half-stroke"></i>
 						</div>
@@ -27,7 +27,7 @@
 						</div>
 	        	<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownStore">
 					    <li><router-link class="dropdown-item" :to="'/store/' + $route.params.storeId">商店首頁</router-link></li>
-					    <li><a class="dropdown-item" href="#">預覽模式</a></li>
+					    <li><router-link class="dropdown-item" :to="'/store/' + $route.params.storeId + '?preview=true'">預覽模式</router-link></li>
 					  </ul>
 	        </li>
 	        <li class="nav-item dropdown">
@@ -79,7 +79,7 @@ export default {
 	      overlay: false,
 	    })
   	},
-		switchTeme() {
+		switchTheme() {
 			this.$store.dispatch('switchTheme')
 		}
   }

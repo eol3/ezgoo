@@ -1,6 +1,132 @@
 import router from "../router/index";
 import store from "../store/index";
-import { axios } from "@/tools/request";
+import { axios } from "@/tools/requestCache";
+
+export function mergeCart() {
+  axios.get('/user/cart').then(response => {
+    let cart = response.data
+    var localCart = localStorage.getItem("cart")
+    if (!localCart) {
+      localStorage.setItem("cart", JSON.stringify(cart))
+    } else {
+      localCart = JSON.parse(localCart)
+      for (const storeItem of localCart) {
+        // let result = {}
+        for (const product of storeItem.content) {
+          addProdutToCart(cart, storeItem.store, product)
+        }
+      }
+      let cartStr = JSON.stringify(cart)
+      localStorage.setItem("cart", cartStr)
+      syncToServer(cartStr)
+    }
+  })
+}
+
+// product 必須包含choiceNumber, selectedOptions, variant, proudctVariantPrice
+export function setCart(storeInfo, product) {
+  
+  var cart = localStorage.getItem("cart")
+  if (!cart) {
+    cart = [{
+      store: {
+        id: storeInfo.id,
+        name: storeInfo.name,
+        thumbnail: storeInfo.thumbnail,
+      },
+      content: []
+    }]
+  } else {
+    cart = JSON.parse(cart)
+  }
+
+  addProdutToCart(cart, storeInfo, product)
+
+  // console.log(result)
+  let cartStr = JSON.stringify(cart)
+  localStorage.setItem("cart", cartStr)
+  if (localStorage.getItem("user")) {
+    syncToServer(cartStr)
+  }
+}
+
+function addProdutToCart(cart, storeInfo, product) {
+
+  // 刪除多餘欄位
+  storeInfo = {
+    id: storeInfo.id,
+    name: storeInfo.name,
+    thumbnail: storeInfo.thumbnail,
+  }
+
+  product = {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    choiceNumber: product.choiceNumber,
+    variant: product.variant,
+    selectedOptions: product.selectedOptions,
+    thumbnail: product.thumbnail
+  }
+
+  let findStore = false
+  for (const store of cart) {
+    if (store.store.id === storeInfo.id) findStore = true
+  }
+
+  if (!findStore) {
+    cart.push({ 
+      store: storeInfo,
+      content: []
+    })
+  }
+  
+  for (const store of cart) {
+    if (store.store.id === storeInfo.id) {
+      store.store = storeInfo
+      addProdutToStoreCart(store.content, product)
+    }
+  }
+}
+
+function addProdutToStoreCart(content, product) {
+  let firstKey = false
+  let findProduct = false
+  for (let i in content) {
+    if (content[i].id === product.id && !content[i].variant && !firstKey) {
+      firstKey = Number(i) + 1
+    }
+  }
+  for (let i in content) {
+    if (content[i].id === product.id && isSame(content[i].selectedOptions, product.selectedOptions)) {
+      content[i].choiceNumber += product.choiceNumber
+      findProduct = true
+      break;
+    }
+  }
+  if (firstKey) {
+    content.splice(firstKey, 0, product)
+  } else if (!findProduct) {
+    content.push(product)
+  }
+}
+
+// 同步到伺服器
+export async function syncToServer(cartStr) {
+  await axios({
+    method: 'post',
+    url: '/user/cart',
+    data: {
+      content: cartStr
+    }
+  })
+}
+
+export function isSame(array1, array2) {
+  return (array1.length == array2.length) && array1.every(function(element, index) {
+      return element === array2[index]; 
+  });
+}
 
 export function checkLogin(type) {
   if (!store.state.localUser) {

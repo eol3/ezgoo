@@ -1,8 +1,9 @@
 <template>
-  <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#cagetgoryModal">選擇分類</button>
-  <span class="ms-1 d-flex align-items-center">
+  <button class="btn btn-outline-secondary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#cagetgoryModal">選擇分類</button>
+  <span class="ms-1 d-flex align-items-center overflow-x-auto">
     <SeletedList
       :selectedCategories="selectedCategories"
+      :loading="loading"
       @unselected-item="selfUnSelectedItem"
     ></SeletedList>
   </span>
@@ -22,9 +23,9 @@ import productCategoryTools from "@/tools/composition/productCategory";
 
 const route = useRoute()
 
-const { selectedCategories, categoryIds, treeList, 
+const { selectedCategories, modelName, categoryIds, treeList, 
 	isNeedChangeRoute, categoryQueryObj, setAndParseIds,
-	getProductCategory, selectedItem, unSelectedItem } = productCategoryTools()
+	getCategory, selectedItem, unSelectedItem } = productCategoryTools()
 
 const parentCategoryIds = defineModel()
 parentCategoryIds.value = categoryIds.value
@@ -33,14 +34,24 @@ const props = defineProps({
 	relateQuery: {
 		type: Boolean,
 		default: false
+	},
+	modelName: {
+		type: String,
+		default: ''
+	},
+	loading: {
+		type: Boolean,
+		default: false
 	}
 })
+
+modelName.value = props.modelName
 
 isNeedChangeRoute.value = props.relateQuery
 categoryQueryObj.storeId = route.params.storeId
 
 onMounted(() => {
-	getProductCategory().then(() => {
+	getCategory().then(() => {
 		setAndParseIds(parentCategoryIds.value)
 	})
 })

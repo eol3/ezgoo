@@ -57,7 +57,7 @@ const props = defineProps({
 	},
 })
 
-const emit = defineEmits(['needNewItem', 'selectedOptions'])
+const emit = defineEmits(['needNewItem', 'selectedOptions', 'hasDelVariantImage'])
 defineExpose({ setParentOptions })
 
 let modal = reactive({})
@@ -67,6 +67,7 @@ const options = ref([{
   values: ['','', '']
 }])
 const placeholderExText = ref(['紅', '藍', '綠'])
+const productVaraint = ref([])
 
 onMounted(() => {
   var modalEl = document.getElementById('productOptionsModal')
@@ -81,40 +82,125 @@ function confirm() {
   } else {
     setOptions()
   }
+  compareVariant()
 }
 
 function checkOptions() {
-  if (options.value.length > 3) {
+  
+  let nameArr = options.value.map(e => e.name)
+  if (nameArr.some(e => e === '')) {
     store.dispatch('showAlert', {
       type: 'warning',
-      text: '商品選項不能超過3層'
+      text: '尚有選項未填寫'
     })
     return false
   }
-
-  for (const item of options.value) {
-    if (item.name === '') {
-      store.dispatch('showAlert', {
-        type: 'warning',
-        text: '尚有商品選項未填寫'
-      })
-      return false
-    }
-    for (const value of item.values) {
-      if (value === '') {
-        store.dispatch('showAlert', {
-          type: 'warning',
-          text: '尚有商品選項未填寫'
-        })
-        return false
-      }
-    }
+  if (hasDuplicates(nameArr)) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '選項不能相同'
+    })
+    return false
   }
-
+  
+  let childArr = []
+  options.value.forEach(e => e.values.forEach(c => childArr.push(c)))
+  if (childArr.some(e => e === '')) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚有子選項未填寫'
+    })
+    return false
+  }
+  if (hasDuplicates(childArr)) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '子選項不能相同'
+    })
+    return false
+  }
+  
   return true
 }
 
-function setOptions() {
+function hasDuplicates(array) {
+  return (new Set(array)).size !== array.length;
+}
+
+
+async function getProductVaraint() {
+  return axios.get("/product/" + props.productId + "/variant", {
+    params: { storeId: route.params.storeId }
+  }).then((response) => {
+    productVaraint.value = response.data
+    for (const variant of productVaraint.value) {
+      variant.productOption = JSON.parse(variant.productOption)
+    }
+  })
+}
+
+async function setProductVariant(option, variantId) {
+  return axios.put("/product/" + props.productId + "/variant/" + variantId, {
+    productOption: option
+  }, {
+    params: { storeId: route.params.storeId }
+  }).then((response) => {
+    productVaraint.value = response.data
+  })
+}
+
+async function delProductVariant(variantId) {
+  return axios.delete("/product/" + props.productId + "/variant/" + variantId, {
+    params: { storeId: route.params.storeId }
+  })
+}
+
+async function compareVariant() {
+  await getProductVaraint()
+  for (const variant of productVaraint.value) {
+    // let option = JSON.parse(variant.productOption)
+    let option = variant.productOption
+    for (let i in option) {
+      if (option[i] ===  null) continue
+      if (!compareOptions(option[i])) {
+        option[i] = null
+        if (isAllNull(option) || isSameInAllVariant(option)) {
+          await delProductVariant(variant.id)
+          emit('hasDelVariantImage')
+        } else {
+          await setProductVariant(option, variant.id)
+        }
+      }
+    }
+  }
+}
+
+function compareOptions(compareValue) {
+  for (const item of options.value) {
+    for (const value of item.values) {
+      if (value === compareValue) return true
+    }
+  }
+  return false
+}
+
+function isSame(array1, array2) {
+	if (!array1) return false
+  return (array1.length == array2.length) && array1.every(function(element, index) {
+      return element === array2[index]; 
+  });
+}
+
+function isAllNull(option) {
+	return isSame(option, [null, null, null])
+}
+
+function isSameInAllVariant(option) {
+  const found = productVaraint.value.find(e => isSame(e.productOption, option))
+  return found
+}
+
+async function setOptions() {
   axios.put('/product/' + props.productId, {
     options: options.value
   }, {
@@ -143,6 +229,13 @@ function delSubOption(pkey, key) {
 }
 
 function newOption() {
+  if (options.value.length >= 3) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '商品選項不能超過3層'
+    })
+    return false
+  }
   options.value.push({
     name: '',
     values: ['','', '']

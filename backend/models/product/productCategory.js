@@ -28,6 +28,13 @@ model.getList = async function (condition) {
 		query.where({ 'storeId': condition.storeId })
 	}
 	
+	if (condition.status) {
+		query.select(tableName + '.*')
+		query.select('store.status')
+		query.join('store', 'store.id', tableName + '.storeId')
+		query.where({ 'store.status': condition.status })
+	}
+	
 	if (condition.sortBy && condition.orderBy) {
 		query.orderBy(condition.sortBy, condition.orderBy)
 	}

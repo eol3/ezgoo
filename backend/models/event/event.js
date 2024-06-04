@@ -2,20 +2,9 @@ const knex = require(process.cwd() + '/database/init').knex
 
 var model = {}
 module.exports = model
-var tableName = 'productCategory'
+var tableName = 'event'
 
 model.getOne = async function (condition) {
-	
-	let query = knex(tableName)
-	
-	if (condition.id) {
-		query.where({ 'id': condition.id })
-	}
-		
-	return await query.first()
-}
-
-model.getList = async function (condition) {
 	
 	let result = {}
 	let query = knex(tableName)
@@ -27,9 +16,25 @@ model.getList = async function (condition) {
 	if (condition.storeId) {
 		query.where({ 'storeId': condition.storeId })
 	}
+
+	if (condition.status) {
+		query.where({ 'status': condition.status })
+	}
+	// console.log(query.toString())
+	result = await query.first();
+	
+	return result
+}
+
+model.getList = async function (condition) {
+	
+	let result = {}
+	let query = knex(tableName)
+
+	attachCondition(condition, query)
 	
 	if (condition.sortBy && condition.orderBy) {
-		query.orderBy(condition.sortBy, condition.orderBy)
+		query.orderBy(tableName + '.' + condition.sortBy, condition.orderBy)
 	}
 	
 	if (typeof condition.limit !== 'undefined') {
@@ -45,7 +50,35 @@ model.getList = async function (condition) {
 	return result
 }
 
+model.getCount = async function(condition) {
+	
+	let result = {}
+	let query = knex(tableName)
+	
+	attachCondition(condition, query)
+
+	query.countDistinct(tableName + '.id as total')
+	
+	result = await query
+	result = result[0]
+	
+	return result
+}
+
+function attachCondition(condition, query) {
+
+	if (condition.storeId) {
+		query.where({ 'storeId': condition.storeId })
+	}
+
+	if (condition.status) {
+		query.where({ 'status': condition.status })
+	}
+
+}
+
 model.create = async function (data) {
+  
 	return await knex(tableName).insert(data)
 }
 
@@ -55,14 +88,11 @@ model.update = async function (condition, data) {
 	if (condition.id) {
 		query.where({ 'id': condition.id })
 	}
-
-	let result = await query.update({
+	
+	return await query.update({
 		...data,
 		updateAt: knex.fn.now()
 	})
-
-	// console.log(query.toString())
-	return result
 }
 
 model.delete = async function (condition) {

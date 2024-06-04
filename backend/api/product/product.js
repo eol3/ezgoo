@@ -1,7 +1,7 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const Product = require(process.cwd() + '/models/product/product')
-const { authUserStoreRole }= require(process.cwd() + '/tools/libs')
+const { authStore }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
 
@@ -10,24 +10,26 @@ router.get('/count', async function(req, res, next) {
 	const useData = {
 		storeId: req.query.storeId,
 		status: req.query.status,
+		word: req.query.word,
     categoris: req.query.categoris,
 	}
 	
 	const validator = wrapValidator(useData, {
-		storeId: 'numeric|min:1',
+		storeId: 'required|numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+		word: 'string',
     categoris: 'idStringArray',
   }, 'product')
   
   if (validator.fail) {
   	return next({statusCode: 400, ...validator.errors})
   }
-  
-  if (useData.status != '1') {
-	  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-	  	return
-	  }
-  }
+
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    status: useData.status,
+    role: ['owner', 'editor']
+  })) return
 
   if (useData.status === 'all') delete useData.status
 	
@@ -46,7 +48,7 @@ router.get('/:productId', async function(req, res, next) {
 	
 	const validator = wrapValidator(useData, {
 	  id: 'required|numeric|min:1',
-    storeId: 'numeric|min:1',
+    storeId: 'numeric|min:1', // 允許非必要，前台商品網址希望短一點不包含商店
     status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
   }, 'product')
   
@@ -54,31 +56,36 @@ router.get('/:productId', async function(req, res, next) {
   	return next({statusCode: 404 })
   }
 
-  if (useData.status != '1') {
-	  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-	  	return
-	  }
-  }
-
   if (useData.status === 'all') delete useData.status
-	
-  Product.setRoleFilter(req.session.user)
+
+  // Product.setRoleFilter(req.session.user)
 	let result = await Product.getOne(useData)
 	
 	if (!result) {
 	  return next({statusCode: 404 })
-	} else {
-	  res.json(result)
 	}
+
+  if (!await authStore(req, next, {
+    storeId: result.storeId,
+    status: useData.status,
+    role: ['owner', 'editor']
+  })) return
+
+  if (result.thumbnail) {
+    result.thumbnail = process.env.BASE_URL + result.thumbnail
+  }
+
+  res.json(result)
 })
 
 router.get('/', async function(req, res, next) {
 	
 	const useData = {
+    ids: req.query.ids,
 		storeId: req.query.storeId,
-		status: req.query.status || '1',
+		status: req.query.status,
     categoris: req.query.categoris,
-		withImages: req.query.withImages || false,
+		word: req.query.word,
 		sortBy: req.query.sortBy,
 	  orderBy: req.query.orderBy,
 		limit: req.query.limit || 10,
@@ -86,11 +93,11 @@ router.get('/', async function(req, res, next) {
 	}
 	
 	const validator = wrapValidator(useData, {
+    ids: 'idStringArray',
 		storeId: 'required|numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
     categoris: 'idStringArray',
-	  withImages: 'boolean',
-	  withLabels: 'boolean',
+	  word: 'string',
 	  sortBy: 'string|enum:sortBy',
 	  orderBy: 'string|enum:orderBy',
 	  limit: 'numeric|min:0',
@@ -101,13 +108,15 @@ router.get('/', async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
   
-  if (useData.status != '1') {
-    if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    status: useData.status,
+    role: ['owner', 'editor']
+  })) return
   
   if (useData.status === 'all') delete useData.status
 	
-  Product.setRoleFilter(req.session.user)
+  // Product.setRoleFilter(req.session.user)
 	let result = await Product.getList(useData)
 
   for(const item of result) {
@@ -145,13 +154,14 @@ router.post('/', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
 
   result = await Product.create(useData)
   // console.log(result)
-  res.status(200).json({ id: result[0] });
+  res.status(200).json();
 })
 
 router.put('/:productId', async function(req, res, next) {
@@ -184,13 +194,10 @@ router.put('/:productId', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
-
-  if (useData.options) {
-    useData.options = JSON.stringify(useData.options)
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
   
   result = await Product.update({ id: useData.id }, useData)
   
@@ -212,11 +219,13 @@ router.delete('/:productId', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
   
   result = await Product.delete({ id: useData.id })
+  // 刪除相關圖片，刪除分類關係，刪除variant
   
   res.status(200).json();
 

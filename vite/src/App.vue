@@ -1,14 +1,10 @@
 <template>
   <router-view/>
   <alert />
+  <ConfirmModal />
 </template>
 
-<script>
+<script setup>
 import Alert from "@/components/Alert.vue";
-
-export default {
-  components: {
-    Alert
-  },
-}
+import ConfirmModal from "@/components/modals/ConfirmModal.vue";
 </script>

@@ -1,5 +1,8 @@
 <template>
 	<nav class="navbar navbar-expand navbar-border-bottom px-3">
+		<a @click="$router.go(-1)" class="mt-1 pe-2 cursor-pointer text-black text-decoration-none" v-if="isShowBack()">
+			<i class="fa-solid fa-chevron-left"></i>
+		</a>
 		<router-link class="navbar-brand pb-1" to="/">
       <img width="100" src="@/assets/logo.png" alt="EzGOO"/>
     </router-link>
@@ -25,12 +28,14 @@
 </template>
 
 
-<script>
-export default {
-  components: {
-  },
-	created() {
-	}
+<script setup>
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute()
+const router = useRouter()
+
+function isShowBack() {
+	if (route.params.productId || route.params.postId) return true
 }
 </script>
 

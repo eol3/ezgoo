@@ -42,6 +42,9 @@
           </label>
           <label v-else></label>
           <div class="category-wrap p-2 rounded-3">
+            <div v-if="list.length === 0">
+          		尚無分類
+          	</div>
             <template v-for="(item, key) in treeList" :key="key">
               <ItemOption
                 :formMode="formMode"
@@ -113,6 +116,7 @@ onActivated(async () => {
 
 async function getCategory() {
   return getList(queryObj).then(() => {
+    if (list.value.length === 0) return
     list.value.splice(0, 0, { id: 'root', name: 'root', parentId: null, children: null })
     for (const item of list.value) {
       item.active = false
@@ -174,6 +178,9 @@ async function save() {
   }
   if (formMode.value === 'new') {
     let response = await newItem()
+    if (list.value.length === 0) {
+      list.value.splice(0, 0, { id: 'root', name: 'root', parentId: null, children: null })
+    }
     newCategory.id = response.data.id
     list.value.push(newCategory)
   } else if (formMode.value === 'edit') {

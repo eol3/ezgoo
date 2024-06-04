@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div class="d-flex justify-content-between pb-3">
-			<div class="fs-5 fw-5 my-auto">{{ title }}</div>
+			<div class="manage-title fs-5 fw-5 my-auto">{{ title }}</div>
 			<div>
 				<router-link v-show="!showBack" class="btn btn-outline-success btn-sm me-1" :to="'/manage/store/' + $route.params.storeId + '/product/category'">
 					<i class="fa-solid fa-folder-open"></i>

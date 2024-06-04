@@ -7,6 +7,7 @@ export default createStore({
     user: null, //null 未取得, false 未登入, 有資料表示有登入
     handleForbidden: false,
     cache: [], // [{ key: 'productList', value: [] }, { key: 'productCategory', value: [] }]
+    preview: false,
     alert: {
       show: false,
       disappear_seconds: 0,
@@ -40,6 +41,9 @@ export default createStore({
     setUser(state, value) {
       state.user = value;
     },
+    setPreview(state, value) {
+      state.preview = value;
+    },
     setAlert(state, val) {
       state.alert = val;
     },
@@ -65,17 +69,22 @@ export default createStore({
   },
   actions: {
     setCache(context, payload) {
-      let found = context.state.cache.find((element) => element.key === payload.key)
-      if (!found) context.state.cache.push(payload)
-      else found = payload
+      let found = context.state.cache.findIndex((element) => element.key === payload.key)
+      if (found === -1) context.state.cache.push(payload)
+      else context.state.cache[found] = payload
     },
     getCache(context, payload) {
-      return context.state.cache.find((element) => element.key === payload)
+      let found = context.state.cache.find((element) => element.key === payload)
+      if (found) return found.value
+      else return false
     },
     delCache(context, payload) {
       context.state.cache = context.state.cache.filter(function(element) {
         return element.key !== payload
       })
+    },
+    clearCache(context) {
+      context.state.cache = []
     },
     getLocalUser(context) {
       if (localStorage.getItem('user')) {
@@ -97,6 +106,7 @@ export default createStore({
       context.commit('setLocalUser', null)
       context.commit('setUser', false)
       localStorage.removeItem('user')
+      localStorage.removeItem("cart")
     },
     showAlert(context, payload) {
       if (context.state.alert.show) {

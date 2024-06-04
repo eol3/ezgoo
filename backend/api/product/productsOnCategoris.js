@@ -1,7 +1,7 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const ProductCategoriesOnProducts = require(process.cwd() + '/models/product/productCategoriesOnProducts')
-const { authUserStoreRole }= require(process.cwd() + '/tools/libs')
+const { authStore }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
 
@@ -24,6 +24,8 @@ router.get('/', async function(req, res, next) {
   if (validator.fail) {
   	return next({statusCode: 400, ...validator.errors})
   }
+
+  // auth
 
   let result = await ProductCategoriesOnProducts.getList(useData)
 
@@ -49,9 +51,10 @@ router.post('/', async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
 
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
 
   let multi = []
   for (const id of useData.productCategoryIds) {
@@ -70,11 +73,13 @@ router.delete('/', async function(req, res, next) {
 
   const useData = {
     storeId: req.query.storeId,
+    productId: req.params.productId,
     productCategoryIds: req.query.productCategoryIds,
 	}
 	
 	const validator = wrapValidator(useData, {
     storeId: 'required|numeric|min:1',
+    productId: 'required|numeric|min:1',
     productCategoryIds: 'required|idStringArray',
   }, 'product')
   
@@ -82,19 +87,12 @@ router.delete('/', async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
 
-  if (!await authUserStoreRole(req, next, useData.storeId, ['owner', 'editor'])) {
-  	return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
 
-  let multi = []
-  for (const id of useData.productCategoryIds) {
-    multi.push({
-      productId: useData.productId,
-      productCategoryId: id,
-    })
-  }
-
-  await ProductCategoriesOnProducts.delete(multi)
+  await ProductCategoriesOnProducts.delete(useData)
   // console.log(result)
   res.status(200).json();
 })

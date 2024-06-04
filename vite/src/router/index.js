@@ -15,6 +15,10 @@ const routes = [
         component: () => import("../views/Cart.vue")
       },
       {
+        path: "order/:orderId",
+        component: () => import("../views/order/Detail.vue")
+      },
+      {
         path: "user",
         component: () => import("../views/user/Head.vue"),
         meta: { requiresAuth: true, redirect: 'login' },
@@ -25,7 +29,7 @@ const routes = [
           },
           {
             path: "orders",
-            component: () => import("../views/user/Orders.vue"),
+            component: () => import("../views/order/List.vue"),
           },
           {
             path: "store",
@@ -52,37 +56,59 @@ const routes = [
       },
       {
         path: "/store/:storeId",
-        component: () => import("../views/store/Head.vue"),
+        component: () => import("../views/store/Layout.vue"),
         children: [
           {
             path: "",
-            component: () => import("../views/store/Home.vue")
-          },
-          {
-            path: "product",
-            component: () => import("../views/store/product/List.vue")
-          },
-          {
-            path: "product/:productId",
-            component: () => import("../views/store/product/Detail.vue")
-          },
-          {
-            path: "post",
-            component: () => import("../views/store/post/List.vue")
-          },
-          {
-            path: "post/:postId",
-            component: () => import("../views/store/post/Detail.vue")
-          },
-          {
-            path: "about",
-            component: () => import("../views/store/About.vue")
-          },
-        ]
+            component: () => import("../views/store/Head.vue"),
+            children: [
+              {
+                path: "",
+                component: () => import("../views/store/Home.vue")
+              },
+              {
+                path: "product",
+                component: () => import("../views/store/product/List.vue")
+              },
+              {
+                path: "product/:productId",
+                component: () => import("../views/store/product/Detail.vue")
+              },
+              {
+                path: "post",
+                component: () => import("../views/store/post/List.vue")
+              },
+              {
+                path: "post/:postId",
+                component: () => import("../views/store/post/Detail.vue")
+              },
+              {
+                path: "about",
+                component: () => import("../views/store/About.vue")
+              },
+            ]
+          }
+        ],
       },
       {
         path: "/product/:productId",
-        component: () => import("../views/store/product/Detail.vue"),
+        component: () => import("../views/store/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/store/product/Detail.vue"),
+          }
+        ]
+      },
+      {
+        path: "/post/:postId",
+        component: () => import("../views/store/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/store/post/Detail.vue"),
+          }
+        ]
       },
     ],
   },
@@ -123,24 +149,6 @@ const routes = [
         component: () => import("../views/manage/product/Category.vue"),
       },
       {
-        path: "productCache",
-        component: () => import("../views/manage/productCache/Layout.vue"),
-        children: [
-          {
-            path: "",
-            component: () => import("../views/manage/productCache/List.vue"),
-          },
-          {
-            path: "new",
-            component: () => import("../views/manage/productCache/Form.vue"),
-          },
-          {
-            path: ":productId/edit",
-            component: () => import("../views/manage/productCache/Form.vue"),
-          },
-        ]
-      },
-      {
         path: "post",
         component: () => import("../views/manage/post/Layout.vue"),
         children: [
@@ -159,6 +167,10 @@ const routes = [
         ]
       },
       {
+        path: "post/category", // 避免在layout cache
+        component: () => import("../views/manage/post/Category.vue"),
+      },
+      {
         path: "order",
         component: () => import("../views/manage/order/Layout.vue"),
         children: [
@@ -171,8 +183,26 @@ const routes = [
             component: () => import("../views/manage/order/Form.vue"),
           },
           {
-            path: "edit/:orderId",
+            path: ":orderId/edit",
             component: () => import("../views/manage/order/Form.vue"),
+          }
+        ]
+      },
+      {
+        path: "event",
+        component: () => import("../views/manage/event/Layout.vue"),
+        children: [
+          {
+            path: "",
+            component: () => import("../views/manage/event/List.vue"),
+          },
+          {
+            path: "new",
+            component: () => import("../views/manage/event/Form.vue"),
+          },
+          {
+            path: "edit/:eventId",
+            component: () => import("../views/manage/event/Form.vue"),
           }
         ]
       },
@@ -200,15 +230,15 @@ const routes = [
         children: [
           {
             path: "",
-            component: () => import("../views/manage/setting/List.vue"),
-          },
-          {
-            path: "new",
             component: () => import("../views/manage/setting/Form.vue"),
           },
           {
-            path: "edit/:postId",
-            component: () => import("../views/manage/setting/Form.vue"),
+            path: "payment",
+            component: () => import("../views/manage/setting/Payment.vue"),
+          },
+          {
+            path: "shipping-method",
+            component: () => import("../views/manage/setting/ShippingMethod.vue"),
           }
         ]
       },
@@ -231,7 +261,7 @@ router.beforeEach((to, from) => {
       })
       return {
         query: {
-          redirect: encodeURI(window.location.pathname)
+          redirect: encodeURI(to.path)
         },
         path: '/' + to.meta.redirect,
       }

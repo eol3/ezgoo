@@ -5,6 +5,7 @@
 				<div class="row">
 					<div class="col-md-6">
 						<ImageUploader
+							ref="imageUploaderRef"
 							:feildName="'商品圖片'"
 							:modelId="itemId"
 							:parentLoading="loading"
@@ -45,7 +46,7 @@
 										</span>
 									</div>
 								</div>
-								<router-link :to="baseUrl + itemId + '/variant'" class="mt-2 btn btn-outline-secondary btn-sm">
+								<router-link :to="baseUrl + itemId + '/variant'" @click="goVariant()" class="mt-2 btn btn-outline-secondary btn-sm">
 									設定對應商品
 									<i class="fa-solid fa-arrow-right"></i>
 								</router-link>
@@ -56,6 +57,7 @@
 							<div class="d-flex align-items-center">
 								<CategoryStatusRow
 									v-model="categoryIds"
+									:modelName="'product-category'"
 								></CategoryStatusRow>
 							</div>
 						</div>
@@ -89,6 +91,7 @@
 		:productId="itemId"
 		@needNewItem="needNewItem"
 		@selectedOptions="selectedOptions"
+		@hasDelVariantImage="hasDelVariantImage"
 	></ProductOptionsModal>
 </template>
 
@@ -120,9 +123,8 @@ itemId.value = route.params.productId
 
 let originalCategoryIds = ''
 const categoryIds = ref('')
-// const oldSelectedCagegoryis = ref([])
-// const categoryStatusRowRef = ref(null)
 
+const imageUploaderRef = ref(null)
 const productOptionsModalRef = ref(null)
 const productOptions = ref([])
 
@@ -144,7 +146,6 @@ onMounted(async () => {
 		]).then((response) => {
 			productOptions.value = response[0].data.options === null ? [] : JSON.parse(response[0].data.options)
 			productOptionsModalRef.value.setParentOptions(productOptions.value)
-			// oldSelectedCagegoryis.value = categoryStatusRowRef.value.getSelectedCategories().map(a => ({...a}))
 		}).finally(() => {
 			loading.value = false
 		})
@@ -168,14 +169,7 @@ onActivated(() => {
 		itemId.value = null
 		productOptions.value = []
 		productOptionsModalRef.value.setParentOptions(productOptions.value)
-		// oldSelectedCagegoryis.value = []
 		categoryIds.value = ''
-		// console.log(categoryIds.value)
-		// setTimeout(() => {
-		// 	categoryIds.value = ''
-		// }, 1)
-		
-		// console.log(categoryIds.value)
 	} else {
 		formMode.value = 'edit'
 		emit('updateLayoutStatus', {
@@ -200,11 +194,7 @@ async function needNewItem(callback, data) {
 
 function getProductsOnCategories() {
 	return axios.get("/product/" + itemId.value + "/product-category").then((response) => {
-		let ids = ''
-		for (const item of response.data) {
-			ids += item.productCategoryId + '-'
-		}
-		ids = ids.slice(0, -1)
+		let ids = response.data.map(e => e.productCategoryId).join('-')
 		originalCategoryIds = ids
 		categoryIds.value = ids
 	})
@@ -213,26 +203,23 @@ function getProductsOnCategories() {
 async function compareCagegory() {
 	let oldIdsArr = originalCategoryIds.split('-')
 	let newIdsArr = categoryIds.value.split('-')
-	let newIds = ''
-	for (const newId of newIdsArr) {
-		if (newId === '') break;
-		const found = oldIdsArr.find((element) => element === newId);
-		if (!found) {
-			newIds += newId + '-'
+	let addIdsArr = [], delIdsArr = []
+	for (let i in oldIdsArr) {
+		for (let j in newIdsArr) {
+			if (oldIdsArr[i] === newIdsArr[j]) {
+				oldIdsArr[i] = -1
+				newIdsArr[j] = -1
+			}
 		}
 	}
-	newIds = newIds.slice(0, -1)
-	let delIds = ''
-	for (const oldId of oldIdsArr) {
-		if (oldId === '') break;
-		const found = newIdsArr.find((element) => element === oldId);
-		if (!found) {
-			delIds += oldId + '-'
-		}
+	for (let i in newIdsArr) {
+		if (newIdsArr[i] !== -1) addIdsArr.push(newIdsArr[i])
 	}
-	delIds = delIds.slice(0, -1)
-	addProductCategory(newIds)
-	delProductCategory(delIds)
+	for (let i in oldIdsArr) {
+		if (oldIdsArr[i] !== -1) delIdsArr.push(oldIdsArr[i])
+	}
+	addProductCategory(addIdsArr.join('-'))
+	delProductCategory(delIdsArr.join('-'))
 }
 
 async function addProductCategory(productCategoryIds) {
@@ -260,6 +247,19 @@ function selectedOptions(options) {
 	productOptions.value = JSON.parse(JSON.stringify(options))
 }
 
+function hasDelVariantImage() {
+	imageUploaderRef.value.getProductImages()
+}
+
+function goVariant() {
+	let obj =  Object.assign({}, formData.value)
+	obj.options = productOptions.value
+	store.dispatch('setCache',{
+		key: 'product_' + itemId.value,
+		value: obj
+	})
+}
+
 async function save() {
 	if (loading.value) return
 	// 轉數字
@@ -274,7 +274,6 @@ async function save() {
 	}, 'product');
 	
 	if (validator.fail) {
-		
 		formValid.value = {
 			fails: true,
 			...validator.errors
@@ -312,33 +311,3 @@ async function save() {
 }
 
 </script>
-
-<style lang="scss" scoped>
-
-.no-image {
-  width: 120px;
-  height: 160px;
-  border-radius: 5%;
-	background-color: var(--d-gray-200);
-	color: $gray-600;
-}
-
-.row-image-wrap {
-	width: 100%;
-	overflow-x: auto;
-}
-
-.image-item-wrap {
-	height: 160px;
-}
-
-.image-item {
-	width: 120px;
-  height: 120px;
-}
-
-.image-item img {
-	width: 100%;
-}
-
-</style>

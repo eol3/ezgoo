@@ -103,6 +103,15 @@ function handleError(error) {
         }
         store.dispatch('userLogout')      
         router.push('/login?redirect=' + encodeURI(window.location.pathname))
+      } else if (msg === 'System banned') {
+        msg = '商店已禁用'
+        router.push('/')
+      } else if (msg === 'Store not open') {
+        msg = '商店未開放'
+        router.push('/')
+      } else if (msg === 'Store maintaining') {
+        msg = '商店維護中'
+        router.push('/')
       } else {
         msg = '無權操作'
         router.push('/')

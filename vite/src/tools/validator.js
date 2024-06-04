@@ -144,6 +144,44 @@ const extModel = {
 		attributeNames: {
 			id: '貼文編號',
 			status: '貼文狀態',
+		},
+		enumerationValues: {
+			statusQuery: ['all', '0', '1'],
+			status: [0, 1],
+			sortBy: ['id', 'priority']
+		}
+	},
+	order: {
+		attributeNames: {
+			id: '訂單編號',
+			status: '訂單狀態',
+			'payerInfo.name': '姓名',
+			'payerInfo.tel': '電話',
+			'payerInfo.email': 'E-mail',
+			'recipientInfo.name': '收件人姓名',
+			'recipientInfo.tel': '收件人電話',
+			'recipientInfo.address': '地址',
+			'recipientInfo.supermarketStoreName': '超商/門市資訊',
+		},
+		enumerationValues: {
+			statusQuery: ['all', '-1', '0', '1', '2', '3', '4', '5', '6', '7'],
+			status: [-1, 0, 1, 2, 3, 4, 5, 6, 7],
+			payment: [1, 2, 3],
+			paymentStatus: [0, 1, 2],
+			shippingMethod: [1, 2, 3],
+			sortBy: ['id', 'createAt', 'updateAt']
+		}
+	},
+	event: {
+		attributeNames: {
+			id: '優惠編號',
+			name: '優惠名稱',
+			status: '優惠狀態'
+		},
+		enumerationValues: {
+			statusQuery: ['all', '0', '1'],
+			status: [0, 1],
+			sortBy: ['id', 'createAt', 'updateAt']
 		}
 	},
 }

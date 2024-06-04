@@ -29,7 +29,7 @@
     </div>
     <input type="file" class="form-control" name="productImages" multiple="multiple" @focus="formValidClear()" :disabled="parentLoading || uploading" @change="selectedFile" ref="fileupload">
     <div class="form-text text-danger">
-      {{ formValidFeild('productImages') ? formValid.errors.productImages[0] : '' }}
+      {{ formValidFeild('images') ? formValid.errors.productImages[0] : '' }}
     </div>
   </div>
 </template>
@@ -61,6 +61,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['needNewItem'])
+defineExpose({ getProductImages })
 
 const route = useRoute()
 
@@ -79,18 +80,22 @@ const uploading = ref(null)
 // const productImages = ref([{loading: true}])
 let isNeedUpdateProductThumbnail = false
 
-onMounted(async () => {
-  if (props.modelId) {
-		list.value = [{loading: true}]
-    getList(queryObj)
-  }
-})
+// onMounted(async () => {
+//   if (props.modelId) {
+// 		list.value = [{loading: true}]
+//     getList(queryObj)
+//   }
+// })
 
-onActivated(() => {
+onActivated(async () => {
 	// 有時候父組件的itemId尚未同步到這，需參考route參數
 	if (!props.modelId || route.params.productId === undefined) {
 		fileupload.value.value = null
 		list.value = []
+  }
+  if (props.modelId) {
+		list.value = [{loading: true}]
+    getList(queryObj)
   }
 })
 
