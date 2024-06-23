@@ -6,22 +6,21 @@ async function send(to,subject,html) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: 'no-reply@helloavgirls.com',
-      pass: '7P-ia7pz'
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
     }
   });
 
   let info = await transporter.sendMail({
-    from: '"Hello! Av Girls" <no-reply@helloavgirls.com>', // sender address
+    from: '"EzGoo 易購網購物平台" <no-reply@ezgoo.biz>', // sender address
     to: to, // list of receivers
     subject: subject, // Subject line
-    html: html + this.footer_tmp // html body
+    html: html + footerTemplate // html body
   });
   // console.log("Message sent: %s", info.messageId);
 }
 
-var footer_tmp = "<hr/><center>本信件由<a href='" + process.env.BASE_URL +"'>Hello! Av Girls</a>系統自動發送，請勿直接回覆。"
-                + "如有任何疑問請寫信至<a href='mailto:support@helloavgirls.com'>support@helloavgirls.com</a></center>"
+var footerTemplate = "<hr/><center>本信件由<a href='" + process.env.BASE_URL +"'>EzGoo</a>系統自動發送，請勿直接回覆</center>"
 
 function apply_store_success_tmp(store_url, store_name) {
   let html = "<p>您申請的商店「" + store_name + "」已經申請成功</p>"
@@ -61,5 +60,5 @@ module.exports = {
   'order_new_store_tmp': order_new_store_tmp,
   'order_new_tmp': order_new_tmp,
   'order_get_tmp': order_get_tmp,
-  'footer_tmp': footer_tmp
+  'footerTemplate': footerTemplate
 };

@@ -16,7 +16,12 @@ const routes = [
       },
       {
         path: "order/:orderId",
-        component: () => import("../views/order/Detail.vue")
+        component: () => import("../views/order/Detail.vue"),
+        meta: { requiresAuth: true, redirect: 'login' },
+      },
+      {
+        path: "order/checkout",
+        component: () => import("../views/order/Checkout.vue")
       },
       {
         path: "user",

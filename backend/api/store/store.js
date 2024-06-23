@@ -49,6 +49,10 @@ router.get('/:storeId', async function(req, res, next) {
   }
 
   let result = await Store.getOne({ account: useData.account })
+
+  if (!result) {
+    return next({statusCode: 404 })
+  }
   
   if (result.status === -1) {
     if (req.session.admin) {
@@ -217,6 +221,13 @@ function setDefaultValue(useData) {
     {
       id: 3,
       name: '超商取貨',
+      enable: false,
+      tip: '',
+      fee: 0,
+    },
+    {
+      id: 4,
+      name: '面交',
       enable: false,
       tip: '',
       fee: 0,

@@ -3,6 +3,9 @@
     <div class="row justify-content-md-center py-3">
       <div class="col-12 col-md-8">
         <h5>購物車</h5>
+        <div class="text-center" style="height:300px;" v-if="cart.length === 0">
+          <div class="mt-4">尚無商品</div>
+        </div>
         <div v-for="(store, skey) in cart" :skey="skey" class="mb-2 border rounded">
           <router-link v-if="store.store" :to="'/store/' + store.store.id" class="text-black text-decoration-none">
             <div class="store-head d-flex flex-row p-2 p-md-3">
@@ -74,7 +77,7 @@
             </div>
             <div class="row my-2">
               <div class="col-6 col-md-5 offset-6 offset-md-7">
-                <button class="btn btn-primary" @click="checkout(store)" :disabled="loading">
+                <button class="btn btn-primary" @click="checkout(store.store)" :disabled="loading">
                   開始結帳
                 </button>
               </div>
@@ -90,8 +93,8 @@
 import { onMounted, ref } from 'vue';
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
-import { syncToServer, isSame } from '@/tools/libs'
-import { axios } from "@/tools/requestCache"
+import { syncToServer, isSame, getCartItemNumber } from '@/tools/libs'
+import { axios } from "@/tools/request"
 
 const store = useStore()
 const route = useRoute()
@@ -102,7 +105,7 @@ const loading = ref(false)
 
 onMounted( async () => {
   let c = localStorage.getItem("cart")
-  if (cart) cart.value = JSON.parse(c)
+  if (c) cart.value = JSON.parse(c)
 })
 
 function getPrice(product) {
@@ -141,6 +144,9 @@ function trash(skey, key) {
       if (cart.value[skey].content.length === 0) {
         cart.value.splice(skey, 1)
       }
+      store.commit('setCart', {
+        number: getCartItemNumber(cart.value)
+      })
       await syncCart()
 			store.state.modal.show = false
 			store.dispatch('showAlert', {
@@ -152,13 +158,39 @@ function trash(skey, key) {
 }
 
 async function syncCart() {
+  if (!store.state.localUser) return
   let cartStr = JSON.stringify(cart.value)
   localStorage.setItem("cart", cartStr)
-  await syncToServer(cartStr)
+  await syncToServer(cart.value)
 }
 
-async function checkout(storeItem) {
+async function checkout(storeShortInfo) {
+  // console.log(await store.dispatch('getCache', 'currentStore'))
   loading.value = true
+  axios.get('/store/' + storeShortInfo.id, {
+    params: {
+      status: '1',
+    }
+  }).then(response => {
+    let storeInfo = response.data
+    if (storeInfo.status === 2) {
+      store.dispatch('showAlert', {
+        type: 'success',
+        text: '此商店僅展示，不能下單購買'
+      })
+      router.push('/cart')
+    } else if (!storeInfo.setting.allowOrderWithoutLogIn && !store.state.localUser) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '請先登入'
+      })
+      router.push('/login?redirect=' + encodeURI(route.fullPath))
+    } else {
+      router.push('/order/checkout?storeId=' + storeShortInfo.id)
+    }
+    
+  }).finally(() => loading.value = false)
+  // loading.value = true
   // 預檢查
   // if (!await preCheck(storeItem)) {
   //   loading.value = false
@@ -166,16 +198,16 @@ async function checkout(storeItem) {
   // }
 
   // 建立訂單
-  let result = await order(storeItem)
-  if (!result) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '部分商品有異動，請確認後，再次結帳'
-    })
-  } else {
-    router.push('/order/' + result.data.id)
-  }
-  loading.value = false
+  // let result = await order(storeItem)
+  // if (!result) {
+  //   store.dispatch('showAlert', {
+  //     type: 'warning',
+  //     text: '部分商品有異動，請確認後，再次結帳'
+  //   })
+  // } else {
+  //   router.push('/order/' + result.data.id)
+  // }
+  // loading.value = false
 }
 
 async function order(storeItem) {

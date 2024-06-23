@@ -60,6 +60,14 @@ model.getList = async function (condition) {
 	} else {
 		query.select(tableName + '.*')
 	}
+
+	if (condition.ids) {
+		query.where(function() {
+			for (let item of condition.ids) {
+				this.orWhere({ 'id': item })
+			}
+		})
+	}
 	
 	if (condition.categoris || condition.word) {
 		query.distinct(tableName + '.id')

@@ -1,17 +1,17 @@
 import { ref } from 'vue'
 
-export default (props) => {
+export default () => {
 	const formValid = ref({ fails: false })
 	function formValidFeild(feildName) {
-		if (this.formValid.fails) {
-      if (this.formValid.errors[feildName] === undefined) {
+		if (formValid.value.fails) {
+      if (formValid.value.errors[feildName] === undefined) {
         return false
       } else return true
     } else return false
 	}
 	function formValidClear() {
-		if (this.formValid.fails) {
-    	this.formValid = {
+		if (formValid.value.fails) {
+    	formValid.value = {
         fails: false,
       }
   	}

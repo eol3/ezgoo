@@ -88,14 +88,12 @@ let isNeedUpdateProductThumbnail = false
 // })
 
 onActivated(async () => {
-	// 有時候父組件的itemId尚未同步到這，需參考route參數
-	if (!props.modelId || route.params.productId === undefined) {
-		fileupload.value.value = null
-		list.value = []
-  }
-  if (props.modelId) {
+	if (route.params.productId !== undefined || route.params.postId !== undefined) {
 		list.value = [{loading: true}]
     getList(queryObj)
+  } else {
+  	fileupload.value.value = null
+		list.value = []
   }
 })
 

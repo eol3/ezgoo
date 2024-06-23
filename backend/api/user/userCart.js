@@ -6,43 +6,73 @@ const auth = require(process.cwd() + "/tools/middlewares.js").auth
 module.exports = router
 
 router.get('/', auth, async function(req, res, next) {
-  
-  const useData = {
+
+  let result = await userCart.getOne({
     userId: req.session.user.id,
-	}
-  
-  let result = await userCart.getOne(useData)
-  if (!result) res.json([])
-  else res.json(JSON.parse(result.content))
+	})
+
+  if (!result) return next({statusCode: 404})
+  else {
+    result.content = JSON.parse(result.content)
+    res.json(result)
+  }
 })
 
-router.post('/', auth, async function(req, res, next) {
+// 註冊時新增
+// router.post('/', auth, async function(req, res, next) {
+  // const useData = {
+  //   userId: req.session.user.id,
+  //   content: req.body.content,
+  //   createBy: req.session.user.id,
+	// 	updateBy: req.session.user.id,
+	// }
+	
+  // const validator = wrapValidator(useData, {
+  //   content: 'required|string'
+  // })
+  
+  // if (validator.fail) {
+  // 	return next({statusCode: 400, ...validator.errors})
+  // }
+
+  // let result = await userCart.getOne(useData)
+
+  // if (result) {
+  //   delete useData.createBy
+  //   await userCart.update(
+  //     { userId: useData.userId },
+  //     { content: useData.content }
+  //   )
+  // } else {
+  //   useData.isRead = false
+  //   await userCart.create(useData)
+  // }
+  
+  // res.json()
+// })
+
+router.put('/', auth, async function(req, res, next) {
   const useData = {
     userId: req.session.user.id,
     content: req.body.content,
-    createBy: req.session.user.id,
-		updateBy: req.session.user.id,
+    isRead: req.body.isRead,
 	}
-	
+
   const validator = wrapValidator(useData, {
-    content: 'required|string'
+    isRead: 'boolean'
   })
   
   if (validator.fail) {
   	return next({statusCode: 400, ...validator.errors})
   }
-
-  let result = await userCart.getOne(useData)
-
-  if (result) {
-    delete useData.createBy
-    await userCart.update(
-      { userId: useData.userId },
-      { content: useData.content }
-    )
-  } else {
-    await userCart.create(useData)
-  }
+  
+  await userCart.update(
+    { userId: useData.userId },
+    {
+      content: JSON.stringify(useData.content),
+      isRead: useData.isRead
+    }
+  )
   
   res.json()
 })

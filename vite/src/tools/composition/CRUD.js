@@ -92,7 +92,7 @@ export default () => {
     } else return false
 	}
 	function formValidClear() {
-		if (this.formValid.fails) {
+		if (formValid.value.fails) {
     	formValid.value = {
         fails: false,
       }

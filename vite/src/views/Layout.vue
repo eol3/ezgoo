@@ -2,14 +2,24 @@
 	<nav class="navbar navbar-expand navbar-border-bottom px-3">
 		<a @click="$router.go(-1)" class="mt-1 pe-2 cursor-pointer text-black text-decoration-none" v-if="isShowBack()">
 			<i class="fa-solid fa-chevron-left"></i>
+			返回
 		</a>
-		<router-link class="navbar-brand pb-1" to="/">
+		<router-link class="navbar-brand pb-1" to="/" v-if="!isShowBack()">
       <img width="100" src="@/assets/logo.png" alt="EzGOO"/>
     </router-link>
     <ul class="navbar-nav ms-auto">
-    	<li class="nav-item">
+    	<li class="nav-item position-relative" @click="cartRead()">
     		<router-link class="nav-link me-0" to="/cart">
     			<i class="fas fa-shopping-cart"></i>
+					<span
+						v-if="store.state.cart.number > 0"
+						class="position-absolute translate-middle badge rounded-pill"
+						:class="store.state.cart.isRead ? 'bg-secondary' : 'bg-danger'"
+						style="top: 10px; right: -20px;"
+					>
+						{{ store.state.cart.number }}
+						<span class="visually-hidden">unread messages</span>
+					</span>
   			</router-link>
   		</li>
   		<li class="nav-item">
@@ -29,10 +39,40 @@
 
 
 <script setup>
+import { onMounted } from 'vue';
+import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
+import { getCartItemNumber } from '@/tools/libs'
+import { axios } from "@/tools/requestCache";
 
+const store = useStore()
 const route = useRoute()
 const router = useRouter()
+
+onMounted( async () => {
+  let c = localStorage.getItem("cart")
+	let cart = []
+	if (c) cart = JSON.parse(c)
+	let number = getCartItemNumber(cart)
+
+	let isRead = true
+	let cir = localStorage.getItem("cartIsRead")
+  if (cir) isRead = JSON.parse(cir)
+	store.commit('setCart', {
+		number: number,
+		isRead: isRead
+	})
+})
+
+function cartRead() {
+	store.commit('setCart', {
+		isRead: true
+	})
+	localStorage.setItem("cartIsRead", true)
+	if (store.state.localUser) {
+		axios.put('/user/cart', { isRead: true })
+	}
+}
 
 function isShowBack() {
 	if (route.params.productId || route.params.postId) return true

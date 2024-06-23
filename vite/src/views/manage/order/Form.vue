@@ -279,6 +279,14 @@ async function save() {
 		router.push(baseUrl.value)
 		window.scrollTo(0, 0)
 	} else if (formMode.value === 'edit') {
+		goBack()
+	}
+}
+
+function goBack() {
+	if (router.options.history.state.back.startsWith('/login?redirect')) {
+		router.push('/manage/store/' + route.params.storeId + '/order')
+	} else {
 		router.go(-1)
 	}
 }

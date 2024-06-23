@@ -7,7 +7,7 @@
 					<i class="fa-solid fa-plus"></i>
 					替會員新增訂單
 				</router-link> -->
-				<a v-show="showBack" class="btn btn-outline-secondary btn-sm" @click="$router.go(-1)">
+				<a v-show="showBack" class="btn btn-outline-secondary btn-sm" @click="goBack()">
 					<i class="fas fa-arrow-left"></i>
 					返回
 				</a>
@@ -34,6 +34,13 @@ export default {
   	updateStatus(status) {
   		this.title = status.title
   		this.showBack = status.showBack
+  	},
+  	goBack() {
+  		if (this.$router.options.history.state.back.startsWith('/login?redirect')) {
+  			this.$router.push('/manage/store/' + this.$route.params.storeId + '/order')
+  		} else {
+  			this.$router.go(-1)
+  		}
   	}
   }
 }

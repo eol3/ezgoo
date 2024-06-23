@@ -60,6 +60,15 @@ $white: #fff;
 // 	--bs-primary: green;
 // }
 
+.active > .page-link:focus {
+  background-color: var(--bs-pagination-active-bg);
+}
+
+.page-link:focus {
+  background-color: var(--bs-pagination-bg);
+  box-shadow: none;
+}
+
 /* alert */
 @import "alert";
 
@@ -74,12 +83,20 @@ $white: #fff;
   white-space: nowrap;
 }
 
+.bg-0 {
+  background-color: var(--d-gray-0);
+}
+
 .bg-1 {
   background-color: var(--d-gray-100);
 }
 
 .bg-2 {
   background-color: var(--d-gray-200);
+}
+
+.align-content-center {
+  align-content: center;
 }
 
 .narmal-link-wrap,

@@ -1,129 +1,81 @@
 <template>
-  <div id="carouselControls" class="carousel slide" data-ride="carousel">
-    <div class="carousel-indicators">
-      <button type="button" data-bs-target="#carouselControls" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-      <button type="button" data-bs-target="#carouselControls" data-bs-slide-to="1" aria-label="Slide 2"></button>
-      <button type="button" data-bs-target="#carouselControls" data-bs-slide-to="2" aria-label="Slide 3"></button>
-    </div>
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <div class="carousel-caption d-none d-md-block">hello1</div>
-      </div>
-      <div class="carousel-item">
-        <div class="carousel-caption d-none d-md-block">hello2</div>
-      </div>
-      <div class="carousel-item">
-        <div class="carousel-caption d-none d-md-block">hello3</div>
+  <div class="container py-4">
+    <div class="p-5 mb-4 bg-body-tertiary rounded-3 align-content-center" style="height:400px;">
+      <div class="row">
+        <div class="col-12 col-lg-10 offset-lg-1">
+          <h1 class="text-primary">EzGoo 易購網購物平台</h1>
+          <p class="text-primary">簡單容易使用的購物平台</p>
+          <button class="d-block my-2 btn btn-primary" @click="$router.push('/store/create')">立即建立商店</button>
+        </div>
       </div>
     </div>
-    <a class="carousel-control-prev" href="#carouselControls" role="button" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only"></span>
-    </a>
-    <a class="carousel-control-next" href="#carouselControls" role="button" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only"></span>
-    </a>
-  </div>
-  <div class="container" data-bs-theme="dark">
-    <h1>EzGOO 易購網路購物平台</h1>
-    <h4>特色</h4>
-    <ul>
-      <li>
-        一個帳號在多個商店購買各種商品或服務，並能選擇追蹤或成為會員
-      </li>
-      <li>
-        一個帳號可開設管理多個商店，在不同商店有不同身分(擁有者、編輯、理貨員)
-      </li>
-      <li>
-        一個商店也能加入不同帳號成為不同身分(擁有者、編輯、理貨員)，進行協同作業
-      </li>
-    </ul>
-    <h4>目前商家</h4>
-    <ul>
-      <li>
-        <router-link class="d-block py-2 px-2 text-decoration-none" to="/store/easybuy">
-          易購商福利量販店
-        </router-link>
-      </li>
-      <li>
-        <router-link class="d-block py-2 px-2 text-decoration-none" to="/store/example">
-          愛之森生活用品館(範例商店)
-        </router-link>
-      </li>
-      <li>
-        <router-link class="d-block py-2 px-2 text-decoration-none" to="/store/system">
-          EzGOO系統管理中心
-        </router-link>
-      </li>
-      <li>
-        <router-link class="d-block py-2 px-2 text-decoration-none" to="/manage/store/16">
-          測試商店(管理後臺)
-        </router-link>
-      </li>
-      <li>
-        <router-link class="d-block py-2 px-2 text-decoration-none" to="/store/16">
-          測試商店
-        </router-link>
-      </li>
-      <li>
-        <button class="d-block my-2 btn btn-primary" @click="$router.push('/store/create')">立即建立商店</button>
-      </li>
-      <li>
-        <button class="d-block my-2 btn btn-primary" @click="test()">test</button>
-      </li>
-    </ul>
+    <div class="row">
+      <div class="col-md-7 align-content-center">
+        <h2 class="featurette-heading fw-normal lh-1">立即快速查看我們的
+          <router-link to="/store/2" class="text-decoration-none">
+            範例商店
+          </router-link>
+        </h2>
+        <p class="lead">透過我們的範例商店，可以快速知道我們商店的樣式與功能</p>
+      </div>
+      <div class="col-md-5">
+        <svg class="bd-placeholder-img bd-placeholder-img-lg featurette-image img-fluid mx-auto" width="500" height="500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 500x500" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="var(--bs-secondary-bg)"></rect><text x="50%" y="50%" fill="var(--bs-secondary-color)" dy=".3em">500x500</text></svg>
+      </div>
+    </div>
+    <div class="bg-1 my-5 py-4">
+      <div class="fs-3 text-center py-3">
+        Q & A
+      </div>
+      <div class="col-12 col-lg-10 offset-lg-1 p-4">
+        <div class="accordion" id="accordionExample">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Accordion Item #1
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <strong>This is the first item's accordion body.</strong> It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Accordion Item #2
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <strong>This is the second item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Accordion Item #3
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+              <div class="accordion-body">
+                <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="my-5 align-content-center" style="height: 200px;">
+      <button class="d-block my-2 btn btn-primary mx-auto" @click="$router.push('/store/create')">立即建立商店</button>
+    </div>
   </div>
 </template>
 
-<script>
-// import { onMounted } from "vue";
-// import $ from 'jquery';
-// import carousel from '@/assets/carousel.png'
-import * as bootstrap from 'bootstrap'
-
-export default {
-  name: 'Home',
-  setup() {
-    // onMounted(() => {
-    //     $('.carousel').carousel('pause')
-    //   })
-    // setTimeout(() => {
-    //   $('.carousel').carousel('pause')
-    // }, 1000)
-  },
-  data() {
-    return {
-      carousel: {}
-    }
-  },
-  mounted() {
-    var myCarousel = document.querySelector('#carouselControls')
-    myCarousel.addEventListener('slide.bs.carousel', function () {
-      console.log('ok')
-    })
-    new bootstrap.Carousel(myCarousel, {
-      interval: 0,
-      wrap: false
-    })
-    // carousel.to(1)
-  },
-  methods: {
-    test() {
-      this.$store.dispatch('showAlert', {
-				type: 'danger',
-      	text: 'test'
-			})
-    }
-  }
-}
+<script setup>
+window.scrollTo(0, 0)
 </script>
 
 <style lang="scss">
-#carouselControls {
-  background: linear-gradient(to right, #f0047f, #6b0272);
-}
-#carouselControls .carousel-item {
-  height: 280px;
-}
 </style>

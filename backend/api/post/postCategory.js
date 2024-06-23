@@ -26,6 +26,7 @@ router.get('/', async function(req, res, next) {
   
   if (!await authStore(req, next, {
     storeId: useData.storeId,
+    status: useData.status,
     role: ['owner', 'editor']
   })) return
   

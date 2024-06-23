@@ -4,6 +4,8 @@ const Order = require(process.cwd() + '/models/order/order')
 const OrderLog = require(process.cwd() + '/models/order/orderLog')
 const { authStore }= require(process.cwd() + '/tools/libs')
 const auth = require(process.cwd() + "/tools/middlewares.js").auth
+const Mailer = require(process.cwd() + "/tools/mail.js")
+const User = require(process.cwd() + '/models/user/user')
 
 module.exports = router
 
@@ -11,7 +13,7 @@ module.exports = router
 status: -1=取消,0=未成立,1=訂單成立,2=接受訂單,3=出貨,4=到貨,5=完成,6=退貨,7=收到退貨重新出貨,8=未取貨
 payment: 1=匯款,2=到店付款,3=信用卡
 paymentStatus: 0=待付款,1=已付款,2=已付款(由第三方api)
-shippingMethod: 1=宅配,2=到店取貨,3=超商取貨
+shippingMethod: 1=宅配,2=到店取貨,3=超商取貨,4=面交
 */
 
 router.get('/count', auth, async function(req, res, next) {
@@ -196,17 +198,131 @@ router.post('/', async function(req, res, next) {
   res.status(200).json({ id: result[0] });
 })
 
+router.post('/checkout', async function(req, res, next) {
+  const useData = {
+    userId: req.session.user ? req.session.user.id : -1, // 無登入下訂單
+    storeId: req.body.storeId,
+    storeInfo: req.body.storeInfo,
+    content: req.body.content,
+    payment: req.body.payment,
+    shippingMethod: req.body.shippingMethod,
+    recipientInfo: req.body.recipientInfo,
+    payerInfo: req.body.payerInfo,
+		createBy: req.session.user ? req.session.user.id : '-1',
+		updateBy: req.session.user ? req.session.user.id : '-1',
+  }
+
+  let ruleObj = {
+    storeId: 'required|numeric|min:1',
+    payment: 'required|enum:payment',
+    shippingMethod: 'required|enum:shippingMethod',
+    'payerInfo.name': 'required|string',
+    'payerInfo.tel': 'required|string',
+    'payerInfo.email': 'required|email|string',
+    'recipientInfo.name': 'required|string',
+    'recipientInfo.tel': 'required|string',
+  }
+
+  if (useData.shippingMethod === 3) {
+    ruleObj['recipientInfo.supermarketStoreName'] = 'required|string'
+  } else if (useData.shippingMethod === 1) {
+    ruleObj['recipientInfo.address'] = 'required|string'
+  }
+
+  validator = wrapValidator(useData, ruleObj, 'order')
+
+  if (validator.fail) {
+    next({statusCode: 400, ...validator.errors}); return;
+  }
+
+  // 檢查商品資料
+  if (!await checkContent(useData.content, res)) return
+
+  const Store = require(process.cwd() + '/models/store/store')
+  const storeInfo = await Store.getOne({ id: useData.storeId })
+
+  if (!storeInfo) {
+    next({statusCode: 422})
+    return
+  }
+
+  if (storeInfo.status !== 1) {
+    next({statusCode: 403})
+    return
+  }
+
+  // 檢查商家允許未登入下單
+  storeInfo.setting = JSON.parse(storeInfo.setting)
+  if (!storeInfo.setting.allowOrderWithoutLogIn && !req.session.user) {
+    res.status(403).json({msg: 'No login'})
+    return
+  }
+
+  // 檢查付款方式與運送方式
+  storeInfo.payment = JSON.parse(storeInfo.payment)
+  if (!checkPayment(storeInfo.payment, useData.payment)) {
+    next({statusCode: 403})
+    return
+  }
+  storeInfo.shippingMethod = JSON.parse(storeInfo.shippingMethod)
+  if (!checkShippingMethod(storeInfo.shippingMethod, useData.shippingMethod)) {
+    next({statusCode: 403})
+    return
+  }
+
+  // compute footer info
+  useData.footerInfo = { subTotal: getSubTotal(useData.content) }
+  let shippingFee = getShippingFee(storeInfo.shippingMethod, useData.shippingMethod)
+  if (shippingFee) {
+    useData.footerInfo.shippingFee = shippingFee
+  }
+  let freeShipping = getFreeShipping(storeInfo.setting, useData.footerInfo)
+  if (freeShipping) {
+    delete useData.footerInfo.shippingFee
+    useData.footerInfo.freeShipping = true
+  }
+  let total = getTotal(useData.footerInfo)
+  if (total) {
+    useData.footerInfo.total = total
+  }
+
+  let mailOrderData = {
+    storeId: useData.storeId,
+    content: useData.content,
+    footerInfo: useData.footerInfo,
+    payerInfo: useData.payerInfo,
+    isGuset: useData.createBy === '-1' ? true : false
+  }
+
+  useData.status = 1
+  useData.storeInfo = JSON.stringify(useData.storeInfo)
+  useData.content = JSON.stringify(useData.content)
+  useData.recipientInfo = JSON.stringify(useData.recipientInfo)
+  useData.payerInfo = JSON.stringify(useData.payerInfo)
+  useData.footerInfo = JSON.stringify(useData.footerInfo)
+
+  result = await Order.create(useData)
+  res.status(200).json({ id: result[0] });
+
+  useData.id = result[0]
+  useData.comment = req.body.comment
+  delete useData.storeId
+  addOrderLog({ status: 0 }, useData)
+
+  mailOrderData.id = result[0]
+  // 發信給買家
+  sendMailToCustomerOnFirst(mailOrderData)
+  // 發信給商家
+  sendMailToStoreOnFirst(mailOrderData)
+})
+
 router.put('/:orderId', async function(req, res, next) {
 	
 	const useData = {
     id: req.params.orderId,
     storeId: req.query.storeId,
     status: req.body.status,
-    payment: req.body.payment,
     paymentStatus: req.body.paymentStatus,
-    shippingMethod: req.body.shippingMethod,
-    recipientInfo: req.body.recipientInfo,
-    payerInfo: req.body.payerInfo,
     comment: req.body.comment,
 		updateBy: req.session.user ? req.session.user.id : '-1',
   }
@@ -224,9 +340,6 @@ router.put('/:orderId', async function(req, res, next) {
   if (validator.fail) {
     next({statusCode: 400, ...validator.errors}); return;
   }
-
-  // check items
-  // precheck()
   
   let result = await Order.getOne({ id: useData.id })
 
@@ -235,116 +348,54 @@ router.put('/:orderId', async function(req, res, next) {
       storeId: useData.storeId,
       role: ['owner', 'editor']
     })) return
+
+    result.payerInfo = JSON.parse(result.payerInfo)
+    if (useData.comment) {
+      sendMailToCustomerOnComment(result.payerInfo.email, result.id, useData.comment)
+    }
+    if (result.status === 1 && useData.status === 2) {
+      sendMailToCustomerOnRecive(result.payerInfo.email, result.id)
+    } else if (useData.status === 3) {
+      sendMailToCustomerOnShipping(result.payerInfo.email, result.id)
+    } else if (useData.status === 4) {
+      sendMailToCustomerOnArrived(result.payerInfo.email, result.id)
+    }
   } else {
-    if (result.userId === -1 && result.status === 0 && !req.session.user) {
-      // 由商家開立訂單給消費者，或者消費者無登入下單
-      // 僅限狀態0可讓訪客無狀態修改
-    } else {
-      if (!req.session.user) {
-        next({statusCode: 403})
-        return
+    
+    if (!req.session.user) return next({statusCode: 403})
+
+    // 未登入訪客下單，不能讓消費者修改
+    if (result.userId === -1) return next({statusCode: 403})
+
+    // 由消費者提出請求，驗證user id
+    if (Number(result.userId) !== req.session.user.id) {
+      return next({statusCode: 403})
+    }
+
+    // 消費者提出請求變更訂單狀態
+    if (useData.status) {
+      if (result.status === -1) {
+        // 已經取消的訂單不能再更改狀態
+        return next({statusCode: 403})
       }
-      // 由消費者提出請求，驗證user id
-      if (Number(result.userId) !== req.session.user.id) {
-        next({statusCode: 403})
-        return
+      if (result.status >= 2) {
+        // 商家接單之後，不能取消訂單，也不能變更任何狀態
+        return next({statusCode: 403})
       }
     }
     
     // 消費者不能變更付款狀態，由商家變更
     delete useData.paymentStatus
 
-    if (result.status === 0 && useData.status === -1) {
-      // 取消訂單免驗證其他欄位，也不能修改其他欄位
-      delete useData.payment
-      delete useData.shippingMethod
-      delete useData.recipientInfo
-      delete useData.payerInfo
-      delete useData.footerInfo
-    } else if (result.status === 0) {
-
-      let ruleObj = {
-        status: 'required|enum:status',
-        'payerInfo.name': 'required|string',
-        'payerInfo.tel': 'required|string',
-        'payerInfo.email': 'required|email|string',
-        'recipientInfo.name': 'required|string',
-        'recipientInfo.tel': 'required|string',
-      }
-
-      if (useData.shippingMethod === 3) {
-        ruleObj['recipientInfo.supermarketStoreName'] = 'required|string'
-      } else if (useData.shippingMethod === 1) {
-        ruleObj['recipientInfo.address'] = 'required|string'
-      }
-
-      validator = wrapValidator(useData, ruleObj, 'order')
-
-      if (validator.fail) {
-        next({statusCode: 400, ...validator.errors}); return;
-      }
-
-      // 消費者僅限變更訂單狀態-1 1
-      if (![-1, 1].includes(useData.status)) {
-        next({statusCode: 403})
-        return
-      }
-
-      // 檢查付款方式與運送方式
-      const Store = require(process.cwd() + '/models/store/store')
-      const storeInfo = await Store.getOne({ id: result.storeId })
-      storeInfo.payment = JSON.parse(storeInfo.payment)
-      if (!checkPayment(storeInfo.payment, useData.payment)) {
-        next({statusCode: 403})
-        return
-      }
-      storeInfo.shippingMethod = JSON.parse(storeInfo.shippingMethod)
-      if (!checkShippingMethod(storeInfo.shippingMethod, useData.shippingMethod)) {
-        next({statusCode: 403})
-        return
-      }
-
-      useData.recipientInfo = JSON.stringify(useData.recipientInfo)
-      useData.payerInfo = JSON.stringify(useData.payerInfo)
-      
-      // compute footer info
-      result.content = JSON.parse(result.content)
-      useData.footerInfo = { subTotal: getSubTotal(result.content) }
-      let shippingFee = getShippingFee(storeInfo.shippingMethod, useData.shippingMethod)
-      if (shippingFee) {
-        useData.footerInfo.shippingFee = shippingFee
-      }
-      storeInfo.setting = JSON.parse(storeInfo.setting)
-      let freeShipping = getFreeShipping(storeInfo.setting, useData.footerInfo)
-      if (freeShipping) {
-        delete useData.footerInfo.shippingFee
-        useData.footerInfo.freeShipping = true
-      }
-      let total = getTotal(useData.footerInfo)
-      if (total) {
-        useData.footerInfo.total = total
-      }
-      
-      useData.footerInfo = JSON.stringify(useData.footerInfo)
-      
-    } else {
-      // 訂單0:未成立以外，消費者不能變更狀態
-      if (useData.status) {
-        next({statusCode: 403})
-        return
-      }
-      // 訂單0:未成立以外不能變更其他資訊
-      delete useData.payment
-      delete useData.shippingMethod
-      delete useData.recipientInfo
-      delete useData.payerInfo
-      delete useData.footerInfo
+    // 如買家有留言發送給商家
+    if (useData.comment) {
+      sendMailToStoreOnComment(result.storeId, useData.id, useData.comment)
     }
   }
   
   addOrderLog(result, useData)
   
-  result = await Order.update({ id: useData.id }, useData)
+  await Order.update({ id: useData.id }, useData)
   
   res.status(200).json();
 })
@@ -407,6 +458,87 @@ function addOrderLog(oriData, useData) {
   }
 
   delete useData.comment
+}
+
+function sendMailToCustomerOnFirst(order) {
+  let html = "<h4>您的訂單已成立，以下訂單資訊</h4>"
+  html += getOrderBody(order)
+  if (order.isGuset) {
+    html += "由於您未登入下單，如需聯絡商家請至此<a href='" + process.env.BASE_URL + "/store/" + order.storeId + "'>連結</a>查看"
+  } else {
+    html += "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + order.id + "'>連結</a>" 
+  }
+  Mailer.send(order.payerInfo.email, '訂單成立通知', html).catch(console.error)
+}
+
+async function sendMailToStoreOnFirst(order) {
+  let userInfo = await getStoreOwner(order.storeId)
+  let html = "<h4>已收到訂單成立，以下訂單資訊</h4>"
+  html += getOrderBody(order)
+  html += "查看與管理訂單請至此<a href='" + process.env.BASE_URL + "/manage/store/" + order.storeId + "/order/" + order.id + "/edit'>連結</a>"
+  Mailer.send(userInfo.email, '收到訂單通知', html).catch(console.error)
+}
+
+function getOrderBody(order) {
+  let html = "訂單編號:" + order.id + "<br/>"
+            + "訂單狀態:已成立<br />訂單內容:<br />---<br />"
+  for (let i in order.content) {
+    let product = order.content[i]
+    html += "<img src='" + product.thumbnail + "' width='30' />&nbsp;&nbsp;"
+        + product.name + "&nbsp;&nbsp;" + "x" + product.choiceNumber + "&nbsp;&nbsp;" + getPrice(product) + "<br />"
+  }
+  html += "---<br />"
+  if (order.footerInfo.shippingFee) {
+    html += "小計:" + order.footerInfo.subTotal + "<br />"
+        + "運費:" + order.footerInfo.shippingFee + "<br />"
+  }
+  html += "總計:" + order.footerInfo.total + "<br /><br />"
+  return html
+}
+
+async function getStoreOwner(storeId) {
+  const userStore = require(process.cwd() + '/models/user/userStore')
+  let storeOwner = await userStore.getOne({
+    storeId: storeId,
+    role: ['owner']
+  })
+  const User = require(process.cwd() + '/models/user/user')
+  let userInfo = await User.getOne({ id: storeOwner.userId })
+  return userInfo
+}
+
+async function sendMailToStoreOnComment(storeId, orderId, comment) {
+  let userInfo = await getStoreOwner(storeId)
+  let html = "<h4>買家訂單留言:</h4>"
+            + "<p>" + comment + "</p>"
+            + "如需回復請至此<a href='" + process.env.BASE_URL + "/manage/store/" + storeId + "/order/" + orderId + "/edit'>連結</a>"
+  
+  Mailer.send(userInfo.email, '訂單留言通知', html).catch(console.error)
+}
+
+async function sendMailToCustomerOnComment(userEmail, orderId, comment) {
+  let html = "<h4>商家訂單留言:</h4>"
+            + "<p>" + comment + "</p>"
+            + "回復請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
+  Mailer.send(userEmail, '訂單留言通知', html).catch(console.error)
+}
+
+function sendMailToCustomerOnRecive(userEmail, orderId) {
+  let html = "<h4>商家已接受訂單</h4>"
+            + "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
+  Mailer.send(userEmail, '商家已接受訂單通知', html).catch(console.error)
+}
+
+function sendMailToCustomerOnShipping(userEmail, orderId) {
+  let html = "<h4>商家已出貨</h4>"
+            + "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
+  Mailer.send(userEmail, '商家已出貨通知', html).catch(console.error)
+}
+
+function sendMailToCustomerOnArrived(userEmail, orderId) {
+  let html = "<h4>貨到通知</h4>"
+            + "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
+  Mailer.send(userEmail, '貨到通知', html).catch(console.error)
 }
 
 function checkPayment(storePayment, value) {
@@ -502,6 +634,70 @@ function getTotal(footerInfo) {
 }] */
 
 // 預檢查內容格式與資料正確性
-function preCheckContent(content) {
+async function checkContent(content, res) {
+  if (content.length === 0) {
+    res.status(422).json()
+    return false
+  }
+  const Product = require(process.cwd() + '/models/product/product')
+  const ProductVariant = require(process.cwd() + '/models/product/productVariant')
+  let productIds = []
+  let variantIds = []
+  for (const item of content) {
+    productIds.push(item.id)
+    if (item.variant) {
+      variantIds.push(item.variant.id)
+    }
+  }
+  let productList = await Product.getList({ ids: productIds })
+  let productVariantList = []
+  if (variantIds.length !== 0) {
+    productVariantList = await ProductVariant.getList({ ids: variantIds })
+  }
+  
+  if (productIds.length !== productList.length) {
+    res.status(422).json()
+    return false
+  }
+  if (variantIds.length !== productVariantList.length) {
+    res.status(422).json()
+    return false
+  }
 
+  let check = true
+  // console.log(variantIds)
+  // console.log(productVariantList)
+  for (const dbitem of productList) {
+    for (const item of content) {
+      if (item.variant) continue
+      if (dbitem.id === item.id) {
+        if (dbitem.price !== item.price) {
+          item.price = dbitem.price
+          check = false
+        }
+        if (dbitem.name !== item.name) {
+          item.name = dbitem.name
+          check = false
+        }
+      }
+    }
+  }
+
+  for (const dbitem of productVariantList) {
+    for (const item of content) {
+      if (!item.variant) continue
+      if (dbitem.id === item.variant.id) {
+        if (dbitem.price !== item.variant.price) {
+          item.variant.price = dbitem.price
+          check = false
+        }
+        if (dbitem.name !== item.name) {
+          item.name = dbitem.name
+          check = false
+        }
+      }
+    }
+  }
+  if (!check) res.status(422).json({content: content})
+  return check
 }

@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import formValidTools from '@/tools/formValid'
+import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
 import { mergeCart } from '@/tools/libs'
 
@@ -77,7 +77,7 @@ export default {
         return
 		  }
 		  this.loading = true
-		  this.axios.post('/user/login', this.formData).then(response => {
+		  this.axios.post('/user/login', this.formData).then(async (response) => {
 		  	this.loading = false
       	this.formValid = {
           fails: false
@@ -85,7 +85,7 @@ export default {
         let localUser = { id: response.data.user.id }
         localStorage.setItem('user', JSON.stringify(localUser))
         this.$store.commit('setLocalUser', localUser)
-				mergeCart()
+				await mergeCart()
         // this.$store.commit('setUser', response.data.user)
         if (this.$route.query.redirect) {
 					this.$router.push(decodeURI(this.$route.query.redirect))
@@ -98,7 +98,7 @@ export default {
 				})
 		  }).catch(error => {
       	this.loading = false
-      	if (error.response.status === 400) {
+      	if (error.response && error.response.status === 400) {
 	        this.formValid = {
 	          fails: true,
 	          errors: error.response.data.errors

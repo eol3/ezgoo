@@ -24,6 +24,14 @@ model.getList = async function (condition) {
 		query.where({ 'id': condition.id })
 	}
 
+	if (condition.ids) {
+		query.where(function() {
+			for (let item of condition.ids) {
+				this.orWhere({ 'id': item })
+			}
+		})
+	}
+
 	if (condition.storeId) {
 		query.where({ 'storeId': condition.storeId })
 	}

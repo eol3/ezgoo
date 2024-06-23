@@ -80,7 +80,7 @@ function transType(data, rules) {
 	for (const key in rules) {
 		if (data[key]) {
 			if (rules[key].indexOf('boolean') > -1) {
-				data[key] = (data[key] === 'true')
+				// data[key] = (data[key] === 'true')
 			} else if (rules[key].indexOf('numeric') > -1) {
 				// data[key] = Number(data[key])
 			} else if (rules[key].indexOf('idStringArray') > -1) {

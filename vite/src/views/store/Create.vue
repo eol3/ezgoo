@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import formValidTools from '@/tools/formValid'
+import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
 
 export default {

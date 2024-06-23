@@ -1,13 +1,15 @@
 <template>
   <div class="store-head-wrap container">
+    <div v-if="storeImages.length === 0" class="no-carousel">
+    </div>
     <div id="carouselStoreControls" class="carousel slide">
       <div class="carousel-indicators" v-if="storeImages.length > 1">
-        <button type="button" data-bs-target="#carouselStoreControls" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#carouselStoreControls" data-bs-slide-to="1" aria-label="Slide 2"></button>
-        <button type="button" data-bs-target="#carouselStoreControls" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <template v-for="(index, key) in storeImages.length">
+          <button type="button" data-bs-target="#carouselStoreControls" :data-bs-slide-to="key" :class="{ active: key === 0 }"></button>
+        </template>
       </div>
       <div class="carousel-inner">
-        <div class="carousel-item active" v-for="(item, key) in storeImages" :key="key">
+        <div class="carousel-item" :class="{ active: key === 0 }" v-for="(item, key) in storeImages" :key="key">
           <img :src="item.baseUrl + item.path + '/' + item.filename" class="d-block w-100" alt="...">
         </div>
       </div>
@@ -36,17 +38,20 @@
               <i style="font-size: 12px;" v-if="storeInfo.thumbnail !== undefined">尚無圖片</i>
             </div>
           </div>
-          <div class="my-auto">
-            <div class="fs-5 fw-bold" style="word-wrap: break-word;">
+          <div class="my-auto store-name-row">
+            <div class="fs-5 fw-bold cut-text">
               {{ storeInfo.name }}
+            </div>
+            <div class="text-secondary cut-text">
+              {{ storeInfo.about }}
             </div>
           </div>
         </div>
 			</div>
 			<div class="col-12 col-md-4 my-auto">
 			  <div class="d-flex flex-row">
-			    <button class="btn btn-outline-primary me-2 mobile-width-100">追蹤</button>
-			    <button class="btn btn-outline-success mobile-width-100" @click="router.push('/manage/store/' + route.params.storeId)">管理後台</button>
+			    <!--<button class="btn btn-outline-primary me-2 mobile-width-100">追蹤</button>-->
+			    <button v-if="userStore.roleGroup === 'manage'" class="btn btn-outline-success mobile-width-100" @click="router.push('/manage/store/' + route.params.storeId)">管理後台</button>
 			  </div>
 			</div>
 		</div>
@@ -101,6 +106,7 @@ import { onMounted, ref  } from 'vue'
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
+// import * as bootstrap from 'bootstrap'
 
 const store = useStore()
 const route = useRoute()
@@ -109,11 +115,18 @@ const router = useRouter()
 const storeInfo = ref({})
 const baseUrl = ref('/store/' + route.params.storeId)
 const storeImages = ref([])
+const userStore = ref({})
 
 let queryStatus = '1'
 if (store.state.preview) {
   queryStatus = 'all'
 }
+
+onMounted(() => {
+  window.scrollTo(0, 0)
+  // const carousel = new bootstrap.Carousel('#carouselStoreControls')
+  // console.log(carousel)
+})
 
 axios.get(baseUrl.value, {
   params: {
@@ -130,11 +143,23 @@ axios.get(baseUrl.value, {
 axios.get(baseUrl.value + '/images', {
   params: {
     status: queryStatus,
-    type: '0'
+    type: '0',
+    sortBy: 'priority',
+    orderBy: 'desc'
   }
 }).then(response => {
   storeImages.value = response.data
 })
+
+if (store.state.localUser) {
+  axios.get('/user/store/' + route.params.storeId).then(response => {
+    userStore.value = response.data
+    store.dispatch('setCache', {
+      key: 'currentUserStore',
+      value: userStore.value
+    })
+  })
+}
 
 function isActive(checkUrl) {
   return route.path === baseUrl.value + checkUrl
@@ -169,6 +194,10 @@ function isActive(checkUrl) {
   height: 30vh;
 }
 
+.store-name-row {
+  width: 100%;
+}
+
 @include media-breakpoint-down(md) {
   .store-head-wrap {
     padding-left: 0rem;
@@ -177,10 +206,18 @@ function isActive(checkUrl) {
   #carouselStoreControls .carousel-item {
     height: 25vh;
   }
+  .no-carousel {
+    height: 25vh;
+  }
+  .store-name-row {
+    width: 75%;
+  }
 }
 
-.store-wrap {
-  border-left: 1px solid $gray-300;
-  border-right: 1px solid $gray-300;
+.no-carousel {
+  width: 100%;
+  height: 30vh;
+  background-color: var(--d-gray-200);
 }
+
 </style>

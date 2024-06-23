@@ -1,111 +1,146 @@
 <template>
-  <div class="container">
-    <div class="row justify-content-md-center py-3">
-			<div class="col-12 col-md-5">
-        <div class="row-image-wrap d-flex align-items-center mb-1" ref="rowImageWrap">
-          <div class="product-no-image d-flex align-items-center justify-content-center bg-gray-200 mx-1 mb-2" v-if="productImages.length === 0">
-            <i>尚無圖片</i>
-          </div>
-          <div v-for="(item, key) in productImages" :key="key">
-            <div>
-              <LoadingSpin
-                v-if="item.loading === true"
-                :width="320"
-                :height="320"
-                :borderRadius="'2%'"
-              ></LoadingSpin>
-              <div class="image-item d-flex align-items-center" v-else>
-                <img :src="item.baseUrl + item.path + '/' + item.filename"/>
+  <div class="bg-1">
+    <div class="container">
+      <div class="row justify-content-md-center py-3">
+        <div class="col-12 col-lg-10 p-4 bg-0">
+          <div class="row">
+            <div class="col-12 col-md-6">
+              <div class="row-image-wrap d-flex align-items-center mb-1" ref="rowImageWrap">
+                <div class="product-no-image d-flex align-items-center justify-content-center bg-gray-200 mx-1 mb-2" v-if="productImages.length === 0">
+                  <i>尚無圖片</i>
+                </div>
+                <div v-for="(item, key) in productImages" :key="key">
+                  <div>
+                    <LoadingSpin
+                      v-if="item.loading === true"
+                      :width="320"
+                      :height="320"
+                      :borderRadius="'2%'"
+                    ></LoadingSpin>
+                    <div class="image-item d-flex align-items-center" v-else>
+                      <img :src="item.baseUrl + item.path + '/' + item.filename"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="mt-4">
+                <p v-if="product.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
+                <h4 v-else class="fw-bold">{{ product.name }}</h4>
+              </div>
+              <div>
+                <span class="fs-5 text-primary">
+                  ${{ selectedProductVariant ? selectedProductVariant.price : product.price }}
+                </span>
+                <!-- <span class="ms-2 fw-light fst-italic text-decoration-line-through">$10</span> -->
+              </div>
+              <div class="my-2">
+                <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
+                  <span class="fw-bold">{{ pItem.name }}</span>
+                  <div class="d-flex align-items-center">
+                    <button
+                      class="ms-1 btn btn-outline-secondary btn-sm"
+                      :class="{ active: selectedOptions.indexOf(item) > -1 }"
+                      v-for="(item, key) in pItem.values"
+                      :key="key"
+                      @click="clickOption(pKey, item)"
+                    >
+                      {{ item }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex mt-3">
+                <div class="product-number-group input-group me-2">
+                  <button class="btn btn-outline-secondary" @click="minus()">
+                    <i class="fa-solid fa-minus"></i>
+                  </button>
+                  <input type="number" class="form-control" v-model="choiceNumber">
+                  <button class="btn btn-outline-secondary" @click="choiceNumber += 1">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+                <button class="btn btn-outline-primary btn-sm" @click="addCart()">加入購物車</button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="col-12 col-md-5">
-        <div class="mt-4">
-          <p v-if="product.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
-          <h4 v-else class="fw-bold">{{ product.name }}</h4>
-        </div>
-        <div>
-          <span class="fs-5 text-primary">
-            ${{ selectedProductVariant ? selectedProductVariant.price : product.price }}
-          </span>
-          <!-- <span class="ms-2 fw-light fst-italic text-decoration-line-through">$10</span> -->
-        </div>
-        <div class="my-2">
-          <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
-            <span class="fw-bold">{{ pItem.name }}</span>
-            <div class="d-flex align-items-center">
-              <button
-                class="ms-1 btn btn-outline-secondary btn-sm"
-                :class="{ active: selectedOptions.indexOf(item) > -1 }"
-                v-for="(item, key) in pItem.values"
-                :key="key"
-                @click="clickOption(pKey, item)"
-              >
-                {{ item }}
-              </button>
+          <div class="p-3 border rounded-2">
+            <div class="row justify-content-between" v-if="storeInfo">
+              <div class="col-12 col-md-6 offset-md-1">
+                <router-link :to="'/store/' + storeInfo.id" class="text-black text-decoration-none">
+                <div class="d-flex flex-row">
+                  <div class="mx-2 my-auto">
+                    <img
+                      v-if="storeInfo.thumbnail"
+                      :src="storeInfo.thumbnail"
+                      class="rounded-circle avatar-image"
+                      width="60"
+                    />
+                    <div v-else class="no-image d-flex align-items-center justify-content-center bg-gray-200">
+                      <i style="font-size: 12px;" v-if="storeInfo.thumbnail !== undefined">尚無圖片</i>
+                    </div>
+                  </div>
+                  <div class="my-auto">
+                    <div class="fs-5 fw-bold" style="word-wrap: break-word;">
+                      {{ storeInfo.name }}
+                    </div>
+                  </div>
+                </div>
+                </router-link>
+              </div>
+              <div class="col-12 col-md-4 my-auto">
+                <div class="d-flex flex-row">
+                  <button v-if="userStore && userStore.roleGroup === 'manage'" class="btn btn-outline-success mobile-width-100" @click="router.push('/manage/store/' + storeInfo.id)">管理後台</button>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 offset-md-1 mt-2">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <label for="inputPassword6" class="col-form-label">付款方式</label>
+                  </div>
+                  <div class="col-auto">
+                    <div class="text-break">
+                      {{ getPaymentText() }}
+                    </div>
+                  </div>
+                </div>
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <label for="inputPassword6" class="col-form-label">運送方式</label>
+                  </div>
+                  <div class="col-auto">
+                    <div class="text-break">
+                      {{ getShippingText() }}
+                    </div>
+                  </div>
+                </div>
+                <div class="row align-items-center" v-if="storeInfo.setting.untilAmountFreeShipping">
+                  <div class="col-auto py-2">
+                    購物滿「{{ storeInfo.setting.untilAmountFreeShipping }}」免運費
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row justify-content-between" v-else>
+              <div class="col-12 col-md-6 offset-md-1 mb-3 mb-md-0">
+                <div class="d-flex flex-row">
+                  <div class="mx-2 my-auto">
+                    <div class="no-image d-flex align-items-center justify-content-center bg-gray-200">
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="d-flex mt-3">
-          <div class="product-number-group input-group me-2">
-            <button class="btn btn-outline-secondary" @click="minus()">
-              <i class="fa-solid fa-minus"></i>
-            </button>
-            <input type="number" class="form-control" v-model="choiceNumber">
-            <button class="btn btn-outline-secondary" @click="choiceNumber += 1">
-              <i class="fa-solid fa-plus"></i>
-            </button>
-          </div>
-          <button class="btn btn-outline-primary btn-sm" @click="addCart()">加入購物車</button>
-        </div>
-      </div>
-    </div>
-    <div class="row justify-content-between py-3 border" v-if="storeInfo">
-			<div class="col-12 col-md-6 offset-md-1 mb-3 mb-md-0">
-        <router-link :to="'/store/' + storeInfo.id" class="text-black text-decoration-none">
-			  <div class="d-flex flex-row">
-			    <div class="mx-2 my-auto">
-    			  <img
-              v-if="storeInfo.thumbnail"
-              :src="storeInfo.thumbnail"
-              class="rounded-circle avatar-image"
-              width="60"
-            />
-            <div v-else class="no-image d-flex align-items-center justify-content-center bg-gray-200">
-              <i style="font-size: 12px;" v-if="storeInfo.thumbnail !== undefined">尚無圖片</i>
+          <div class="row justify-content-md-center py-3">
+            <div class="col-12 col-md-10" v-if="product.describe !== ''">
+              <h5 class="mt-2 fw-bold">商品描述</h5>
+              {{ product.describe }}
             </div>
           </div>
-          <div class="my-auto">
-            <div class="fs-5 fw-bold" style="word-wrap: break-word;">
-              {{ storeInfo.name }}
-            </div>
-          </div>
+          <br /><br />
         </div>
-        </router-link>
-			</div>
-			<div class="col-12 col-md-4 my-auto">
-			  <div class="d-flex flex-row">
-			    <button class="btn btn-outline-primary me-2 mobile-width-100">追蹤</button>
-			    <button class="btn btn-outline-success mobile-width-100" @click="router.push('/manage/store/' + storeInfo.id)">管理後台</button>
-			  </div>
-			</div>
-		</div>
-    <div class="row justify-content-between py-3 border" v-else>
-      <div class="col-12 col-md-6 offset-md-1 mb-3 mb-md-0">
-        <div class="d-flex flex-row">
-			    <div class="mx-2 my-auto">
-            <div class="no-image d-flex align-items-center justify-content-center bg-gray-200">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row justify-content-md-center py-3">
-      <div class="col-12 col-md-10" v-if="product.describe !== ''">
-        <h5 class="mt-2 fw-bold">商品描述</h5>
-        {{ product.describe }}
       </div>
     </div>
   </div>
@@ -124,6 +159,7 @@ const route = useRoute()
 const router = useRouter()
 
 const storeInfo = ref(null)
+const userStore = ref(null)
 const product = ref({
   name: '',
   price: 0,
@@ -151,6 +187,7 @@ onMounted( async () => {
   window.scrollTo(0, 0)
   getProduct()
   storeInfo.value = await store.dispatch('getCache', 'currentStore')
+  userStore.value = await store.dispatch('getCache', 'currentUserStore')
 })
 
 function getProduct() {
@@ -161,6 +198,7 @@ function getProduct() {
     product.value = response.data
     product.value.options = product.value.options === null ? [] : JSON.parse(product.value.options)
     getStore()
+    getUserStore()
     getProductVariant()
     getProductImages()
   })
@@ -173,6 +211,19 @@ function getStore() {
   }).then((response) => {
     storeInfo.value = response.data
   })
+}
+
+function getUserStore() {
+  if (userStore.value) return
+  if (store.state.localUser) {
+    axios.get('/user/store/' + queryObj.storeId).then(response => {
+      userStore.value = response.data
+      store.dispatch('setCache', {
+        key: 'currentUserStore',
+        value: userStore.value
+      })
+    })
+  }
 }
 
 function getProductVariant() {
@@ -252,6 +303,28 @@ function addCart() {
     type: 'success',
     text: '成功加入購物車'
   })
+}
+
+function getPaymentText() {
+	let text = ''
+	for (const item of storeInfo.value.payment) {
+		if (item.enable) {
+			text += item.name + ", "
+		}
+		
+	}
+	return text.slice(0, -2)
+}
+
+function getShippingText() {
+	let text = ''
+	for (const item of storeInfo.value.shippingMethod) {
+		if (item.enable) {
+			text += item.name + ", "
+		}
+		
+	}
+	return text.slice(0, -2)
 }
 </script>
 

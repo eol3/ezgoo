@@ -22,7 +22,7 @@
 			    <label class="form-label">認證碼</label>
 			    <div class="input-group">
 			      <input name="verifyCode" class="form-control" pattern="\d*" type="text" maxlength="6" v-model="formData.verifyCode" @focus="formValidClear()">
-				    <button id="send_code" class="btn btn-outline-primary" type="button" @click="getVerifyCode()">
+				    <button id="send_code" class="btn btn-outline-primary" type="button" :disabled="loading" @click="getVerifyCode()">
 							發送認證碼
 						</button>
 					</div>
@@ -37,78 +37,107 @@
 			    	{{ formValidFeild('password') ? formValid.errors.password[0] : '&nbsp;' }}
 			    </div>
 			  </div>
-			  <button class="btn btn-primary" @click="register()">註冊</button>
+			  <button class="btn btn-primary" :disabled="loading" @click="register()">註冊</button>
 		  </div>
 		</div>
 	</div>
 </template>
 
-<script>
-import formValidTools from '@/tools/formValid'
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
+import { axios } from "@/tools/requestCache"
+import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
 
-export default {
-	setup() {
-    const { formValid, formValidFeild, formValidClear } = formValidTools();
-    
-    return {
-      formValid,
-      formValidFeild,
-      formValidClear
-    }
-  },
-  data() {
-  	return {
-  		loading: false,
-  		formData: {
-        email: "",
-        verifyCode: "",
-        password: "",
-      },
-  	}
-  },
-  methods: {
-  	register() {
-  		if (this.loading) return
-  		const validator = wrapValidator(this.formData, {
-		    email: 'required|string|email|max:64',
-		    verifyCode: 'required|numeric|digits:6',
-		    password: 'required|min:6|max:32',
-		  }, 'user');
-		  if (validator.fail) {
-		  	this.formValid = {
-          fails: true,
-          ...validator.errors
-        }
-        return
-		  }
-		  this.loading = true
-		  this.axios.post('/user/register', this.formData).then(response => {
-		  	this.loading = false
-      	this.formValid = {
-          fails: false
-        }
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        this.$store.commit('setUser', response.data.user)
-        if (this.$route.query.redirect) {
-					this.$router.push(decodeURI(this.$route.query.redirect))
-				} else {
-					this.$router.push('/')
-				}
-        this.$store.dispatch('showAlert', {
-					type: 'success',
-        	text: response.data.msg
-				})
-		  }).catch(error => {
-      	this.loading = false
-      	if (error.response.status === 400) {
-	        this.formValid = {
-	          fails: true,
-	          errors: error.response.data.errors
-	        }
-      	}
-      });
-  	}
-  }
+const { formValid, formValidFeild, formValidClear } = formValidTools();
+
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+
+const loading = ref(false)
+const formData = ref({
+	email: "",
+	verifyCode: "",
+	password: "",
+})
+
+function getVerifyCode() {
+	if (loading.value) return
+	const validator = wrapValidator(formData.value, {
+		email: 'required|string|email|max:64',
+	}, 'user');
+	if (validator.fail) {
+		formValid.value = {
+			fails: true,
+			...validator.errors
+		}
+		return
+	}
+	loading.value = true
+	axios.post('/user/send-email-code', {
+		email: formData.value.email,
+		register: true
+	}).then((response) => {
+		store.dispatch('showAlert', {
+			type: 'success',
+			text: '成功發送驗證碼'
+		})
+	}).catch(error => {
+		if (error.response.status === 400) {
+			formValid.value = {
+				fails: true,
+				errors: error.response.data.errors
+			}
+		}
+	}).finally(() => {
+		loading.value = false
+	})
 }
+
+function register() {
+	if (loading.value) return
+	const validator = wrapValidator(formData.value, {
+		email: 'required|string|email|max:64',
+		// verifyCode: 'required|numeric|digits:6',
+		password: 'required|min:6|max:32',
+	}, 'user');
+	if (validator.fail) {
+		formValid.value = {
+			fails: true,
+			...validator.errors
+		}
+		return
+	}
+	loading.value = true
+	axios.post('/user/register', formData.value).then(response => {
+		loading.value = false
+		formValid.value = {
+			fails: false
+		}
+		localStorage.setItem('user', JSON.stringify(response.data.user))
+		store.commit('setUser', response.data.user)
+		if (route.query.redirect) {
+			router.push(decodeURI(route.query.redirect))
+		} else {
+			router.push('/')
+		}
+		store.dispatch('showAlert', {
+			type: 'success',
+			text: response.data.msg
+		})
+	}).catch(error => {
+		if (error.response.status === 400) {
+			formValid.value = {
+				fails: true,
+				errors: error.response.data.errors
+			}
+		}
+	}).finally(() => {
+		loading.value = false
+	})
+}
+
 </script>

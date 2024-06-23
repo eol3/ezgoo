@@ -39,12 +39,12 @@
           訂單管理
         </router-link>
       </li>
-      <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('event')}]">
+      <!-- <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('event')}]">
         <router-link :to="getUrl('event')" @click="clickCloseSlider" class="nav-link">
           <i class="fa-solid fa-percent fa-fw me-2"></i>
           優惠工具
         </router-link>
-      </li>
+      </li> -->
       <!-- <li :class="['narmal-link-wrap mb-2 rounded-3', {active: checkUrl('member')}]">
         <router-link :to="getUrl('member')" @click="clickCloseSlider" class="nav-link">
           <i class="fas fa-users fa-fw me-2"></i>

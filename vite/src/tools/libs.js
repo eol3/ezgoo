@@ -1,26 +1,30 @@
 import router from "../router/index";
 import store from "../store/index";
-import { axios } from "@/tools/requestCache";
+import { axios } from "@/tools/request";
 
-export function mergeCart() {
-  axios.get('/user/cart').then(response => {
-    let cart = response.data
-    var localCart = localStorage.getItem("cart")
-    if (!localCart) {
-      localStorage.setItem("cart", JSON.stringify(cart))
-    } else {
-      localCart = JSON.parse(localCart)
-      for (const storeItem of localCart) {
-        // let result = {}
-        for (const product of storeItem.content) {
-          addProdutToCart(cart, storeItem.store, product)
-        }
+export async function mergeCart() {
+  let response = await axios.get('/user/cart')
+  let cart = response.data.content
+  var localCart = localStorage.getItem("cart")
+  if (!localCart) {
+    localStorage.setItem("cart", JSON.stringify(cart))
+  } else {
+    localCart = JSON.parse(localCart)
+    for (const storeItem of localCart) {
+      // let result = {}
+      for (const product of storeItem.content) {
+        addProdutToCart(cart, storeItem.store, product)
       }
-      let cartStr = JSON.stringify(cart)
-      localStorage.setItem("cart", cartStr)
-      syncToServer(cartStr)
     }
-  })
+    let cartStr = JSON.stringify(cart)
+    localStorage.setItem("cart", cartStr)
+    syncToServer(cart)
+  }
+  localStorage.setItem("cartIsRead", response.data.isRead)
+  store.commit('setCart', {
+		number: getCartItemNumber(cart),
+		isRead: response.data.isRead
+	})
 }
 
 // product 必須包含choiceNumber, selectedOptions, variant, proudctVariantPrice
@@ -42,12 +46,28 @@ export function setCart(storeInfo, product) {
 
   addProdutToCart(cart, storeInfo, product)
 
-  // console.log(result)
+  if (localStorage.getItem("user")) {
+    syncToServer(cart)
+  }
+
+  store.commit('setCart', {
+		number: getCartItemNumber(cart),
+		isRead: false
+	})
+  localStorage.setItem("cartIsRead", false)
+
   let cartStr = JSON.stringify(cart)
   localStorage.setItem("cart", cartStr)
-  if (localStorage.getItem("user")) {
-    syncToServer(cartStr)
-  }
+}
+
+export function getCartItemNumber(cart) {
+  let number = 0
+	for (const storeInfo of cart) {
+		for (const product of storeInfo.content) {
+			number += 1
+		}
+	}
+  return number
 }
 
 function addProdutToCart(cart, storeInfo, product) {
@@ -94,7 +114,8 @@ function addProdutToStoreCart(content, product) {
   let findProduct = false
   for (let i in content) {
     if (content[i].id === product.id && !content[i].variant && !firstKey) {
-      firstKey = Number(i) + 1
+      firstKey = Number(i)
+      break;
     }
   }
   for (let i in content) {
@@ -104,20 +125,30 @@ function addProdutToStoreCart(content, product) {
       break;
     }
   }
-  if (firstKey) {
-    content.splice(firstKey, 0, product)
-  } else if (!findProduct) {
-    content.push(product)
+
+  if (!findProduct) {
+    if (firstKey === false) {
+      content.push(product)
+    } else {
+      // 變異商品加在主商品後面
+      firstKey += 1
+      content.splice(firstKey, 0, product)
+    }
   }
+  // if (firstKey) {
+  //   content.splice(firstKey, 0, product)
+  // } else if (!findProduct) {
+  //   content.push(product)
+  // }
 }
 
 // 同步到伺服器
-export async function syncToServer(cartStr) {
+export async function syncToServer(cart) {
   await axios({
-    method: 'post',
+    method: 'put',
     url: '/user/cart',
     data: {
-      content: cartStr
+      content: cart,
     }
   })
 }

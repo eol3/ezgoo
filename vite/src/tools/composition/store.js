@@ -11,7 +11,7 @@ export default () => {
   async function getStore(storeId) {
     let response = {}
     try {
-      response = await axios.get("/store/" + storeId)
+      response = await axios.get("/store/" + storeId + "?status=1")
       storeInfo.value = response.data
       payment.value = response.data.payment
       shippingMethod.value = response.data.shippingMethod

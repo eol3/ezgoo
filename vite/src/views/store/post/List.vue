@@ -224,4 +224,11 @@ function unSelectedWord() {
   height: 120px;
   object-fit: cover;
 }
+.post-card .card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>

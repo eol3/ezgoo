@@ -1,5 +1,6 @@
 import { createStore } from 'vuex'
 import { axios } from "@/tools/request";
+import { setCart } from '../tools/libs';
 
 export default createStore({
   state: {
@@ -7,6 +8,10 @@ export default createStore({
     user: null, //null 未取得, false 未登入, 有資料表示有登入
     handleForbidden: false,
     cache: [], // [{ key: 'productList', value: [] }, { key: 'productCategory', value: [] }]
+    cart: {
+      number: 0,
+      isRead: true,
+    },
     preview: false,
     alert: {
       show: false,
@@ -40,6 +45,14 @@ export default createStore({
     },
     setUser(state, value) {
       state.user = value;
+    },
+    setCart(state, value) {
+      if (value.hasOwnProperty('number')) {
+        state.cart.number = value.number
+      }
+      if (value.hasOwnProperty('isRead')) {
+        state.cart.isRead = value.isRead
+      }
     },
     setPreview(state, value) {
       state.preview = value;
@@ -105,8 +118,13 @@ export default createStore({
     userLogout(context) {
       context.commit('setLocalUser', null)
       context.commit('setUser', false)
+      context.commit('setCart', {
+        number: 0,
+        isRead: true
+      })
       localStorage.removeItem('user')
       localStorage.removeItem("cart")
+      localStorage.removeItem("cartIsRead")
     },
     showAlert(context, payload) {
       if (context.state.alert.show) {

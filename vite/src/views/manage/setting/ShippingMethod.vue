@@ -91,6 +91,13 @@ const shippingMethod = ref([
     tip: '',
     fee: 0,
   },
+  {
+      id: 4,
+      name: '面交',
+      enable: false,
+      tip: '',
+      fee: 0,
+    },
 ])
 
 const setting = ref({

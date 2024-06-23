@@ -117,6 +117,7 @@ function changeStatus() {
 }
 
 function getContentText(content) {
+	if (!content) return ''
 	let text = ''
 	for(let item of content) {
 		text += item.name + '*' + item.choiceNumber

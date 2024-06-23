@@ -19,7 +19,7 @@ router.get('/', auth, async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
   
-  let result = await userStore.getList({ createBy: req.session.user.id })
+  let result = await userStore.getList({ userId: req.session.user.id })
   
   if (useData.withStore) {
     const Store = require(process.cwd() + '/models/store/store')
@@ -54,7 +54,8 @@ router.get('/:storeId', auth, async function(req, res, next) {
   })
   
   if (!result) {
-	  return next({statusCode: 404 })
+    res.json()
+	  return
 	}
 	
   if (useData.withStore) {
@@ -64,7 +65,7 @@ router.get('/:storeId', auth, async function(req, res, next) {
   }
 	
 	if (!result) {
-	  return next({statusCode: 404 })
+	  res.json()
 	} else {
 	  res.json(result)
 	}

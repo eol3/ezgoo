@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row justify-content-md-center py-3">
       <div class="col-lg-8 mx-auto">
-        <div v-if="store.state.localUser" @click="router.push('/user/orders')" class="btn btn-link text-decoration-none">
+        <div v-if="store.state.localUser" @click="goBack()" class="btn btn-link text-decoration-none">
           <div class="my-2">
             <i class="fa-solid fa-chevron-left"></i>
             返回訂單列表
@@ -66,15 +66,6 @@
               </div>
             </div>
             <hr />
-            <!-- <div class="row my-2" v-if="order.status === 0">
-              <div class="col-2 col-md-1 offset-6 offset-md-7">
-                總計
-              </div>
-              <div class="col-2">
-                {{ getTotal(order.content) }}
-              </div>
-            </div>
-            <template v-else> -->
             <template v-if="order.footerInfo">
               <div class="row my-2" v-if="order.footerInfo.subTotal">
                 <div class="col-2 col-md-1 offset-6 offset-md-7">
@@ -113,41 +104,12 @@
             <div class="row my-2">
               <div class="col-12 col-md-6">
                 <label class="form-label fw-bold fs-sm">付款方式</label>
-                <template v-if="order.status === 0">
-                  <select class="form-select mb-2" v-model="order.payment" :disabled="loading">
-                    <template v-for="item in payment">
-                      <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
-                    </template>
-                  </select>
-                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(order.payment, 'tip') !== ''">
-                    {{ getPayment(order.payment, 'tip') }}
-                  </div>
-                </template>
-                <template v-else>
                   <div class="ms-2 mb-2">
                     {{ getPayment(order.payment, 'name') }}
                   </div>
-                </template>
                 <div>
                   <label class="mt-2 fw-bold fs-sm">聯絡資訊</label>
                 </div>
-                <template v-if="order.status === 0">
-                  <label class="form-label">姓名</label>
-                  <input type="text" class="form-control" v-model="payer.name" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('payerInfo.name') ? formValid.errors['payerInfo.name'][0] : '' }}
-                  </div>
-                  <label class="form-label">電話</label>
-                  <input type="text" class="form-control" v-model="payer.tel" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('payerInfo.tel') ? formValid.errors['payerInfo.tel'][0] : '' }}
-                  </div>
-                  <label class="form-label">E-mail</label>
-                  <input type="eamil" class="form-control" v-model="payer.email" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('payerInfo.email') ? formValid.errors['payerInfo.email'][0] : '' }}
-                  </div>
-                </template>
                 <div class="ps-2" v-if="order.status !== 0 && order.payerInfo">
                   <div class="mb-2">
                     姓名: {{ order.payerInfo.name }}
@@ -162,59 +124,13 @@
               </div>
               <div class="col-12 col-md-6">
                 <label class="form-label fw-bold fs-sm">運送方式</label>
-                <template v-if="order.status === 0">
-                  <select class="form-select mb-2" v-model="order.shippingMethod" :disabled="loading" @change="getFooterInfo()">
-                    <template v-for="item in shippingMethod">
-                      <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
-                    </template>
-                  </select>
-                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(order.shippingMethod, 'tip') !== ''">
-                    {{ getShippingMethod(order.shippingMethod, 'tip') }}
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="ms-2 mb-2">
-                    {{ getShippingMethod(order.shippingMethod, 'name') }}
-                  </div>
-                </template>
+                <div class="ms-2 mb-2">
+                  {{ getShippingMethod(order.shippingMethod, 'name') }}
+                </div>
                 <div class="d-flex justify-content-between">
                   <label class="mt-2 fw-bold fs-sm">收件資訊</label>
                   <span></span>
-                  <div class="form-check" v-if="order.status === 0">
-                    <input class="form-check-input" type="checkbox" v-model="isAnotherRecipient" id="flexCheckDefault">
-                    <label class="form-check-label fs-sm" for="flexCheckDefault">
-                      新增不同收件人?
-                    </label>
-                  </div>
                 </div>
-                <template v-if="order.status === 0">
-                  <template v-if="isAnotherRecipient">
-                    <label class="form-label">姓名</label>
-                    <input type="text" class="form-control" v-model="recipient.name" @focus="formValidClear()" :disabled="loading">
-                    <div class="form-text text-danger">
-                      {{ formValidFeild('recipientInfo.name') ? formValid.errors['recipientInfo.name'][0] : '' }}
-                    </div>
-                    <label class="form-label">電話</label>
-                    <input type="text" class="form-control" v-model="recipient.tel" @focus="formValidClear()" :disabled="loading">
-                    <div class="form-text text-danger">
-                      {{ formValidFeild('recipientInfo.tel') ? formValid.errors['recipientInfo.tel'][0] : '' }}
-                    </div>
-                  </template>
-                  <template v-if="order.shippingMethod == 1">
-                    <label class="form-label">地址</label>
-                    <input type="text" class="form-control" name="address" v-model="recipient.address" @focus="formValidClear()" :disabled="loading">
-                    <div class="form-text text-danger">
-                      {{ formValidFeild('recipientInfo.address') ? formValid.errors['recipientInfo.address'][0] : '' }}
-                    </div>
-                  </template>
-                  <template v-if="order.shippingMethod == 3">
-                    <label class="form-label">超商/門市名稱</label>
-                    <input type="text" class="form-control" v-model="recipient.supermarketStoreName" @focus="formValidClear()" :disabled="loading">
-                    <div class="form-text text-danger">
-                      {{ formValidFeild('recipientInfo.supermarketStoreName') ? formValid.errors['recipientInfo.supermarketStoreName'][0] : '' }}
-                    </div>
-                  </template>
-                </template>
                 <div class="ps-2" v-if="order.status !== 0 && order.recipientInfo">
                   <div class="mb-2" v-if="order.payerInfo.name !== order.recipientInfo.name">
                     姓名: {{ order.recipientInfo.name }}
@@ -260,7 +176,7 @@
             </div>
             <div class="row mt-3 justify-content-center">
               <div class="col-auto">
-                <template v-if="order.status === 0">
+                <template v-if="order.status === 1">
                   <div @click="cancelOrder()" class="btn btn-link text-decoration-none">
                     取消訂單
                   </div>
@@ -325,9 +241,6 @@ onMounted(() => {
   loading.value = true
   axios.get('/order/' + route.params.orderId).then((response) => {
     order.value = response.data
-    if (order.value.status === 0) {
-      formData.value.status = 1
-    }
     getStore(order.value.storeId).finally(() => {
       order.value.payment = getFirstEnablePaymentId()
       order.value.shippingMethod = getFirstEnableShippingMethodId()
@@ -341,46 +254,9 @@ onMounted(() => {
 
 function save() {
 
-  let ruleObj = {}
-  
-  if (order.value.status === 0) {
-
-    formData.value.recipientInfo = recipient.value
-    formData.value.payerInfo = payer.value
-    formData.value.payment = order.value.payment
-    formData.value.shippingMethod = order.value.shippingMethod
-    
-    ruleObj = {
-      status: 'required|enum:status',
-      payment: 'enum:payment',
-      shippingMethod: 'enum:shippingMethod',
-      'payerInfo.name': 'required|string',
-      'payerInfo.tel': 'required|string',
-      'payerInfo.email': 'required|email|string',
-      comment: 'string',
-    }
-    
-    if (formData.value.shippingMethod === 3) {
-      ruleObj['recipientInfo.supermarketStoreName'] = 'required|string'
-    } else if (formData.value.shippingMethod === 1) {
-      ruleObj['recipientInfo.address'] = 'required|string'
-    }
-
-    if (isAnotherRecipient.value) {
-      ruleObj['recipientInfo.name'] = 'required|string'
-      ruleObj['recipientInfo.tel'] = 'required|string'
-    } else {
-      recipient.value.name = payer.value.name
-      recipient.value.tel = payer.value.tel
-    }
-
-  } else {
-    ruleObj = {
-      comment: 'string',
-    }
-  }
-
-  const validator = wrapValidator(formData.value, ruleObj, 'order');
+  const validator = wrapValidator(formData.value, {
+    comment: 'string',
+  }, 'order');
     
   if (validator.fail) {
     formValid.value = {
@@ -394,19 +270,11 @@ function save() {
   loading.value = true
 
   axios.put('/order/' + route.params.orderId, formData.value).then((response) => {
-    if (store.state.localUser) {
-      store.dispatch('showAlert', {
-        type: 'success',
-        text: '成功送出訂單'
-      })
-      router.push('/user/orders')
-    } else {
-      store.dispatch('showAlert', {
-        type: 'success',
-        text: '成功送出訂單，詳細訂單資訊將發送至您的E-mail'
-      })
-      router.push('/store/' + order.value.storeInfo.id)
-    }
+    store.dispatch('showAlert', {
+      type: 'success',
+      text: '成功送出訂單'
+    })
+    router.push('/user/orders')
   }).catch(error => {
     if (error.response.status === 400) {
       formValid.value = {
@@ -415,6 +283,15 @@ function save() {
       }
     }
   }).finally(() => loading.value = false)
+}
+
+function goBack() {
+  let lastPath = router.options.history.state.back
+  if (!lastPath || lastPath.startsWith('/login?redirect')) {
+		router.push('/user/orders')
+	} else {
+		router.go(-1)
+	}
 }
 
 function getFooterInfo() {
@@ -487,6 +364,7 @@ function cancelOrder() {
 			await axios.put('/order/' + route.params.orderId, {
         status: -1,
       })
+      store.state.modal.loading = false
 			store.state.modal.show = false
 			store.dispatch('showAlert', {
 				type: 'success',
@@ -496,63 +374,6 @@ function cancelOrder() {
 		}
 	})
 }
-
-function cleanObjProp(obj) {
-  for (var propName in obj) {
-    if (obj[propName] === null || obj[propName] === undefined) {
-      delete obj[propName];
-    } else {
-      if (['status', 'payment', 'shippingMethod'].includes(propName)) {
-        obj[propName] = Number(obj[propName])
-      }
-    }
-  }
-}
-
-function attachRecipeint() {
-  if (!isAnotherRecipient.value) {
-    recipient.value.name = payer.value.name
-    recipient.value.tel = payer.value.tel
-  }
-  if (formData.value.shippingMethod === 1) {
-    // 超商取貨不用地址
-    delete recipient.value.address
-  } else if (formData.value.shippingMethod === 2) {
-    // 宅配不用超商門市名稱
-    delete recipient.value.supermarketStoreName
-  }
-  for (var propName in recipient.value) {
-    if (recipient.value[propName] === '') delete recipient.value[propName]
-  }
-  formData.value.recipientInfo = recipient.value
-}
-
-function attachPayer() {
-  for (var propName in payer.value) {
-    if (payer.value[propName] === '') delete payer.value[propName]
-  }
-  formData.value.payerInfo = payer.value
-}
-
-// function getShipping(method) {
-//   if (method === 1) {
-//     return '超商取貨'
-//   } else if (method === 2) {
-//     return '宅配'
-//   } else if (method === 3) {
-//     return '到店取貨'
-//   }
-// }
-
-// function getPayment(method) {
-//   if (method === 1) {
-//     return '信用卡'
-//   } else if (method === 2) {
-//     return '匯款'
-//   } else if (method === 3) {
-//     return '到貨付款'
-//   }
-// }
 
 </script>
 
