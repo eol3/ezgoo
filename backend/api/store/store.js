@@ -2,7 +2,7 @@ const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const Store = require(process.cwd() + '/models/store/store')
 const auth = require(process.cwd() + "/tools/middlewares.js").auth
-const { authUserStoreRole, authUserStoreRoleGroup }= require(process.cwd() + '/tools/libs')
+const { authStore, authUserStoreRole, authUserStoreRoleGroup }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
 
@@ -31,12 +31,12 @@ router.get('/:storeId', async function(req, res, next) {
   // all: 全部, 0:未公開, 1:已公開, 2:僅展示，不能下單, 3:暫時關閉維護中, -1: 系統禁用
 
 	const useData = {
-		account: req.params.storeId,
+		id: req.params.storeId,
     status: req.query.status,
 	}
 	
 	const validator = wrapValidator(useData, {
-	  account: 'required|string',
+	  id: 'required|string',
     status: 'enum:statusQuery', // 查詢簡化成三種 all: 全部, 0:未公開, 1:已公開,
   }, 'store')
   
@@ -44,37 +44,39 @@ router.get('/:storeId', async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
 
-  if (useData.status != '1') {
-    if (!await authUserStoreRole(req, next, useData.account, ['owner', 'editor'])) return
-  }
+  if (!await authStore(req, next, {
+    storeId: useData.id,
+    status: useData.status,
+    role: ['owner', 'editor']
+  })) return
 
-  let result = await Store.getOne({ account: useData.account })
+  // let result = await Store.getOne({ account: useData.account })
 
-  if (!result) {
-    return next({statusCode: 404 })
-  }
+  // if (!result) {
+  //   return next({statusCode: 404 })
+  // }
   
-  if (result.status === -1) {
-    if (req.session.admin) {
-      res.json(result)
-    } else {
-      return next({statusCode: 403, msg: 'System banned' })
-    }
-  }
+  // if (result.status === -1) {
+  //   if (req.session.admin) {
+  //     res.json(result)
+  //   } else {
+  //     return next({statusCode: 403, msg: 'System banned' })
+  //   }
+  // }
 
-  if (useData.status === '1') {
-    if (result.status === 0) {
-      return next({statusCode: 403, msg: 'Store not open' })
-    } else if (result.status === 3) {
-      return next({statusCode: 403, msg: 'Store maintaining' })
-    }
-  }
+  // if (useData.status === '1') {
+  //   if (result.status === 0) {
+  //     return next({statusCode: 403, msg: 'Store not open' })
+  //   } else if (result.status === 3) {
+  //     return next({statusCode: 403, msg: 'Store maintaining' })
+  //   }
+  // }
 
-  result.payment = JSON.parse(result.payment)
-  result.shippingMethod = JSON.parse(result.shippingMethod)
-  result.setting = JSON.parse(result.setting)
+  req.store.payment = JSON.parse(req.store.payment)
+  req.store.shippingMethod = JSON.parse(req.store.shippingMethod)
+  req.store.setting = JSON.parse(req.store.setting)
   
-  res.json(result)
+  res.json(req.store)
   
 })
 
@@ -111,7 +113,7 @@ router.post('/', auth, async function(req, res, next) {
   }
   
   // 預設值
-  useData.status = 1
+  useData.status = 0
   setDefaultValue(useData)
 
   result = await Store.create(useData)

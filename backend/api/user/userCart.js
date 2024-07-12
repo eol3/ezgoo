@@ -14,6 +14,7 @@ router.get('/', auth, async function(req, res, next) {
   if (!result) return next({statusCode: 404})
   else {
     result.content = JSON.parse(result.content)
+    result.isRead = Boolean(result.isRead)
     res.json(result)
   }
 })
@@ -55,10 +56,11 @@ router.put('/', auth, async function(req, res, next) {
   const useData = {
     userId: req.session.user.id,
     content: req.body.content,
-    isRead: req.body.isRead,
+    isRead: req.body.isRead ? req.body.isRead : undefined,
 	}
 
   const validator = wrapValidator(useData, {
+    content: 'array',
     isRead: 'boolean'
   })
   

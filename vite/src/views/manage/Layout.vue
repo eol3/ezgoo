@@ -22,13 +22,16 @@
 						</div>
 					</li>
 	        <li class="nav-item dropdown">
-	        	<div class="nav-link icon-link cursor-pointer" id="dropdownStore" data-bs-toggle="dropdown" aria-expanded="false">
+	        	<router-link
+	            class="nav-link icon-link"
+	            :to="'/store/' + $route.params.storeId"
+	          >
 	        		<i class="fa-solid fa-store fa-fw"></i>
-						</div>
-	        	<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownStore">
+						</router-link>
+	        	<!-- <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownStore">
 					    <li><router-link class="dropdown-item" :to="'/store/' + $route.params.storeId">商店首頁</router-link></li>
 					    <li><router-link class="dropdown-item" :to="'/store/' + $route.params.storeId + '?preview=true'">預覽模式</router-link></li>
-					  </ul>
+					  </ul> -->
 	        </li>
 	        <li class="nav-item dropdown">
 	        	<div class="nav-link icon-link cursor-pointer" id="dropdownNotify" data-bs-toggle="dropdown" aria-expanded="false">

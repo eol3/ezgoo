@@ -18,7 +18,7 @@ export async function mergeCart() {
     }
     let cartStr = JSON.stringify(cart)
     localStorage.setItem("cart", cartStr)
-    syncToServer(cart)
+    syncToServer(cart, false)
   }
   localStorage.setItem("cartIsRead", response.data.isRead)
   store.commit('setCart', {
@@ -47,7 +47,7 @@ export function setCart(storeInfo, product) {
   addProdutToCart(cart, storeInfo, product)
 
   if (localStorage.getItem("user")) {
-    syncToServer(cart)
+    syncToServer(cart, false)
   }
 
   store.commit('setCart', {
@@ -143,12 +143,13 @@ function addProdutToStoreCart(content, product) {
 }
 
 // 同步到伺服器
-export async function syncToServer(cart) {
+export async function syncToServer(cart, isRead = undefined) {
   await axios({
     method: 'put',
     url: '/user/cart',
     data: {
       content: cart,
+      isRead: isRead,
     }
   })
 }

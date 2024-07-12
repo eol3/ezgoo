@@ -5,7 +5,6 @@ const OrderLog = require(process.cwd() + '/models/order/orderLog')
 const { authStore }= require(process.cwd() + '/tools/libs')
 const auth = require(process.cwd() + "/tools/middlewares.js").auth
 const Mailer = require(process.cwd() + "/tools/mail.js")
-const User = require(process.cwd() + '/models/user/user')
 
 module.exports = router
 
@@ -39,6 +38,7 @@ router.get('/count', auth, async function(req, res, next) {
       status: useData.status,
       role: ['owner', 'editor']
     })) return
+    // if (!await authUserStoreRoleGroup(req, next, useData.storeId, 'manage')) return
     delete useData.userId
   }
 
@@ -80,6 +80,7 @@ router.get('/', auth, async function(req, res, next) {
       status: useData.status,
       role: ['owner', 'editor']
     })) return
+    // if (!await authUserStoreRoleGroup(req, next, useData.storeId, 'manage')) return
     delete useData.userId
   }
   
@@ -208,19 +209,25 @@ router.post('/checkout', async function(req, res, next) {
     shippingMethod: req.body.shippingMethod,
     recipientInfo: req.body.recipientInfo,
     payerInfo: req.body.payerInfo,
+    footerInfo: req.body.footerInfo,
 		createBy: req.session.user ? req.session.user.id : '-1',
 		updateBy: req.session.user ? req.session.user.id : '-1',
   }
 
   let ruleObj = {
     storeId: 'required|numeric|min:1',
+    storeInfo: 'required|object',
+    content: 'required|array',
     payment: 'required|enum:payment',
     shippingMethod: 'required|enum:shippingMethod',
+    recipientInfo: 'required|object',
+    payerInfo: 'required|object',
     'payerInfo.name': 'required|string',
     'payerInfo.tel': 'required|string',
     'payerInfo.email': 'required|email|string',
     'recipientInfo.name': 'required|string',
     'recipientInfo.tel': 'required|string',
+    footerInfo: 'required|object',
   }
 
   if (useData.shippingMethod === 3) {
@@ -271,20 +278,22 @@ router.post('/checkout', async function(req, res, next) {
   }
 
   // compute footer info
-  useData.footerInfo = { subTotal: getSubTotal(useData.content) }
+  let footerInfo = { subTotal: getSubTotal(useData.content) }
   let shippingFee = getShippingFee(storeInfo.shippingMethod, useData.shippingMethod)
   if (shippingFee) {
-    useData.footerInfo.shippingFee = shippingFee
+    footerInfo.shippingFee = shippingFee
   }
-  let freeShipping = getFreeShipping(storeInfo.setting, useData.footerInfo)
+  let freeShipping = getFreeShipping(storeInfo.setting, footerInfo)
   if (freeShipping) {
-    delete useData.footerInfo.shippingFee
-    useData.footerInfo.freeShipping = true
+    delete footerInfo.shippingFee
+    footerInfo.freeShipping = true
   }
-  let total = getTotal(useData.footerInfo)
+  let total = getTotal(footerInfo)
   if (total) {
-    useData.footerInfo.total = total
+    footerInfo.total = total
   }
+  // 檢查訂單結算
+  if (!await checkFooterInfo(footerInfo, useData.footerInfo, res)) return
 
   let mailOrderData = {
     storeId: useData.storeId,
@@ -699,5 +708,17 @@ async function checkContent(content, res) {
     }
   }
   if (!check) res.status(422).json({content: content})
+  return check
+}
+
+function checkFooterInfo(footerInfo, clientFooterInfo, res) {
+  let check = true
+  if (footerInfo.subTotal !== clientFooterInfo.subTotal) {
+    check = false
+  }
+  if (footerInfo.total !== clientFooterInfo.total) {
+    check = false
+  }
+  if (!check) res.status(422).json({footerInfo: footerInfo})
   return check
 }

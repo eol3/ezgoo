@@ -135,17 +135,22 @@ function minus() {
 }
 
 function addCart() {
-  if (store.state.preview) {
+  if (storeInfo.value.status === 0) {
     store.dispatch('showAlert', {
       type: 'warning',
-      text: '預覽模式無法新增至購物車'
+      text: '商店未開放，無法下單'
     })
     return
-  }
-  if (storeInfo.value.status === 2) {
+  } else if (storeInfo.value.status === 2) {
     store.dispatch('showAlert', {
       type: 'warning',
       text: '商店僅展示無法下單'
+    })
+    return
+  } else if (storeInfo.value.status === 3) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '商店維護中，無法下單'
     })
     return
   }

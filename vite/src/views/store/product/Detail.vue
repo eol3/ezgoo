@@ -27,7 +27,10 @@
             <div class="col-12 col-md-6">
               <div class="mt-4">
                 <p v-if="product.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
-                <h4 v-else class="fw-bold">{{ product.name }}</h4>
+                <h4 v-else class="fw-bold">
+                  <span v-if="product.status === 0" class="text-secondary fst-italic">(未上架)</span>
+                  {{ product.name }}
+                </h4>
               </div>
               <div>
                 <span class="fs-5 text-primary">
@@ -65,6 +68,7 @@
               </div>
             </div>
           </div>
+          <br /><br />
           <div class="p-3 border rounded-2">
             <div class="row justify-content-between" v-if="storeInfo">
               <div class="col-12 col-md-6 offset-md-1">

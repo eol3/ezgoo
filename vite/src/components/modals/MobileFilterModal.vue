@@ -10,7 +10,8 @@
           <div class="mt-2">
             <SearchBar v-model="word" @clickSearch="clickSearch()"></SearchBar>
           </div>
-          <hr />
+          <hr v-if="allCategories.length !== 0" />
+          <br v-else />
           <CategoryList
             :allCategories="allCategories"
             @selected-item="selectedItem"

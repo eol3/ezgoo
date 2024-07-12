@@ -18,64 +18,55 @@
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
+import { axios } from "@/tools/requestCache"
 import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
 
-export default {
-	setup() {
-    const { formValid, formValidFeild, formValidClear } = formValidTools();
-    
-    return {
-      formValid,
-      formValidFeild,
-      formValidClear
-    }
-  },
-  data() {
-    return {
-    	loading: false,
-    	formData: {
-    		name: ''
-    	}
-    }
-  },
-  created() {
-  },
-  methods: {
-  	create() {
-  		if (this.loading) return
-  		const validator = wrapValidator(this.formData, {
-		    name: 'required|string|max:64',
-		  }, 'store');
-		  if (validator.fail) {
-		  	this.formValid = {
-          fails: true,
-          ...validator.errors
-        }
-        return
-		  }
-		  this.loading = true
-		  this.axios.post('/store', this.formData).then(response => {
-		  	this.loading = false
-      	this.formValid = {
-          fails: false
-        }
-        this.$store.dispatch('showAlert', {
-					type: 'success',
-        	text: response.data.msg
-				})
-				this.$router.push('/store/' + response.data.store.id)
-		  }).catch(error => {
-      	this.loading = false
-      	if (error.response.status === 400) {
-	        this.formValid = {
-	          fails: true,
-	          errors: error.response.data.errors
-	        }
-      	}
-      });
-  	}
-  }
+const { formValid, formValidFeild, formValidClear } = formValidTools()
+
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+
+const loading = ref(false)
+const formData = ref({
+	name: "",
+})
+
+function create() {
+	if (loading.value) return
+	const validator = wrapValidator(formData.value, {
+		name: 'required|string|max:64',
+	}, 'store');
+	if (validator.fail) {
+		formValid.value = {
+			fails: true,
+			...validator.errors
+		}
+		return
+	}
+	loading.value = true
+	axios.post('/store', formData.value).then(response => {
+		loading.value = false
+		formValid.value = {
+			fails: false
+		}
+		store.dispatch('showAlert', {
+			type: 'success',
+			text: response.data.msg
+		})
+		router.push('/store/' + response.data.store.id)
+	}).catch(error => {
+		if (error.response.status === 400) {
+			formValid.value = {
+				fails: true,
+				errors: error.response.data.errors
+			}
+		}
+	}).finally(() => { loading.value = false })
 }
 </script>

@@ -4,7 +4,7 @@
       <div class="mt-2">
         <SearchBar v-model="queryObj.word"></SearchBar>
       </div>
-      <hr />
+      <hr v-if="treeList.length !== 0" />
       <CategoryList
         :allCategories="treeList"
         @selected-item="selectedItem"
@@ -106,10 +106,6 @@ initQueryObj({
 	limit: perPage.value,
 	offset: perPage.value * (currentPage.value - 1),
 })
-
-if (store.state.preview) {
-  queryObj.status = 'all'
-}
 
 const postCategory = ref([])
 const treeList = ref([])

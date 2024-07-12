@@ -1,7 +1,7 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const Product = require(process.cwd() + '/models/product/product')
-const { authStore }= require(process.cwd() + '/tools/libs')
+const { authStore, test }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
 

@@ -9,6 +9,16 @@ validatorjs.register('script', function(value) {
 	} else return true
 }, 'The :attribute phone number is not in the format XXX-XXX-XXXX.');
 
+validatorjs.register('object', function(value) {
+	if (typeof value === 'object' && !Array.isArray(value) && value !== null) return true
+	else return false
+}, ':attribute value must be object');
+
+validatorjs.register('array', function(value) {
+	if (Array.isArray(value)) return true
+	else return false
+}, ':attribute value must be array');
+
 validatorjs.register('enum', function(value, requirement, attribute) {
 	if (currentEnum[requirement].includes(value)) {
 		return true
@@ -80,7 +90,9 @@ function transType(data, rules) {
 	for (const key in rules) {
 		if (data[key]) {
 			if (rules[key].indexOf('boolean') > -1) {
-				// data[key] = (data[key] === 'true')
+				if (typeof data[key] === 'string') {
+					data[key] = (data[key] === 'true')
+				}
 			} else if (rules[key].indexOf('numeric') > -1) {
 				// data[key] = Number(data[key])
 			} else if (rules[key].indexOf('idStringArray') > -1) {

@@ -62,7 +62,10 @@
             <div class="body-text-wrap">
               <router-link :to="'/product/'+item.id" class="text-black text-decoration-none">
                 <p v-if="item.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
-                <p v-else class="card-text">{{ item.name }}</p>
+                <p v-else class="card-text">
+                  <span v-if="item.status === 0" class="text-secondary fst-italic">(未上架)</span>
+                  {{ item.name }}
+                </p>
               </router-link>
             </div>
             <div class="d-flex justify-content-between align-items-center">
@@ -108,9 +111,6 @@ const baseUrl = '/store/' + route.params.storeId
 const selectedProduct = ref(null)
 
 let queryStatus = '1'
-if (store.state.preview) {
-  queryStatus = 'all'
-}
 
 onMounted(() => {
   getPosts()
