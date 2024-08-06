@@ -185,7 +185,7 @@ const extModel = {
 			status: [-1, 0, 1, 2, 3, 4, 5, 6, 7],
 			payment: [1, 2, 3],
 			paymentStatus: [0, 1, 2],
-			shippingMethod: [1, 2, 3],
+			shippingMethod: [1, 2, 3, 4],
 			sortBy: ['id', 'createAt', 'updateAt']
 		}
 	},
