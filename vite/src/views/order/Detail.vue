@@ -99,7 +99,6 @@
                 </div>
               </div>
             </template>
-            <!-- </template> -->
             <br />
             <div class="row my-2">
               <div class="col-12 col-md-6">
@@ -203,8 +202,7 @@ import CRUDTools from "@/tools/composition/CRUD";
 
 const { loading, formValid, formValidFeild, formValidClear } = CRUDTools()
 const { payment, shippingMethod, setting, getStore,
-    getFirstEnablePaymentId, getPayment,
-    getFirstEnableShippingMethodId, getShippingMethod } = storeTools()
+    getPayment, getShippingMethod } = storeTools()
 
 const store = useStore()
 const route = useRoute()
@@ -242,8 +240,6 @@ onMounted(() => {
   axios.get('/order/' + route.params.orderId).then((response) => {
     order.value = response.data
     getStore(order.value.storeId).finally(() => {
-      order.value.payment = getFirstEnablePaymentId()
-      order.value.shippingMethod = getFirstEnableShippingMethodId()
       if (order.value.status === 0) {
         getFooterInfo()
       }

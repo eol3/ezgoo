@@ -63,6 +63,7 @@ export function setCart(storeInfo, product) {
 export function getCartItemNumber(cart) {
   let number = 0
 	for (const storeInfo of cart) {
+    if (!storeInfo.content) return number
 		for (const product of storeInfo.content) {
 			number += 1
 		}

@@ -22,7 +22,7 @@
 			    <label class="form-label">認證碼</label>
 			    <div class="input-group">
 			      <input name="verifyCode" class="form-control" pattern="\d*" type="text" maxlength="6" v-model="formData.verifyCode" @focus="formValidClear()">
-				    <button id="send_code" class="btn btn-outline-primary" type="button" :disabled="loading" @click="getVerifyCode()">
+				    <button class="btn btn-outline-primary" type="button" :disabled="loading" @click="getVerifyCode()">
 							發送認證碼
 						</button>
 					</div>
@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache"
@@ -80,7 +80,7 @@ function getVerifyCode() {
 	axios.post('/user/send-email-code', {
 		email: formData.value.email,
 		register: true
-	}).then((response) => {
+	}).then(() => {
 		store.dispatch('showAlert', {
 			type: 'success',
 			text: '成功發送驗證碼'
@@ -101,7 +101,7 @@ function register() {
 	if (loading.value) return
 	const validator = wrapValidator(formData.value, {
 		email: 'required|string|email|max:64',
-		// verifyCode: 'required|numeric|digits:6',
+		verifyCode: 'required|numeric|length:6',
 		password: 'required|min:6|max:32',
 	}, 'user');
 	if (validator.fail) {
@@ -113,12 +113,12 @@ function register() {
 	}
 	loading.value = true
 	axios.post('/user/register', formData.value).then(response => {
-		loading.value = false
 		formValid.value = {
 			fails: false
 		}
-		localStorage.setItem('user', JSON.stringify(response.data.user))
-		store.commit('setUser', response.data.user)
+		let localUser = { id: response.data.user.id }
+		localStorage.setItem('user', JSON.stringify(localUser))
+		store.commit('setLocalUser', localUser)
 		if (route.query.redirect) {
 			router.push(decodeURI(route.query.redirect))
 		} else {

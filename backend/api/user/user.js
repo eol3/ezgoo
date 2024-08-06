@@ -108,12 +108,20 @@ router.post('/send-email-code', async function(req, res, next) {
     next({statusCode: 400, ...validator.errors}); return;
   }
   
+  result = await User.getOne({ email: useData.email })
   if (req.body.register) {
-    result = await User.getOne({ email: useData.email })
     if (result) {
       next({
         statusCode: 400,
         errors: { email: ['信箱已被註冊'] }
+      });
+      return;
+    }
+  } else {
+    if (!result) {
+      next({
+        statusCode: 400,
+        errors: { email: ['查無此信箱'] }
       });
       return;
     }
@@ -147,7 +155,7 @@ router.post('/register', async function(req, res, next) {
   
   const validator = wrapValidator(useData, {
     email: 'required|string|email|max:64',
-    verifyCode: 'required|numeric|digits:6',
+    verifyCode: 'required|numeric|length:6',
     password: 'required|min:6|max:32',
   }, 'user');
   
@@ -209,37 +217,107 @@ router.post('/register', async function(req, res, next) {
   });
 })
 
+router.post('/reset-password', async function(req, res, next) {
+	
+	const useData = {
+    email: req.body.email,
+    verifyCode: req.body.verifyCode,
+    password: req.body.password,
+  }
+  
+  const validator = wrapValidator(useData, {
+    email: 'required|string|email|max:64',
+    verifyCode: 'required|numeric|length:6',
+    password: 'required|min:6|max:32',
+  }, 'user');
+  
+  if (validator.fail) {
+    next({statusCode: 400, ...validator.errors}); return;
+  }
+
+  let userResult = await User.getOne({ email: useData.email })
+  if (!userResult) {
+    next({
+      statusCode: 400,
+      errors: { email: ['查無此E-mail'] }
+    });
+    return;
+  }
+  
+  // check verify code
+  let result = await User.checkEmailCode({
+    email: useData.email,
+    code: useData.verifyCode,
+  })
+  if (!result) {
+    const ip = require(process.cwd() + '/tools/libs').getIp(req)
+    User.addEmailErrorLog({
+      code: useData.verifyCode,
+      ip: ip,
+      text: 'email:' + useData.email + ', action: register',
+    })
+    next({
+      statusCode: 400,
+      errors: { verifyCode: ['認證碼錯誤，或已過期'] }
+    });
+    return;
+  } else {
+    User.verifyEmailCode({ id: result.id })
+  }
+  
+  useData.password = await Password.hash(useData.password)
+  result = await User.update(
+    { id: userResult.id },
+    { password: useData.password }
+  )
+  req.session.user = userResult
+
+  res.status(200).json({
+    msg: '密碼更新成功',
+    user: {
+      id: req.session.user.id
+    }
+  });
+})
+
 router.put('/profile', auth, async function(req, res, next) {
   
   const useData = {
-		id: req.session.user.id,
 		name: req.body.name,
-		password: req.body.password,
+    phone: req.body.phone,
+    address: req.body.address,
 	}
 	
 	const validator = wrapValidator(useData, {
 	  name: 'string|max:32',
-    password: 'min:6|max:128',
+    phone: 'string|max:32',
+    address: 'string|max:128',
   }, 'user')
   
   if (validator.fail) {
     next({statusCode: 400, ...validator.errors}); return;
   }
-	
-	if (useData.name === '') {
-    delete useData.name
-  }
   
-  if (useData.password === '') {
-    delete useData.password
-  }
-	
-	if (useData.password) {
-    useData.password = await Password.hash(useData.password)
-  }
-  
-  let result = await User.update({ id: useData.id }, useData)
+  await User.update({ id: req.session.user.id }, useData)
   
   res.json({msg: '修改成功'})
 	
+})
+
+router.put('/profile/reset-password', auth, async function(req, res, next) {
+  
+  const useData = {
+		password: req.body.password,
+	}
+	
+	const validator = wrapValidator(useData, {
+    password: 'required|min:6|max:128',
+  }, 'user')
+
+  useData.password = await Password.hash(useData.password)
+
+  await User.update({ id: req.session.user.id }, useData)
+  
+  res.json({msg: '密碼更新成功'})
+
 })

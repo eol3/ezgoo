@@ -16,6 +16,16 @@ validatorjs.register('script', function(value) {
 	} else return true
 }, 'The :attribute phone number is not in the format XXX-XXX-XXXX.');
 
+validatorjs.register('object', function(value) {
+	if (typeof value === 'object' && !Array.isArray(value) && value !== null) return true
+	else return false
+}, ':attribute value must be object');
+
+validatorjs.register('array', function(value) {
+	if (Array.isArray(value)) return true
+	else return false
+}, ':attribute value must be array');
+
 validatorjs.register('enum', function(value, requirement, attribute) {
 	if (currentEnum[requirement].includes(value)) {
 		return true
@@ -33,6 +43,11 @@ validatorjs.register('idStringArray', function(value) {
 	return true
 }, 'The :attribute have to be spec string.');
 
+validatorjs.register('length', function(value, requirement) { // requirement parameter defaults to null
+	if (value.toString().length === Number(requirement)) return true
+	else return false;
+}, 'The :attribute length must be :length');
+
 let errorMsg = {
 	required: '請輸入:attribute',
 	numeric: ':attribute必須是數字',
@@ -45,6 +60,7 @@ let errorMsg = {
   digits: ":attribute必須為:digits碼",
   idStringArray: ":attribute 必須是特殊字串",
   enum: ":attribute 必須是特定字串",
+	length: ":attribute 長度必須是:length"
 }
 
 let attributeNames = {

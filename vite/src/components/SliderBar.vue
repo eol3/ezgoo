@@ -59,6 +59,11 @@
       </li>
     </ul>
   </div>
+  <div
+    class="slidebar-overlay"
+    :class="{'d-block': $store.state.showSlider.left}"
+    @click="clickCloseSlider"
+  ></div>
 </template>
 
 <script setup>
@@ -95,7 +100,7 @@ function checkUrl(path) {
 	border-right: 1px solid $gray-300;
 	transition: transform 450ms ease,width 450ms ease;
   box-shadow: 0px 1px 3px 0px rgba(54, 74, 99, 0.05);
-  z-index: 4;
+  z-index: 5;
 }
 
 [data-bs-theme="dark"] {
@@ -108,13 +113,14 @@ function checkUrl(path) {
   border-right: 1px solid $gray-600;
 }
 
-.overlay {
+.slidebar-overlay {
+  display: none;
   position: fixed;
   width: 100%;
   height: 100%;
   top: 0;
-  background: rgba(51,51,51,0.1);
-  z-index: 1;
+  background: rgba(16, 25, 36, .4);
+  z-index: 4;
 }
 
 .slider.active {

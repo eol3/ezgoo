@@ -36,11 +36,17 @@ validatorjs.register('idStringArray', function(value) {
 	return true
 }, 'The :attribute have to be spec string.');
 
+validatorjs.register('length', function(value, requirement) { // requirement parameter defaults to null
+	if (value.toString().length === Number(requirement)) return true
+	else return false;
+}, 'The :attribute length must be :length');
+
 let errorMsg = {
   script: "請勿輸入不合法字串",
   digits: ":attribute必須為:digits碼",
   idStringArray: ":attribute 必須是特殊字串",
   enum: ":attribute 必須是特定字串",
+	length: ":attribute 長度必須是:length"
 }
 
 let attributeNames = {

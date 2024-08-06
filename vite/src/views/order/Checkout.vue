@@ -279,6 +279,16 @@ onMounted(() => {
   }).finally(() => {
     loading.value = false
   })
+
+  if (store.state.localUser) {
+    axios.get('/user/profile').then(response => {
+      formData.value.payerInfo.name = response.data.name
+      formData.value.payerInfo.tel = response.data.phone
+      formData.value.payerInfo.email = response.data.email
+      formData.value.recipientInfo.address = response.data.address
+    })
+  }
+  
 })
 
 function save() {
@@ -317,6 +327,13 @@ function save() {
     return
   }
 
+  if (formData.value.shippingMethod !== 1) {
+    delete formData.value.recipientInfo.address
+  }
+  if (formData.value.shippingMethod !== 3) {
+    delete formData.value.recipientInfo.supermarketStoreName
+  }
+
   formData.value.storeId = storeInfo.value.id
   formData.value.storeInfo = storeInfo.value
   formData.value.content = content.value
@@ -324,6 +341,10 @@ function save() {
   loading.value = true
   axios.post('/order/checkout', formData.value).then(() => {
     deleteStoreInCart()
+    store.commit('setCart', {
+      number: 0
+    })
+    syncCart()
     if (store.state.localUser) {
       store.dispatch('showAlert', {
         type: 'success',
@@ -345,23 +366,26 @@ function save() {
       }
     }
     if (error.response && error.response.status === 422) {
-      if (error.response.data.content) {
+      if (error.response.data) {
+        if (error.response.data.content) {
+          content.value = error.response.data.content
+          formData.value.content = content.value
+          for (const item of cart.value) {
+            if (item.store.id === Number(route.query.storeId)) {
+              item.content = content.value
+              break;
+            }
+          }
+        } else if (error.response.data.footerInfo) {
+          formData.value.footerInfo = error.response.data.footerInfo
+        }
         store.dispatch('showAlert', {
           type: 'warning',
           text: '訂單資料有異動，請確認後再下單'
         })
-        content.value = error.response.data.content
-        formData.value.content = content.value
-        for (const item of cart.value) {
-          if (item.store.id === Number(route.query.storeId)) {
-            item.content = content.value
-            break;
-          }
-        }
       }
     }
   }).finally(() => {
-    syncCart()
     loading.value = false
   })
 }
@@ -430,9 +454,8 @@ function deleteStoreInCart() {
 
 async function syncCart() {
   if (!store.state.localUser) return
-  let cartStr = JSON.stringify(cart.value)
-  localStorage.setItem("cart", cartStr)
-  await syncToServer(cartStr)
+  localStorage.setItem("cart", JSON.stringify(cart.value))
+  await syncToServer(cart.value)
 }
 
 function getFooterInfo() {

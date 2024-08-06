@@ -161,7 +161,7 @@ router.post('/', async function(req, res, next) {
 
   result = await Product.create(useData)
   // console.log(result)
-  res.status(200).json();
+  res.status(200).json({ id: result[0] });
 })
 
 router.put('/:productId', async function(req, res, next) {
