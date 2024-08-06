@@ -103,9 +103,12 @@
             <div class="row my-2">
               <div class="col-12 col-md-6">
                 <label class="form-label fw-bold fs-sm">付款方式</label>
-                  <div class="ms-2 mb-2">
-                    {{ getPayment(order.payment, 'name') }}
-                  </div>
+                <div class="ms-2 mb-2">
+                  {{ getPayment(order.payment, 'name') }}
+                </div>
+                <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(order.payment, 'tip') !== ''">
+                  {{ getPayment(order.payment, 'tip') }}
+                </div>
                 <div>
                   <label class="mt-2 fw-bold fs-sm">聯絡資訊</label>
                 </div>
@@ -125,6 +128,9 @@
                 <label class="form-label fw-bold fs-sm">運送方式</label>
                 <div class="ms-2 mb-2">
                   {{ getShippingMethod(order.shippingMethod, 'name') }}
+                </div>
+                <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(order.shippingMethod, 'tip') !== ''">
+                  {{ getShippingMethod(order.shippingMethod, 'tip') }}
                 </div>
                 <div class="d-flex justify-content-between">
                   <label class="mt-2 fw-bold fs-sm">收件資訊</label>

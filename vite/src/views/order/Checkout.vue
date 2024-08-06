@@ -320,10 +320,12 @@ function save() {
   const validator = wrapValidator(formData.value, ruleObj, 'order');
     
   if (validator.fail) {
+    console.log(validator.fail)
     formValid.value = {
       fails: true,
       ...validator.errors
     }
+    console.log(formValid.value)
     return
   }
 
