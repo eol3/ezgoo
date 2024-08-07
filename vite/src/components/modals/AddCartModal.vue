@@ -4,7 +4,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">加入購物車</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="show = false"></button>
         </div>
         <div class="modal-body" v-if="product">
           <div class="mt-2">
@@ -59,6 +59,8 @@ import { setCart } from '@/tools/libs'
 
 const store = useStore()
 
+const show = defineModel('show')
+
 const props = defineProps({
 	product: {
 		type: Object,
@@ -93,6 +95,11 @@ watch(() => props.product , async (newValue) => {
   queryObj.storeId = props.product.storeId
   storeInfo.value = await store.dispatch('getCache', 'currentStore')
   getProductVariant()
+})
+
+watch(show , async (newValue) => {
+  if (newValue) modal.show()
+  else modal.hide()
 })
 
 function getProductVariant() {
@@ -154,6 +161,15 @@ function addCart() {
     })
     return
   }
+
+  if (!selectedProductVariant.value) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚未選擇商品選項'
+    })
+    return
+  }
+
   props.product.selectedOptions = selectedOptions.value
   props.product.variant = selectedProductVariant.value
   props.product.choiceNumber = choiceNumber.value
@@ -162,6 +178,7 @@ function addCart() {
     type: 'success',
     text: '成功加入購物車'
   })
+  show.value = false
   modal.hide()
 }
 </script>

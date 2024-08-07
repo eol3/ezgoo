@@ -56,7 +56,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center">
                 <div>${{ item.price }}</div>
-                <div class="cursor-pointer" @click="addCart(item)" data-bs-toggle="modal" data-bs-target="#addCartModal">
+                <div class="cursor-pointer" @click="addCart(item)">
                   <i class="fas fa-shopping-cart"></i>
                 </div>
               </div>
@@ -79,6 +79,7 @@
 		@selected-item="selectedItem"
   ></MobileFilterModal>
   <AddCartModal
+    v-model:show="addCartModalShow"
     :product="selectedProduct"
   ></AddCartModal>
 </template>
@@ -95,6 +96,7 @@ import SearchBar from "@/components/SearchBar.vue"
 import MobileFilterModal from "@/components/modals/MobileFilterModal.vue"
 import AddCartModal from "@/components/modals/AddCartModal.vue"
 import { listToTree } from '@/tools/libs'
+import { setCart } from '@/tools/libs'
 
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -127,6 +129,9 @@ const productCategory = ref([])
 const treeList = ref([])
 const selectedItems = ref([])
 const selectedProduct = ref(null)
+
+const storeInfo = ref(null)
+const addCartModalShow = ref(false)
 
 onMounted(() => {
   setQueryObj(route)
@@ -230,8 +235,40 @@ function unSelectedWord() {
   router.push({ query: query })
 }
 
-function addCart(item) {
-  selectedProduct.value = item
+async function addCart(item) {
+  if (item.variantCount > 0) {
+    addCartModalShow.value = true
+    selectedProduct.value = item
+  } else {
+    storeInfo.value = await store.dispatch('getCache', 'currentStore')
+    if (storeInfo.value.status === 0) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '商店未開放，無法下單'
+      })
+      return
+    } else if (storeInfo.value.status === 2) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '商店僅展示無法下單'
+      })
+      return
+    } else if (storeInfo.value.status === 3) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '商店維護中，無法下單'
+      })
+      return
+    }
+    item.selectedOptions = [null, null, null]
+    item.variant = false
+    item.choiceNumber = 1
+    setCart(storeInfo.value, item);
+    store.dispatch('showAlert', {
+      type: 'success',
+      text: '成功加入購物車'
+    })
+  }
 }
 </script>
 

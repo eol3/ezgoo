@@ -70,7 +70,7 @@
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <div>${{ item.price }}</div>
-              <div class="cursor-pointer" @click="addCart(item)" data-bs-toggle="modal" data-bs-target="#addCartModal">
+              <div class="cursor-pointer" @click="addCart(item)">
                 <i class="fas fa-shopping-cart"></i>
               </div>
             </div>
@@ -80,6 +80,7 @@
     </div>
   </div>
   <AddCartModal
+    v-model:show="addCartModalShow"
     :product="selectedProduct"
   ></AddCartModal>
   <br /><br /><br /><br />
@@ -91,6 +92,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
 import AddCartModal from "@/components/modals/AddCartModal.vue"
+import { setCart } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -109,6 +111,9 @@ const productLoading = ref(false)
 const productList = ref([])
 const baseUrl = '/store/' + route.params.storeId
 const selectedProduct = ref(null)
+
+const storeInfo = ref(null)
+const addCartModalShow = ref(false)
 
 let queryStatus = '1'
 
@@ -148,8 +153,40 @@ function getProducts() {
   }).finally(() => { productLoading.value = false })
 }
 
-function addCart(item) {
-  selectedProduct.value = item
+async function addCart(item) {
+  if (item.variantCount > 0) {
+    addCartModalShow.value = true
+    selectedProduct.value = item
+  } else {
+    storeInfo.value = await store.dispatch('getCache', 'currentStore')
+    if (storeInfo.value.status === 0) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '商店未開放，無法下單'
+      })
+      return
+    } else if (storeInfo.value.status === 2) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '商店僅展示無法下單'
+      })
+      return
+    } else if (storeInfo.value.status === 3) {
+      store.dispatch('showAlert', {
+        type: 'warning',
+        text: '商店維護中，無法下單'
+      })
+      return
+    }
+    item.selectedOptions = [null, null, null]
+    item.variant = false
+    item.choiceNumber = 1
+    setCart(storeInfo.value, item);
+    store.dispatch('showAlert', {
+      type: 'success',
+      text: '成功加入購物車'
+    })
+  }
 }
 
 </script>

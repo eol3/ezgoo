@@ -112,80 +112,88 @@
             <br />
             <div class="row my-2">
               <div class="col-12 col-md-6">
-                <label class="form-label fw-bold fs-sm">付款方式</label>
-                <select class="form-select mb-2" v-model="formData.payment" :disabled="loading">
-                  <template v-for="item in payment">
-                    <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
-                  </template>
-                </select>
-                <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(formData.payment, 'tip') !== ''">
-                  {{ getPayment(formData.payment, 'tip') }}
+                <div class="mb-3">
+                  <label class="form-label fw-bold fs-sm">付款方式</label>
+                  <select class="form-select mb-2" v-model="formData.payment" :disabled="loading">
+                    <template v-for="item in payment">
+                      <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
+                    </template>
+                  </select>
+                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(formData.payment, 'tip') !== ''">
+                    {{ getPayment(formData.payment, 'tip') }}
+                  </div>
                 </div>
-                <div>
-                  <label class="mt-2 fw-bold fs-sm">聯絡資訊</label>
-                </div>
-                <label class="form-label">姓名</label>
-                <input type="text" class="form-control" v-model="formData.payerInfo.name" @focus="formValidClear()" :disabled="loading">
-                <div class="form-text text-danger">
-                  {{ formValidFeild('payerInfo.name') ? formValid.errors['payerInfo.name'][0] : '' }}
-                </div>
-                <label class="form-label">電話</label>
-                <input type="text" class="form-control" v-model="formData.payerInfo.tel" @focus="formValidClear()" :disabled="loading">
-                <div class="form-text text-danger">
-                  {{ formValidFeild('payerInfo.tel') ? formValid.errors['payerInfo.tel'][0] : '' }}
-                </div>
-                <label class="form-label">E-mail</label>
-                <input type="eamil" class="form-control" v-model="formData.payerInfo.email" @focus="formValidClear()" :disabled="loading">
-                <div class="form-text text-danger">
-                  {{ formValidFeild('payerInfo.email') ? formValid.errors['payerInfo.email'][0] : '' }}
+                <div class="mb-3">
+                  <div>
+                    <label class="mt-2 fw-bold fs-sm">聯絡資訊</label>
+                  </div>
+                  <label class="form-label">姓名</label>
+                  <input type="text" class="form-control" v-model="formData.payerInfo.name" @focus="formValidClear()" :disabled="loading">
+                  <div class="form-text text-danger">
+                    {{ formValidFeild('payerInfo.name') ? formValid.errors['payerInfo.name'][0] : '' }}
+                  </div>
+                  <label class="form-label">電話</label>
+                  <input type="text" class="form-control" v-model="formData.payerInfo.tel" @focus="formValidClear()" :disabled="loading">
+                  <div class="form-text text-danger">
+                    {{ formValidFeild('payerInfo.tel') ? formValid.errors['payerInfo.tel'][0] : '' }}
+                  </div>
+                  <label class="form-label">E-mail</label>
+                  <input type="eamil" class="form-control" v-model="formData.payerInfo.email" @focus="formValidClear()" :disabled="loading">
+                  <div class="form-text text-danger">
+                    {{ formValidFeild('payerInfo.email') ? formValid.errors['payerInfo.email'][0] : '' }}
+                  </div>
                 </div>
               </div>
               <div class="col-12 col-md-6">
-                <label class="form-label fw-bold fs-sm">運送方式</label>
-                <select class="form-select mb-2" v-model="formData.shippingMethod" :disabled="loading" @change="getFooterInfo()">
-                  <template v-for="item in shippingMethod">
-                    <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
+                <div class="mb-3">
+                  <label class="form-label fw-bold fs-sm">運送方式</label>
+                  <select class="form-select mb-2" v-model="formData.shippingMethod" :disabled="loading" @change="getFooterInfo()">
+                    <template v-for="item in shippingMethod">
+                      <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
+                    </template>
+                  </select>
+                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(formData.shippingMethod, 'tip') !== ''">
+                    {{ getShippingMethod(formData.shippingMethod, 'tip') }}
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between">
+                    <label class="fw-bold fs-sm">收件資訊</label>
+                    <span></span>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" v-model="isAnotherRecipient" id="flexCheckDefault">
+                      <label class="form-check-label fs-sm" for="flexCheckDefault">
+                        新增不同收件人?
+                      </label>
+                    </div>
+                  </div>
+                  <template v-if="isAnotherRecipient">
+                    <label class="form-label">姓名</label>
+                    <input type="text" class="form-control" v-model="formData.recipientInfo.name" @focus="formValidClear()" :disabled="loading">
+                    <div class="form-text text-danger">
+                      {{ formValidFeild('recipientInfo.name') ? formValid.errors['recipientInfo.name'][0] : '' }}
+                    </div>
+                    <label class="form-label">電話</label>
+                    <input type="text" class="form-control" v-model="formData.recipientInfo.tel" @focus="formValidClear()" :disabled="loading">
+                    <div class="form-text text-danger">
+                      {{ formValidFeild('recipientInfo.tel') ? formValid.errors['recipientInfo.tel'][0] : '' }}
+                    </div>
                   </template>
-                </select>
-                <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(formData.shippingMethod, 'tip') !== ''">
-                  {{ getShippingMethod(formData.shippingMethod, 'tip') }}
+                  <template v-if="formData.shippingMethod == 1">
+                    <label class="form-label">地址</label>
+                    <input type="text" class="form-control" name="address" v-model="formData.recipientInfo.address" @focus="formValidClear()" :disabled="loading">
+                    <div class="form-text text-danger">
+                      {{ formValidFeild('recipientInfo.address') ? formValid.errors['recipientInfo.address'][0] : '' }}
+                    </div>
+                  </template>
+                  <template v-if="formData.shippingMethod == 3">
+                    <label class="form-label">超商/門市名稱</label>
+                    <input type="text" class="form-control" v-model="formData.recipientInfo.supermarketStoreName" @focus="formValidClear()" :disabled="loading">
+                    <div class="form-text text-danger">
+                      {{ formValidFeild('recipientInfo.supermarketStoreName') ? formValid.errors['recipientInfo.supermarketStoreName'][0] : '' }}
+                    </div>
+                  </template>
                 </div>
-                <div class="d-flex justify-content-between">
-                  <label class="mt-2 fw-bold fs-sm">收件資訊</label>
-                  <span></span>
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" v-model="isAnotherRecipient" id="flexCheckDefault">
-                    <label class="form-check-label fs-sm" for="flexCheckDefault">
-                      新增不同收件人?
-                    </label>
-                  </div>
-                </div>
-                <template v-if="isAnotherRecipient">
-                  <label class="form-label">姓名</label>
-                  <input type="text" class="form-control" v-model="formData.recipientInfo.name" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('recipientInfo.name') ? formValid.errors['recipientInfo.name'][0] : '' }}
-                  </div>
-                  <label class="form-label">電話</label>
-                  <input type="text" class="form-control" v-model="formData.recipientInfo.tel" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('recipientInfo.tel') ? formValid.errors['recipientInfo.tel'][0] : '' }}
-                  </div>
-                </template>
-                <template v-if="formData.shippingMethod == 1">
-                  <label class="form-label">地址</label>
-                  <input type="text" class="form-control" name="address" v-model="formData.recipientInfo.address" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('recipientInfo.address') ? formValid.errors['recipientInfo.address'][0] : '' }}
-                  </div>
-                </template>
-                <template v-if="formData.shippingMethod == 3">
-                  <label class="form-label">超商/門市名稱</label>
-                  <input type="text" class="form-control" v-model="formData.recipientInfo.supermarketStoreName" @focus="formValidClear()" :disabled="loading">
-                  <div class="form-text text-danger">
-                    {{ formValidFeild('recipientInfo.supermarketStoreName') ? formValid.errors['recipientInfo.supermarketStoreName'][0] : '' }}
-                  </div>
-                </template>
               </div>
             </div>
             <div class="row my-2 justify-content-center">
