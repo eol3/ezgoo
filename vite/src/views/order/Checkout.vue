@@ -143,6 +143,11 @@
                     {{ formValidFeild('payerInfo.email') ? formValid.errors['payerInfo.email'][0] : '' }}
                   </div>
                 </div>
+                <div class="mb-3" v-if="!store.state.localUser">
+                  <div class="btn btn-link ps-0 text-decoration-none" data-bs-toggle="modal" data-bs-target="#registerModal">
+                    順便註冊EzGoo帳號?
+                  </div>
+                </div>
               </div>
               <div class="col-12 col-md-6">
                 <div class="mb-3">
@@ -216,6 +221,7 @@
       </div>
     </div>
   </div>
+  <RegisterModal v-model:email="formData.payerInfo.email"></RegisterModal>
 </template>
 
 <script setup>
@@ -227,6 +233,7 @@ import { axios } from "@/tools/requestCache"
 import storeTools from "@/tools/composition/store"
 import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
+import RegisterModal from '@/components/modals/RegisterModal.vue';
 
 const { loading, formValid, formValidFeild, formValidClear } = CRUDTools()
 const { payment, shippingMethod, setting, getStore, storeInfo,
@@ -328,12 +335,10 @@ function save() {
   const validator = wrapValidator(formData.value, ruleObj, 'order');
     
   if (validator.fail) {
-    console.log(validator.fail)
     formValid.value = {
       fails: true,
       ...validator.errors
     }
-    console.log(formValid.value)
     return
   }
 

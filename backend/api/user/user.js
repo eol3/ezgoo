@@ -29,11 +29,11 @@ router.get('/profile', auth, async function(req, res, next) {
 	}
 	
 	let result = await User.getOne(useData)
-	delete result.password
-// 	console.log(result)
+
 	if (!result) {
 	  return next({statusCode: 404, msg: '查無此使用者' })
 	} else {
+    delete result.password
 	  res.json(result)
 	}
 })
