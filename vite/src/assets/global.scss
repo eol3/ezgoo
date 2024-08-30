@@ -1,6 +1,9 @@
 /* 自訂bootstrap */
 
-$primary: #ae2079;
+// $primary: #ae2079;
+// $primary: #c33c9b;
+$primary: #c53084;
+// $primary: #c453c7;
 $success: #1ab188;
 
 $bs-heading-color: #364a63;
@@ -119,4 +122,14 @@ $white: #fff;
 
 .fs-sm {
   font-size: 0.9rem;
+}
+
+/* 讓footer在網頁內容不足時黏貼視窗底部
+   網頁內容足夠到有scrollBar時，則不黏貼視窗底部 
+   內部用bootstrap的class，外面index.html寫樣式在這 */
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }

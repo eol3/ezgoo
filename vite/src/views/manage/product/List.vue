@@ -2,9 +2,9 @@
 	<div class="row justify-content-between">
 		<div class="col-12 col-lg-6 mb-3 mb-md-0">
 			<div class="d-flex">
-				<div class="col-auto pe-2">
+				<!-- <div class="col-auto pe-2">
 					<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#multiSetModal">批次修改</button>
-				</div>
+				</div> -->
 				<div class="col-auto pe-0 d-flex align-items-center">
 					<CategoryStatusRow
 						v-model="queryObj.categoris"
@@ -67,12 +67,14 @@
 				</div>
 			</div>
 			<div class="col-4 col-md-7 d-flex align-items-center">
-				<div>
-					<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
-				</div>
-				<div class="cut-text">
-					{{ item.name }}
-				</div>
+				<router-link :to="baseUrl + item.id" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
+					<div>
+						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
+					</div>
+					<div class="cut-text">
+						{{ item.name }}
+					</div>
+				</router-link>
 			</div>
 			<div class="col-2 col-md-1">${{ item.price }}</div>
 			<div class="col-3 col-md-1 text-center">
@@ -97,9 +99,6 @@
 			</div>
 			<div class="col-2 col-md-2">
 				<div class="d-none d-md-block d-flex justify-content-center">
-					<router-link class="btn btn-outline-secondary btn-sm" :to="'/product/' + item.id + '?storeId=' + storeId + '&preview=true'">
-						預覽
-					</router-link>
 					<router-link class="btn btn-outline-success btn-sm" :to="baseUrl + item.id + '/edit'">
 						編輯
 					</router-link>

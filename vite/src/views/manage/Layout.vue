@@ -33,7 +33,7 @@
 					    <li><router-link class="dropdown-item" :to="'/store/' + $route.params.storeId + '?preview=true'">預覽模式</router-link></li>
 					  </ul> -->
 	        </li>
-	        <li class="nav-item dropdown">
+	        <!-- <li class="nav-item dropdown">
 	        	<div class="nav-link icon-link cursor-pointer" id="dropdownNotify" data-bs-toggle="dropdown" aria-expanded="false">
 	        		<i class="fa-solid fa-bell fa-fw"></i>
 						</div>
@@ -41,7 +41,7 @@
 					    <li><a class="dropdown-item" href="#">訂單成立...</a></li>
 					    <li><a class="dropdown-item" href="#">待出貨...</a></li>
 					  </ul>
-	        </li>
+	        </li> -->
 					<li class="nav-item">
 	          <router-link
 	            class="nav-link icon-link"

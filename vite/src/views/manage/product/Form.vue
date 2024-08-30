@@ -26,7 +26,7 @@
 								{{ formValidFeild('price') ? formValid.errors.price[0] : '' }}
 							</div>
 						</div>
-						<div class="form-group mt-2">
+						<div class="form-group mt-2 d-none">
 							<label class="form-label">數量</label>
 							<input type="number" class="form-control" v-model="formData.number" :disabled="loading">
 						</div>

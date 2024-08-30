@@ -92,7 +92,7 @@
       </div>
     </div>
   </div>
-  <div class="bg-1">
+  <div class="bg-1 flex-grow-1">
     <div class="container">
       <router-view v-slot="{ Component }">
         <component :is="Component"/>
@@ -191,7 +191,7 @@ function isActive(checkUrl) {
 }
 
 #carouselStoreControls .carousel-item {
-  height: 30vh;
+  height: 25vh;
 }
 
 .store-name-row {
@@ -216,7 +216,7 @@ function isActive(checkUrl) {
 
 .no-carousel {
   width: 100%;
-  height: 30vh;
+  height: 25vh;
   background-color: var(--d-gray-200);
 }
 

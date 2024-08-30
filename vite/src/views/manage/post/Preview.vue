@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, reactive, nextTick } from 'vue';
+import { onMounted, onActivated, ref, reactive, nextTick } from 'vue';
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
@@ -67,6 +67,7 @@ import LoadingSpin from "@/components/LoadingSpin.vue";
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
+const emit = defineEmits(['updateLayoutStatus'])
 
 const storeInfo = ref(null)
 const post = ref({
@@ -76,23 +77,22 @@ const post = ref({
 })
 
 const queryObj = reactive({
-  status: '1'
+  storeId: route.params.storeId
 })
 const postImages = ref([])
 const rowImageWrap = ref(null)
 
-if (route.query.storeId) {
-  queryObj.storeId = route.query.storeId
-}
-
-if (store.state.preview) {
-  delete queryObj.status
-}
-
 onMounted( async () => {
   window.scrollTo(0, 0)
-  getPost()
   storeInfo.value = await store.dispatch('getCache', 'currentStore')
+})
+
+onActivated(() => {
+  getPost()
+	emit('updateLayoutStatus', {
+    title: '貼文預覽',
+    showBack: true,
+  })
 })
 
 function getPost() {
@@ -116,7 +116,10 @@ function getStore() {
 
 function getPostImages() {
   axios.get('/post/' + route.params.postId + '/images', {
-    params: queryObj
+    params: {
+      storeId: route.params.storeId,
+      status: 'all'
+    }
   }).then((response) => {
     postImages.value = response.data
   })

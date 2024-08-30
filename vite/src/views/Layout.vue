@@ -29,10 +29,12 @@
   		</li>
   	</ul>
 	</nav>
-  <router-view/>
+	<div class="flex-grow-1 d-flex flex-column">
+		<router-view/>
+	</div>
   <div class="footer">
     <div class="text-center p-3 bg-2">
-      © 2021 EzGOO
+      © 2021 ~ 2024 EzGoo
     </div>
   </div>
 </template>
@@ -49,7 +51,7 @@ const store = useStore()
 const route = useRoute()
 const router = useRouter()
 
-onMounted( async () => {
+onMounted(() => {
   let c = localStorage.getItem("cart")
 	let cart = []
 	if (c) cart = JSON.parse(c)

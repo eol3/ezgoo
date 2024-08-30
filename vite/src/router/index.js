@@ -147,6 +147,10 @@ const routes = [
             path: ":productId/variant",
             component: () => import("../views/manage/product/Variant.vue"),
           },
+          {
+            path: ":productId",
+            component: () => import("../views/manage/product/Preview.vue")
+          },
         ]
       },
       {
@@ -168,7 +172,11 @@ const routes = [
           {
             path: ":postId/edit",
             component: () => import("../views/manage/post/Form.vue"),
-          }
+          },
+          {
+            path: ":postId",
+            component: () => import("../views/manage/post/Preview.vue")
+          },
         ]
       },
       {

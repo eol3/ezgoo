@@ -60,13 +60,15 @@
 				  <input class="form-check-input" type="checkbox" :id="'productItemCheck' + item.id">
 				</div>
 			</div>
-			<div class="col-6 col-md-7 d-flex align-items-center">
-				<div>
-					<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
-				</div>
-				<div class="cut-text">
-					{{ item.content }}
-				</div>
+			<div class="col-6 col-md-7">
+				<router-link :to="baseUrl + item.id" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
+					<div>
+						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
+					</div>
+					<div class="cut-text">
+						{{ item.content }}
+					</div>
+				</router-link>
 			</div>
 			<div class="col-3 col-md-1 text-center">
 				<span v-if="item.status === -1">
@@ -90,9 +92,9 @@
 			</div>
 			<div class="col-2 col-md-3">
 				<div class="d-none d-md-block d-flex justify-content-center">
-					<router-link class="btn btn-outline-secondary btn-sm" :to="'/product/' + item.id + '?storeId=' + storeId + '&preview=true'">
+					<!-- <router-link class="btn btn-outline-secondary btn-sm" :to="'/post/' + item.id + '?storeId=' + storeId + '&preview=true'">
 						預覽
-					</router-link>
+					</router-link> -->
 					<router-link class="btn btn-outline-success btn-sm" :to="baseUrl + item.id + '/edit'">
 						編輯
 					</router-link>
