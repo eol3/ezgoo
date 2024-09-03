@@ -18,7 +18,7 @@ export default ({ mode }) => {
     	port: process.env.VITE_PORT,
     	proxy: {
         '/api': {
-          target: "http://64.111.98.77:8080"
+          target: process.env.VITE_API_URL
         },
     	}
     },

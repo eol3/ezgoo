@@ -29,7 +29,7 @@ This README would normally document whatever steps are necessary to get your app
 * Other community or team contact
 
 ### 筆記 ###
-test
+
 2023/11/25 使用vite和validatorjs套件在設定語言上會有點問題，必須預設英文再複寫
 2023/12/02 使用vite和validatorjs套件在我自己寫的wrapValidator function裡面，
 					 會有不穩定的錯誤，有時沒問題有時有問題，並且在設定語系使用useLang，
