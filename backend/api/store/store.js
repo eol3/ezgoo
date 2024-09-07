@@ -9,10 +9,18 @@ module.exports = router
 router.get('/:storeId/dashboard', auth, async function(req, res, next) {
   
   const useData = {
-		account: req.params.storeId
+		id: req.params.storeId
 	}
+
+  const validator = wrapValidator(useData, {
+    id: 'required|numeric|min:1',
+  }, 'store');
+  
+  if (validator.fail) {
+    next({statusCode: 400, ...validator.errors}); return;
+  }
 	
-  if (!await authUserStoreRoleGroup(req, next, useData.account, 'manage')) {
+  if (!await authUserStoreRoleGroup(req, next, useData.id, 'manage')) {
   	return
   }
   
@@ -23,6 +31,34 @@ router.get('/:storeId/dashboard', auth, async function(req, res, next) {
 	} else {
 	  res.json(result)
 	}
+})
+
+router.get('/account/:account', async function(req, res, next) {
+  const useData = {
+		account: req.params.account
+	}
+
+  const validator = wrapValidator(useData, {
+	  account: 'required|string',
+  }, 'store')
+
+  if (validator.fail) {
+  	return next({statusCode: 400, ...validator.errors})
+  }
+
+  let result = await Store.getOne({
+    account: useData.account
+  })
+  
+  if (!result) {
+    return next({statusCode: 404 })
+  } else {
+    result.payment = JSON.parse(result.payment)
+    result.shippingMethod = JSON.parse(result.shippingMethod)
+    result.setting = JSON.parse(result.setting)
+	  res.json(result)
+	}
+
 })
 
 router.get('/:storeId', async function(req, res, next) {
@@ -36,7 +72,7 @@ router.get('/:storeId', async function(req, res, next) {
 	}
 	
 	const validator = wrapValidator(useData, {
-	  id: 'required|string',
+	  id: 'required|numeric|min:1',
     status: 'enum:statusQuery', // 查詢簡化成三種 all: 全部, 0:未公開, 1:已公開,
   }, 'store')
   
@@ -104,7 +140,6 @@ router.post('/', auth, async function(req, res, next) {
   }
   
   const validator = wrapValidator(useData, {
-    account: 'string|max:64',
     name: 'required|string|max:64',
   }, 'store');
   
@@ -118,9 +153,7 @@ router.post('/', auth, async function(req, res, next) {
 
   result = await Store.create(useData)
   let newStoreId = result[0]
-  if (!useData.account) {
-    await Store.update({ id: newStoreId }, { account: newStoreId })
-  }
+
   result = await Store.getOne({ id: newStoreId })
   
   const userStore = require(process.cwd() + '/models/user/userStore')
@@ -141,7 +174,7 @@ router.post('/', auth, async function(req, res, next) {
 
 router.put('/:storeId', auth, async function(req, res, next) {
   const useData = {
-    account: req.params.storeId,
+    id: req.params.storeId,
     status: req.body.status,
     name: req.body.name,
     about: req.body.about,
@@ -153,7 +186,7 @@ router.put('/:storeId', auth, async function(req, res, next) {
   }
   
   const validator = wrapValidator(useData, {
-    account: 'string|max:64',
+    id: 'required|numeric|min:1',
     status: 'enum:status',
     name: 'string|max:64',
     about: 'string',
@@ -166,7 +199,7 @@ router.put('/:storeId', auth, async function(req, res, next) {
 
   // 還要檢查json格式 payment, shippingMethod, setting
 
-  if (!await authUserStoreRole(req, next, useData.account, ['owner', 'editor'])) {
+  if (!await authUserStoreRole(req, next, useData.id, ['owner', 'editor'])) {
   	return
   }
 
@@ -174,7 +207,7 @@ router.put('/:storeId', auth, async function(req, res, next) {
   useData.shippingMethod = JSON.stringify(useData.shippingMethod)
   useData.setting = JSON.stringify(useData.setting)
   
-  result = await Store.update({ id: useData.account }, useData)
+  result = await Store.update({ id: useData.id }, useData)
   
   res.status(200).json();
 })

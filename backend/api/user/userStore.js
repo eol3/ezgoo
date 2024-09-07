@@ -40,7 +40,7 @@ router.get('/:storeId', auth, async function(req, res, next) {
 	}
 	
   const validator = wrapValidator(useData, {
-	  storeId: 'required|string',
+	  storeId: 'required|numeric|min:1',
 	  withStore: 'boolean',
   })
   

@@ -94,7 +94,7 @@
   </div>
   <div class="bg-1 flex-grow-1">
     <div class="container">
-      <router-view v-slot="{ Component }">
+      <router-view v-slot="{ Component }" v-if="storeReady">
         <component :is="Component"/>
       </router-view>
     </div>
@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref  } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
@@ -113,6 +113,7 @@ const route = useRoute()
 const router = useRouter()
 
 const storeInfo = ref({})
+const storeReady = ref(false)
 const baseUrl = ref('/store/' + route.params.storeId)
 const storeImages = ref([])
 const userStore = ref({})
@@ -128,37 +129,54 @@ onMounted(() => {
   // console.log(carousel)
 })
 
-axios.get(baseUrl.value, {
-  params: {
-    status: queryStatus,
+watch(() => route.params.storeId, (newStoreId) => {
+  if (newStoreId) {
+    getStore()
   }
-}).then(response => {
-  storeInfo.value = response.data
-  store.dispatch('setCache', {
-    key: 'currentStore',
-    value: storeInfo.value
+})
+
+if (isNaN(parseFloat(route.params.storeId))) {
+  axios.get('/store/account/' + route.params.storeId).then(response => {
+    router.push('/store/' + response.data.id)
   })
-})
+} else {
+  getStore()
+}
 
-axios.get(baseUrl.value + '/images', {
-  params: {
-    status: queryStatus,
-    type: '0',
-    sortBy: 'priority',
-    orderBy: 'desc'
-  }
-}).then(response => {
-  storeImages.value = response.data
-})
-
-if (store.state.localUser) {
-  axios.get('/user/store/' + route.params.storeId).then(response => {
-    userStore.value = response.data
+function getStore() {
+  storeReady.value = true
+  baseUrl.value = '/store/' + route.params.storeId
+  axios.get(baseUrl.value, {
+    params: {
+      status: queryStatus,
+    }
+  }).then(response => {
+    storeInfo.value = response.data
     store.dispatch('setCache', {
-      key: 'currentUserStore',
-      value: userStore.value
+      key: 'currentStore',
+      value: storeInfo.value
     })
   })
+  axios.get(baseUrl.value + '/images', {
+    params: {
+      status: queryStatus,
+      type: '0',
+      sortBy: 'priority',
+      orderBy: 'desc'
+    }
+  }).then(response => {
+    storeImages.value = response.data
+  })
+
+  if (store.state.localUser) {
+    axios.get('/user/store/' + route.params.storeId).then(response => {
+      userStore.value = response.data
+      store.dispatch('setCache', {
+        key: 'currentUserStore',
+        value: userStore.value
+      })
+    })
+  }
 }
 
 function isActive(checkUrl) {
