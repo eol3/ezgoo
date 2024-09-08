@@ -32,7 +32,7 @@ model.getList = async function (condition) {
 		query.select(tableName + '.*')
 		query.select('store.status')
 		query.join('store', 'store.id', tableName + '.storeId')
-		query.where({ 'store.status': condition.status })
+		// query.where({ 'store.status': condition.status })
 	}
 	
 	if (condition.sortBy && condition.orderBy) {
