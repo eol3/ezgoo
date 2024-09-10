@@ -47,23 +47,23 @@
         <div class="d-flex flex-nowrap overflow-x-auto mx-1">
           <div class="store-card card flex-shrink-0 m-2" style="width: 18rem;">
             <router-link to="/store/2" class="text-decoration-none">
-              <img src="@/assets/images/cover_2.png" class="card-img-top">
+              <img src="@/assets/images/cover_1.png" class="card-img-top">
             </router-link>
             <div class="card-body">
               <router-link to="/store/2" class="text-black text-decoration-none">
-                <h5 class="card-title fw-bold">易購商福利量販店</h5>
-                <p class="card-text">提供五金百貨、零食飲料、五穀雜糧等多項零售</p>
+                <h5 class="card-title fw-bold">愛之森生活用品館(範例商店)</h5>
+                <p class="card-text">提倡環保用具(目前僅為範例商店，展示用不能下單)</p>
               </router-link>
             </div>
           </div>
           <div class="store-card card flex-shrink-0 m-2" style="width: 18rem;">
             <router-link to="/store/2" class="text-decoration-none">
-              <img src="@/assets/images/cover_1.png" class="card-img-top">
+              <img src="@/assets/images/cover_2.png" class="card-img-top">
             </router-link>
             <div class="card-body">
-              <router-link to="/store/2" class="text-black text-decoration-none">
-                <h5 class="card-title fw-bold">愛之森生活用品館</h5>
-                <p class="card-text">提倡環保用具(目前僅為範例商店，展示用不能下單)</p>
+              <router-link to="/store/3" class="text-black text-decoration-none">
+                <h5 class="card-title fw-bold">易購商福利量販店</h5>
+                <p class="card-text">提供五金百貨、零食飲料、五穀雜糧等多項零售</p>
               </router-link>
             </div>
           </div>

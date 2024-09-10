@@ -60,6 +60,8 @@ app.use(function (err, req, res, next) {
     // if (err.msg === undefined) err.msg = 'bad request'
     res.json(err)
   } else {
+    const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    console.error('request url:' + fullUrl)
     console.error(err)
     res.status(500)
     res.json({msg: 'Internal Server Error'})

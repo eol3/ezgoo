@@ -165,9 +165,6 @@ async function getListAndCount() {
 			status: queryObj.status,
 		}),
 	])
-  list.value.forEach(e =>
-    e.options = e.options ? JSON.parse(e.options) : []
-  )
 	loading.value = false
 }
 
