@@ -29,8 +29,8 @@
 						<div class="form-group mt-2">
 							<label class="form-label">狀態</label>
 							<select class="form-select" v-model="formData.status" :disabled="loading">
-								<option selected value="0">未公開</option>
-								<option value="1">公開</option>
+								<option selected :value="0">未公開</option>
+								<option :value="1">公開</option>
 							</select>
 							<div class="form-text text-danger">
 								{{ formValidFeild('status') ? formValid.errors.status[0] : '' }}

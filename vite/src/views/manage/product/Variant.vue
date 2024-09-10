@@ -121,7 +121,7 @@ onActivated(async () => {
       }
     })
     productName.value = response.data.name
-    productOptions.value = response.data.options === null ? [] : JSON.parse(response.data.options)
+    productOptions.value = response.data.options
   }
   
   if (productName.value !== '') {
@@ -136,7 +136,6 @@ onActivated(async () => {
 
 async function getProductVariant() {
   await getList(queryObj)
-  list.value.forEach(e => e.productOption = JSON.parse(e.productOption))
 }
 
 function clickOption(pKye, item) {

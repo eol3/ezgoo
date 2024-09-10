@@ -69,8 +69,8 @@
 						<div class="form-group mt-2">
 							<label class="form-label">狀態</label>
 							<select class="form-select" v-model="formData.status" :disabled="loading">
-								<option selected value="0">未上架</option>
-								<option value="1">上架</option>
+								<option selected :value="0">未上架</option>
+								<option :value="1">上架</option>
 							</select>
 							<div class="form-text text-danger">
 								{{ formValidFeild('status') ? formValid.errors.status[0] : '' }}
@@ -144,7 +144,7 @@ onMounted(async () => {
 			getItem(),
 			getProductsOnCategories()
 		]).then((response) => {
-			productOptions.value = response[0].data.options === null ? [] : JSON.parse(response[0].data.options)
+			productOptions.value = response[0].data.options
 			productOptionsModalRef.value.setParentOptions(productOptions.value)
 		}).finally(() => {
 			loading.value = false

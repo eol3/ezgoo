@@ -9,7 +9,7 @@
         <div class="modal-body">
           <div v-for="(item, pkey) in options">
             <div class="input-group mb-2">
-              <input type="text" class="form-control" v-model="item.name" :disabled="loading" :placeholder="pkey === 0 ? 'Ex: 顏色' : ''"/>
+              <input type="text" class="form-control" v-model="item.name" :disabled="loading" :placeholder="pkey === 0 ? 'e.g.: 顏色, 尺寸, 容量' : ''"/>
               <button class="btn btn-outline-secondary" type="button" id="button-addon2" @click="delOption(pkey)">
                 <i class="fa-solid fa-trash-can"></i>
               </button>
@@ -42,13 +42,14 @@
 
 <script setup>
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { Modal } from 'bootstrap'
 import { onMounted, reactive, ref  } from 'vue'
 import { axios } from "@/tools/requestCache";
 
 const store = useStore()
 const route = useRoute()
+const router = useRouter()
 
 const props = defineProps({
   productId: {
@@ -66,8 +67,8 @@ const options = ref([{
   name: '',
   values: ['','', '']
 }])
-const placeholderExText = ref(['紅', '藍', '綠'])
-const productVaraint = ref([])
+const placeholderExText = ref(['e.g.: 紅色, XL, 1200ml', 'e.g.: 藍色, S, 600ml', 'e.g.: 綠色, M, 450ml'])
+const productVariant = ref([])
 
 onMounted(() => {
   var modalEl = document.getElementById('productOptionsModal')
@@ -81,8 +82,8 @@ function confirm() {
     emit('needNewItem', setOptions)  
   } else {
     setOptions()
+    compareVariant()
   }
-  compareVariant()
 }
 
 function checkOptions() {
@@ -128,14 +129,14 @@ function hasDuplicates(array) {
 }
 
 
-async function getProductVaraint() {
+async function getproductVariant() {
   return axios.get("/product/" + props.productId + "/variant", {
     params: { storeId: route.params.storeId }
   }).then((response) => {
-    productVaraint.value = response.data
-    for (const variant of productVaraint.value) {
-      variant.productOption = JSON.parse(variant.productOption)
-    }
+    productVariant.value = response.data
+    // for (const variant of productVariant.value) {
+    //   variant.productOption = JSON.parse(variant.productOption)
+    // }
   })
 }
 
@@ -145,7 +146,7 @@ async function setProductVariant(option, variantId) {
   }, {
     params: { storeId: route.params.storeId }
   }).then((response) => {
-    productVaraint.value = response.data
+    productVariant.value = response.data
   })
 }
 
@@ -156,9 +157,8 @@ async function delProductVariant(variantId) {
 }
 
 async function compareVariant() {
-  await getProductVaraint()
-  for (const variant of productVaraint.value) {
-    // let option = JSON.parse(variant.productOption)
+  await getproductVariant()
+  for (const variant of productVariant.value) {
     let option = variant.productOption
     for (let i in option) {
       if (option[i] ===  null) continue
@@ -196,7 +196,7 @@ function isAllNull(option) {
 }
 
 function isSameInAllVariant(option) {
-  const found = productVaraint.value.find(e => isSame(e.productOption, option))
+  const found = productVariant.value.find(e => isSame(e.productOption, option))
   return found
 }
 
@@ -208,6 +208,7 @@ async function setOptions() {
   }).then(() => {
     emit('selectedOptions', options.value)
     modal.hide()
+    router.replace('/manage/store/' + route.params.storeId + '/product/' + props.productId + '/edit')
   }).finally(() => {
     loading.value = false
   })

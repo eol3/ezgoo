@@ -72,11 +72,15 @@
 						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
 					</div>
 					<div class="cut-text">
-						{{ item.name }}
+						<i v-if="item.name === ''">(尚無商品名稱)</i>
+						<span v-else>{{ item.name }}</span>
 					</div>
 				</router-link>
 			</div>
-			<div class="col-2 col-md-1">${{ item.price }}</div>
+			<div class="col-2 col-md-1">
+				<span class="text-danger" v-if="item.price === 0">${{ item.price }}</span>
+				<span v-else>${{ item.price }}</span>
+			</div>
 			<div class="col-3 col-md-1 text-center">
 				<span v-if="item.status === -1">
 					<small>

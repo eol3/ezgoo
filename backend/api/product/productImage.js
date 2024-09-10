@@ -45,6 +45,8 @@ router.get('/', async function(req, res, next) {
   
   for(const key in result) {
     result[key].baseUrl = process.env.BASE_URL
+    result[key].options = JSON.parse(result[key].options)
+    result[key].productOption = JSON.parse(result[key].productOption)
   }
 	
 	res.json(result)
@@ -56,7 +58,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
   const useData = {
 		storeId: req.body.storeId,
     productId: req.params.productId,
-    productOption: req.body.productOption,
+    productOption: req.body.productOption || '[]' ,
     priority: req.body.priority,
     createBy: req.session.user.id,
 		updateBy: req.session.user.id
@@ -76,6 +78,9 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     storeId: useData.storeId,
     role: ['owner', 'editor']
   })) return
+
+  // 預設
+  useData.options = '[]'
 
   // 檢查檔案格式
   const fs = require('fs');

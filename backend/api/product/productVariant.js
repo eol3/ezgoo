@@ -34,6 +34,7 @@ router.get('/:productVarintId', async function(req, res, next) {
 	
 	let result = await productVariant.getOne(useData)
 	if (!result) return next({statusCode: 404 })
+  result.productOption = JSON.parse(result.productOption)
 	res.json(result)
 })
 
@@ -70,6 +71,8 @@ router.get('/', async function(req, res, next) {
 	
 	let result = await productVariant.getList(useData)
 	
+  result.forEach(e => e.productOption = JSON.parse(e.productOption))
+
 	res.json(result)
 })
 

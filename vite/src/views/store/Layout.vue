@@ -9,7 +9,7 @@
     <div v-if="tip" class="bg-warning p-2 text-white text-center">
       {{ tip }}
       <router-link :to="'/manage/store/' + route.params.storeId" class="btn btn-outline-primary btn-sm bg-2">
-        返回後台
+        前往管理後台
       </router-link>
     </div>
   </template>

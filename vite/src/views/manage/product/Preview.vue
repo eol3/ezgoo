@@ -193,7 +193,6 @@ function getProduct() {
   }).then((response) => {
     queryObj.storeId = response.data.storeId
     product.value = response.data
-    product.value.options = product.value.options === null ? [] : JSON.parse(product.value.options)
     getStore()
     getProductVariant()
     getProductImages()
@@ -228,9 +227,6 @@ function getProductImages() {
     }
   }).then((response) => {
     productImages.value = response.data
-    productImages.value.forEach(e =>
-      e.productOption = e.productOption ? JSON.parse(e.productOption) : []
-    )
   })
 }
 

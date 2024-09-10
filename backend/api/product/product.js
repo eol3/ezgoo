@@ -74,6 +74,7 @@ router.get('/:productId', async function(req, res, next) {
   if (result.thumbnail) {
     result.thumbnail = process.env.BASE_URL + result.thumbnail
   }
+  result.options = JSON.parse(result.options)
 
   res.json(result)
 })
@@ -123,6 +124,7 @@ router.get('/', async function(req, res, next) {
     if (item.thumbnail) {
       item.thumbnail = process.env.BASE_URL + item.thumbnail
     }
+    item.options = JSON.parse(item.options)
   }
 	
 	res.json(result)
@@ -158,6 +160,8 @@ router.post('/', async function(req, res, next) {
     storeId: useData.storeId,
     role: ['owner', 'editor']
   })) return
+
+  useData.options = []
 
   result = await Product.create(useData)
   // console.log(result)

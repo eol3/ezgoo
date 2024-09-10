@@ -108,6 +108,9 @@ router.get('/:storeId', async function(req, res, next) {
   //   }
   // }
 
+  if (req.store.thumbnail) {
+    req.store.thumbnail = process.env.BASE_URL + req.store.thumbnail
+  }
   req.store.payment = JSON.parse(req.store.payment)
   req.store.shippingMethod = JSON.parse(req.store.shippingMethod)
   req.store.setting = JSON.parse(req.store.setting)

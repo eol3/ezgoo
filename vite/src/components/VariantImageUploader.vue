@@ -205,27 +205,21 @@ async function uploadImage(formData) {
 }
 
 async function getProductImages() {
-	try {
-		let response = await getList(queryObj)
-		if (isNeedUpdateProductThumbnail) {
-			let thumbnailValue = null
-			if (response.data.length !== 0) {
-				thumbnailValue = response.data[0].path + '/' + response.data[0].filename
-			}
-			await axios.put("/" + props.parentModelName + "/" + props.modelId, {
-				thumbnail: thumbnailValue
-			}, {
-				params: { storeId: storeId.value }
-			})
-			isNeedUpdateProductThumbnail = false
+	let response = await getList(queryObj)
+	if (isNeedUpdateProductThumbnail) {
+		let thumbnailValue = null
+		if (response.data.length !== 0) {
+			thumbnailValue = response.data[0].path + '/' + response.data[0].filename
 		}
-		list.value = response.data
-		list.value.forEach(e => {
-			e.productOption = JSON.parse(e.productOption)
+		await axios.put("/" + props.parentModelName + "/" + props.modelId, {
+			thumbnail: thumbnailValue
+		}, {
+			params: { storeId: storeId.value }
 		})
-		filterImagesInOption(props.productOption)
-	} catch(error) {}
-	
+		isNeedUpdateProductThumbnail = false
+	}
+	list.value = response.data
+	filterImagesInOption(props.productOption)
 }
 
 function findListKey(filterKey) {

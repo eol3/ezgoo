@@ -104,7 +104,7 @@ async function delAvator() {
 async function setStoreThumbnail() {
   let thumbnailUrl = null
   if (avator.value) {
-    thumbnailUrl = avator.value.baseUrl + avator.value.path + '/' + avator.value.filename
+    thumbnailUrl = avator.value.path + '/' + avator.value.filename
   }
   axios.put(apiBaseUrl.value, {
     thumbnail: thumbnailUrl

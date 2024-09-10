@@ -3,7 +3,7 @@
     <div class="col-12 col-md-10 offset-md-1">
       <div class="d-flex justify-content-between my-3">
         <div class="fw-bold">最新消息</div>
-        <router-link :to="baseUrl + '/post'" class="text-decoration-none" v-if="!postLoading && postList.length !== 0">
+        <router-link :to="baseUrl + '/post'" class="text-decoration-none" v-if="!postLoading && postList.length > 5">
           查看全部
           <i class="fa-solid fa-arrow-right"></i>
         </router-link>
@@ -37,8 +37,8 @@
   <div class="row">
     <div class="col-12 col-md-10 offset-md-1">
       <div class="d-flex justify-content-between my-3">
-        <div class="fw-bold">最新上架商品</div>
-        <router-link :to="baseUrl + '/product'" class="text-decoration-none" v-if="!productLoading && productList.length !== 0">
+        <div class="fw-bold">最新商品</div>
+        <router-link :to="baseUrl + '/product'" class="text-decoration-none" v-if="!productLoading && productList.length > 5">
           查看全部
           <i class="fa-solid fa-arrow-right"></i>
         </router-link>
@@ -147,9 +147,6 @@ function getProducts() {
     }
   }).then((response) => {
     productList.value = response.data
-    productList.value.forEach(e =>
-      e.options = e.options ? JSON.parse(e.options) : []
-    )
   }).finally(() => { productLoading.value = false })
 }
 

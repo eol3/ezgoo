@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated, ref, nextTick  } from 'vue'
+import { onActivated, ref, nextTick  } from 'vue'
 import { useRoute } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import { axios } from "@/tools/requestCache";
