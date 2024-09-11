@@ -8,7 +8,7 @@ const session = require('express-session')
 const cookieParser = require('cookie-parser');
 const FileStore = require('session-file-store')(session)
 
-app.use(require('prerender-node').set('prerenderServiceUrl', 'http://64.111.98.77:8085/'))
+app.use(require('prerender-node').set('prerenderServiceUrl', process.env.PRERENDER_SERVICE_URL))
 
 const compression = require('compression')
 app.use(compression())
