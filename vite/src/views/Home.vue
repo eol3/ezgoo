@@ -57,7 +57,7 @@
             </div>
           </div>
           <div class="store-card card flex-shrink-0 m-2" style="width: 18rem;">
-            <router-link to="/store/2" class="text-decoration-none">
+            <router-link to="/store/3" class="text-decoration-none">
               <img src="@/assets/images/cover_2.png" class="card-img-top">
             </router-link>
             <div class="card-body">

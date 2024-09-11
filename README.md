@@ -31,7 +31,7 @@ This README would normally document whatever steps are necessary to get your app
 ### 筆記 ###
 
 
-2024/9/10 api溝通json格式都不要用字串，post先可以，之後再改
+2024/9/10 api溝通json格式都不要用字串，formData可以，因為formData欄位只允許帶字串
 
 2023/11/25 使用vite和validatorjs套件在設定語言上會有點問題，必須預設英文再複寫
 2023/12/02 使用vite和validatorjs套件在我自己寫的wrapValidator function裡面，

@@ -134,9 +134,6 @@ async function getproductVariant() {
     params: { storeId: route.params.storeId }
   }).then((response) => {
     productVariant.value = response.data
-    // for (const variant of productVariant.value) {
-    //   variant.productOption = JSON.parse(variant.productOption)
-    // }
   })
 }
 
