@@ -65,7 +65,7 @@ router.get('/:storeId', async function(req, res, next) {
 	
   // status:
   // all: 全部, 0:未公開, 1:已公開, 2:僅展示，不能下單, 3:暫時關閉維護中, -1: 系統禁用
-
+  console.log('store here')
 	const useData = {
 		id: req.params.storeId,
     status: req.query.status,

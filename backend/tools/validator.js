@@ -129,6 +129,7 @@ const extModel = {
 	},
 	store: {
 		attributeNames: {
+			id: '商店編號',
 			name: '商店名稱',
 		},
 		enumerationValues: {
@@ -148,6 +149,7 @@ const extModel = {
 	product: {
 		attributeNames: {
 			id: '產品編號',
+			storeId: '商店編號',
 			name: '產品名稱',
 			status: '產品狀態'
 		},
@@ -160,6 +162,7 @@ const extModel = {
 	post: {
 		attributeNames: {
 			id: '貼文編號',
+			storeId: '商店編號',
 			status: '貼文狀態',
 		},
 		enumerationValues: {
@@ -171,6 +174,7 @@ const extModel = {
 	order: {
 		attributeNames: {
 			id: '訂單編號',
+			storeId: '商店編號',
 			status: '訂單狀態',
 			'payerInfo.name': '姓名',
 			'payerInfo.tel': '電話',
