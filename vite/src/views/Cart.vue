@@ -158,9 +158,9 @@ function trash(skey, key) {
 }
 
 async function syncCart() {
-  if (!store.state.localUser) return
   let cartStr = JSON.stringify(cart.value)
   localStorage.setItem("cart", cartStr)
+  if (!store.state.localUser) return
   await syncToServer(cart.value)
 }
 

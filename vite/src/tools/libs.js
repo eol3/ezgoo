@@ -2,6 +2,65 @@ import router from "../router/index";
 import store from "../store/index";
 import { axios } from "@/tools/request";
 
+export function initHead() {
+  let websiteUrl = 'https://www.ezgoo.biz/'
+  let title = 'EzGoo - 易購網購物平台'
+  let description = 'EzGoo - 易購網購物平台，提供簡單容易使用的系統介面給商家與消費者使用'
+	document.title = title
+	document.querySelector('meta[name="title"]').setAttribute("content", title)
+	document.querySelector('meta[name="description"]').setAttribute("content", description)
+	document.querySelector('meta[name="keywords"]').setAttribute("content", '購物平台,開店系統,電子商務平台,網路購物')
+	
+	document.querySelector('meta[property="og:url"]').setAttribute("content", websiteUrl)
+	document.querySelector('meta[property="og:title"]').setAttribute("content", title)
+	document.querySelector('meta[property="og:description"]').setAttribute("content", description)
+	document.querySelector('meta[property="og:image"]').setAttribute("content", '/logo.png')
+	
+	document.querySelector('meta[property="twitter:url"]').setAttribute("content", websiteUrl)
+	document.querySelector('meta[property="twitter:title"]').setAttribute("content", title)
+	document.querySelector('meta[property="twitter:description"]').setAttribute("content", description)
+	document.querySelector('meta[property="twitter:image"]').setAttribute("content", '/logo.png')
+}
+
+export function setHead(data) {
+  if (data.title) {
+  	data.title += ' | EzGoo - 易購網購物平台'
+  } else {
+    data.title = 'EzGoo - 易購網購物平台'
+  }
+  
+  document.title = data.title
+	document.querySelector('meta[name="title"]').setAttribute("content", data.title)
+	document.querySelector('meta[property="og:title"]').setAttribute("content", data.title)
+	document.querySelector('meta[property="twitter:title"]').setAttribute("content", data.title)
+  
+  let description = ''
+  
+  if (data.description) {
+    description = data.description
+  } else {
+    description = 'EzGoo - 易購網購物平台，提供簡單容易使用的系統介面給商家與消費者使用'
+  }
+  document.querySelector('meta[name="description"]').setAttribute("content", description)
+  document.querySelector('meta[property="og:description"]').setAttribute("content", description)
+  document.querySelector('meta[property="twitter:description"]').setAttribute("content", description)
+  
+  if (data.keywords) {
+    data.keywords += ',購物平台,開店系統,電子商務平台,網路購物'
+  	document.querySelector('meta[name="keywords"]').setAttribute("content", data.keywords)
+  }
+  
+  if (data.image) {
+  	document.querySelector('meta[property="og:image"]').setAttribute("content", data.image)
+  	document.querySelector('meta[property="twitter:image"]').setAttribute("content", data.image)
+  }
+  
+  if (data.url) {
+    document.querySelector('meta[property="og:url"]').setAttribute("content", data.url)
+  	document.querySelector('meta[property="twitter:url"]').setAttribute("content", data.url)
+  }
+}
+
 export async function mergeCart() {
   let response = await axios.get('/user/cart')
   let cart = response.data.content

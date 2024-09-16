@@ -205,7 +205,7 @@
               <div class="col-12 col-md-6">
                 <div class="form-group">
                   <label class="form-label">訂單留言</label>
-                  <textarea class="form-control" rows="5" v-model="formData.comment" :disabled="loading"></textarea>
+                  <textarea class="form-control" rows="3" v-model="formData.comment" :disabled="loading"></textarea>
                 </div>
               </div>
             </div>
@@ -371,7 +371,7 @@ function save() {
         type: 'success',
         text: '成功送出訂單，詳細訂單資訊將發送至您的E-mail'
       })
-      router.push('/store/' + order.value.storeInfo.id)
+      router.push('/store/' + storeInfo.value.id)
     }
   }).catch(error => {
     if (error.response && error.response.status === 400) {
@@ -379,8 +379,7 @@ function save() {
         fails: true,
         errors: error.response.data.errors
       }
-    }
-    if (error.response && error.response.status === 422) {
+    } else if (error.response && error.response.status === 422) {
       if (error.response.data) {
         if (error.response.data.content) {
           content.value = error.response.data.content
@@ -399,6 +398,8 @@ function save() {
           text: '訂單資料有異動，請確認後再下單'
         })
       }
+    } else {
+      console.log(error)
     }
   }).finally(() => {
     loading.value = false
@@ -468,8 +469,8 @@ function deleteStoreInCart() {
 }
 
 async function syncCart() {
-  if (!store.state.localUser) return
   localStorage.setItem("cart", JSON.stringify(cart.value))
+  if (!store.state.localUser) return
   await syncToServer(cart.value)
 }
 

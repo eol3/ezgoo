@@ -147,7 +147,8 @@
           </div>
           <div class="form-group mt-2">
             <label class="form-label">訂單留言</label>
-            <textarea class="form-control" rows="5" v-model="formData.comment" :disabled="loading"></textarea>
+            <div v-if="order.userId === -1" class="text-secondary fst-italic">對方未登入下單，無法在此留言。</div>
+            <textarea v-else class="form-control" rows="3" v-model="formData.comment" :disabled="loading"></textarea>
           </div>
         </div>
       </div>

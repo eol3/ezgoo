@@ -175,7 +175,7 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">訂單留言</label>
-                  <textarea class="form-control" rows="5" v-model="formData.comment" :disabled="loading"></textarea>
+                  <textarea class="form-control" rows="3" v-model="formData.comment" :disabled="loading"></textarea>
                 </div>
               </div>
             </div>

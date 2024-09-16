@@ -106,7 +106,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
-// import * as bootstrap from 'bootstrap'
+import { setHead } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -155,6 +155,12 @@ function getStore() {
     store.dispatch('setCache', {
       key: 'currentStore',
       value: storeInfo.value
+    })
+    setHead({
+      title: storeInfo.value.name,
+      description: storeInfo.value.about,
+      image: storeInfo.value.thumbnail,
+      url: document.URL
     })
   })
   axios.get(baseUrl.value + '/images', {

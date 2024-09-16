@@ -122,6 +122,13 @@
 </template>
 
 <script setup>
+import { onMounted, ref } from 'vue';
+import { initHead } from '@/tools/libs'
+
+onMounted(() => {
+  initHead()
+})
+
 window.scrollTo(0, 0)
 </script>
 

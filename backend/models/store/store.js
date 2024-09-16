@@ -23,7 +23,7 @@ model.getOne = async function (condition) {
 	
 	// console.log(query.toString())
 	result = await query.first();
-	
+	this.storeThumbnailUrlHandl(result)
 	return result
 }
 
@@ -76,4 +76,10 @@ model.update = async function (condition, data) {
 		...data,
 		updateAt: knex.fn.now()
 	})
+}
+
+model.storeThumbnailUrlHandl = function(store) {
+	if (store.thumbnail) {
+    store.thumbnail = process.env.BASE_URL + store.thumbnail
+  }
 }
