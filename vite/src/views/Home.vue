@@ -123,10 +123,10 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
-import { initHead } from '@/tools/libs'
+import { setHead } from '@/tools/libs'
 
 onMounted(() => {
-  initHead()
+  setHead({})
 })
 
 window.scrollTo(0, 0)

@@ -63,6 +63,7 @@ import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
+import { setHead } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -101,6 +102,12 @@ function getPost() {
   }).then((response) => {
     queryObj.storeId = response.data.storeId
     post.value = response.data
+    setHead({
+      title: post.value.content.length > 20 ? post.value.content.slice(0, 20) + '...' : post.value.content,
+      description: post.value.content,
+      image: post.value.thumbnail,
+      url: document.URL
+    })
     getStore()
     getPostImages()
   })

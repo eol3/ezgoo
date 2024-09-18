@@ -204,6 +204,34 @@ router.put('/:storeId', auth, async function(req, res, next) {
   if (!await authUserStoreRole(req, next, useData.id, ['owner', 'editor'])) {
   	return
   }
+  
+  if (useData.status === 1) {
+    // 設定商店開放，必須設定付款方式與運送方式
+    result = await Store.getOne({
+      id: useData.id
+    })
+
+    result.payment = JSON.parse(result.payment)
+    result.shippingMethod = JSON.parse(result.shippingMethod)
+
+    let checkPayment = false
+    for (let i in result.payment) {
+      if (result.payment[i].enable) {
+        checkPayment = true
+        break;
+      }
+    }
+    if (!checkPayment) return next({statusCode: 422, msg: '尚會設定付款方式'})
+
+    let checkShippingMethod = false
+    for (let i in result.shippingMethod) {
+      if (result.shippingMethod[i].enable) {
+        checkShippingMethod = true
+        break;
+      }
+    }
+    if (!checkShippingMethod) return next({statusCode: 422, msg: '尚會設定運送方式'})
+  }
 
   useData.payment = JSON.stringify(useData.payment)
   useData.shippingMethod = JSON.stringify(useData.shippingMethod)

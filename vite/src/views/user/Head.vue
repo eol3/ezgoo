@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { setHead } from '@/tools/libs'
 
 export default {
   data() {
@@ -37,6 +38,7 @@ export default {
     }
   },
   created() {
+    setHead({ title: '個人中心' })
   }
 }
 </script>

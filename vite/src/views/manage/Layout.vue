@@ -62,11 +62,15 @@
 <script>
 import SliderBar from "@/components/SliderBar.vue";
 import '@/assets/manage.scss';
+import { setHead } from '@/tools/libs'
 
 export default {
   components: {
     SliderBar,
   },
+	created() {
+		setHead({ title: '商家管理後台' })
+	},
   methods: {
   	openSlider() {
   		this.$store.commit('setShowSlider', {

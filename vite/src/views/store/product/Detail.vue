@@ -156,7 +156,7 @@ import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
-import { setCart } from '@/tools/libs'
+import { setCart, setHead } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -200,6 +200,11 @@ function getProduct() {
   }).then((response) => {
     queryObj.storeId = response.data.storeId
     product.value = response.data
+    setHead({
+      title: product.value.name,
+      image: product.value.thumbnail,
+      url: document.URL
+    })
     getStore()
     getUserStore()
     getProductVariant()

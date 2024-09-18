@@ -95,6 +95,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { syncToServer, isSame, getCartItemNumber } from '@/tools/libs'
 import { axios } from "@/tools/request"
+import { setHead } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -104,6 +105,7 @@ const cart = ref([])
 const loading = ref(false)
 
 onMounted( async () => {
+  setHead({ title: '購物車' })
   let c = localStorage.getItem("cart")
   if (c) cart.value = JSON.parse(c)
 })

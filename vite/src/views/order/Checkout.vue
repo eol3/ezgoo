@@ -119,7 +119,7 @@
                       <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
                     </template>
                   </select>
-                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(formData.payment, 'tip') !== ''">
+                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(formData.payment, 'tip') && getPayment(formData.payment, 'tip') !== ''">
                     {{ getPayment(formData.payment, 'tip') }}
                   </div>
                 </div>
@@ -157,7 +157,7 @@
                       <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
                     </template>
                   </select>
-                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(formData.shippingMethod, 'tip') !== ''">
+                  <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(formData.shippingMethod, 'tip') && getShippingMethod(formData.shippingMethod, 'tip') !== ''">
                     {{ getShippingMethod(formData.shippingMethod, 'tip') }}
                   </div>
                 </div>

@@ -97,6 +97,10 @@ function save() {
       type: 'success',
       text: '儲存成功'
     })
+  }).catch((error) => {
+    if (error.response.status === 422) {
+      getStore()
+    }
   }).finally(() => { loading.value = false })
 }
 

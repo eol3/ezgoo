@@ -41,12 +41,12 @@
 <script>
 import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
-import { mergeCart } from '@/tools/libs'
+import { mergeCart, setHead } from '@/tools/libs'
 
 export default {
 	setup() {
     const { formValid, formValidFeild, formValidClear } = formValidTools();
-    
+    setHead({ title: '登入' })
     return {
       formValid,
       formValidFeild,

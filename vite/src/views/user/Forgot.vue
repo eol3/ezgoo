@@ -50,6 +50,7 @@ import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache"
 import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
+import { setHead } from "@/tools/libs"
 
 const { formValid, formValidFeild, formValidClear } = formValidTools();
 
@@ -63,6 +64,8 @@ const formData = ref({
 	verifyCode: "",
 	password: "",
 })
+
+setHead({ title: '忘記密碼' })
 
 function getVerifyCode() {
 	if (loading.value) return
