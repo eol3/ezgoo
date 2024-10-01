@@ -49,9 +49,13 @@
               {{ formValidFeild('price') ? formValid.errors.price[0] : '' }}
             </div>
           </div>
-          <div class="form-group mt-2">
+          <div class="form-group mt-2 d-none">
             <label class="form-label">數量</label>
             <input type="number" class="form-control" v-model="formData.number" :disabled="isNoSelect() || loading">
+          </div>
+          <div class="form-group mt-2">
+            <label class="form-label">條碼</label>
+            <input type="text" class="form-control" v-model="formData.barcode" :disabled="isNoSelect() || loading">
           </div>
           <div class="mt-4 text-center">
     				<button class="btn btn-outline-success" @click="save" :disabled="isNoSelect() || loading">
@@ -96,6 +100,7 @@ defineFormData({
   productOption: '',
 	price: 0,
 	number: 0,
+  barcode: '',
 })
 
 const productId = ref(route.params.productId)
@@ -152,12 +157,14 @@ function clickOption(pKye, item) {
     setFormData({
       price: found.price,
     	number: found.number,
+      barcode: found.barcode,
     })
   } else {
     formMode.value = 'new'
     setFormData({
       price: 0,
       number: 0,
+      barcode: '',
     })
   }
 }

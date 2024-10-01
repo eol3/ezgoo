@@ -1,9 +1,14 @@
 <template>
   <div class="row mt-3 justify-content-md-center">
     <div class="col-12 col-lg-10">
-      <h4>
-        訂單編號: {{ itemId }}
-      </h4>
+      <div class="row">
+        <div class="col-6">
+          <div class="fs-4">訂單編號: {{ itemId }}</div>
+        </div>
+        <div class="col-6 text-end">
+          <button class="btn btn-outline-success btn-sm" @click="toExcel()">匯出Excel</button>
+        </div>
+      </div>
       <hr />
       <div class="row my-2" v-for="(product, key) in order.content" :key="key">
         <div class="col-6 offset-md-1">
@@ -170,6 +175,7 @@ import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 import { mapStatus, getMapStatus } from "@/tools/composition/order"
 import storeTools from "@/tools/composition/store"
+import * as XLSX from 'xlsx';
 
 const store = useStore()
 const route = useRoute()
@@ -282,6 +288,62 @@ async function save() {
 	} else if (formMode.value === 'edit') {
 		goBack()
 	}
+}
+
+async function toExcel() {
+  const wb = XLSX.utils.book_new()
+  let arr = [
+    ['條碼', '商品名稱', '數量', '價格']
+  ]
+  await getProductList()
+  for (const product of order.value.content) {
+    arr.push([product.barcode, product.name, product.choiceNumber, getPrice(product)])
+  }
+  arr.push(['', '', '小計', order.value.footerInfo.subTotal])
+  if (order.value.footerInfo.shippingFee) {
+    arr.push(['', '', '運費', order.value.footerInfo.shippingFee])
+  }
+  arr.push(['', '', '總計', order.value.footerInfo.total])
+  arr.push([]) // 空一行
+  arr.push(['訂單編號ddd', order.value.id])
+  arr.push([]) // 空一行
+  arr.push(['付款方式', getPayment(order.value.payment, 'name')])
+  arr.push(['運送方式', getShippingMethod(order.value.shippingMethod, 'name')])
+  arr.push([]) // 空一行
+  arr.push(['聯絡資訊'])
+  arr.push(['姓名', order.value.recipientInfo.name])
+  arr.push(['電話', order.value.recipientInfo.tel])
+  arr.push(['E-mail', order.value.payerInfo.email])
+  arr.push(['地址', order.value.recipientInfo.address])
+  console.log(arr)
+  const ws = XLSX.utils.aoa_to_sheet(arr);
+  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+  XLSX.writeFileXLSX(wb, "Order-" + order.value.id + ".xlsx");
+}
+
+async function getProductList() {
+  let ids = ''
+  for (const product of order.value.content) {
+    ids += product.id + '-'
+  }
+  ids = ids.slice(0, -1)
+  loading.value = true
+  axios.get('/product/?ids=' + ids, {
+    params: {
+      storeId: storeId.value
+    }
+  }).then((response) => {
+    for (const product of order.value.content) {
+      for (const item of response.data) {
+        if (product.id === item.id) {
+          if (item.barcode !== '') {
+            product.barcode = item.barcode
+          }
+        }
+      }
+    }
+    console.log(order.value.content)
+  }).finally(() => loading.value = false)
 }
 
 function goBack() {

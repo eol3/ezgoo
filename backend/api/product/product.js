@@ -137,6 +137,7 @@ router.post('/', async function(req, res, next) {
     name: req.body.name,
     price: req.body.price, // -1:未標示售價, -2:僅展示
     number: req.body.number,
+    barcode: req.body.barcode,
     describe: req.body.describe,
     status: req.body.status, // 0:未公開, 1:已公開
 		createBy: req.session.user.id,
@@ -148,6 +149,7 @@ router.post('/', async function(req, res, next) {
     name: 'string',
     price: 'numeric',
     number: 'numeric',
+    barcode: 'string',
     describe: 'string',
     status: 'enum:status',
   }, 'product');
@@ -176,6 +178,7 @@ router.put('/:productId', async function(req, res, next) {
     name: req.body.name,
     price: req.body.price, // -1:未標示售價, -2:僅展示
     number: req.body.number,
+    barcode: req.body.barcode,
     options: req.body.options,
     describe: req.body.describe,
     thumbnail: req.body.thumbnail,
@@ -189,6 +192,7 @@ router.put('/:productId', async function(req, res, next) {
     name: 'string',
     price: 'numeric',
     number: 'numeric',
+    barcode: 'string',
     describe: 'string',
     thumbnail: 'string',
     status: 'enum:status',

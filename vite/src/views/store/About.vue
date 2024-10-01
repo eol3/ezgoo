@@ -11,14 +11,12 @@
 					</div>
 				</div>
 			</div>
-			<div class="row pb-2 align-items-center">
+			<div class="row pb-2 align-items-start">
 				<div class="col-auto">
 					<label for="inputPassword6" class="col-form-label">商店簡介</label>
 				</div>
 				<div class="col-auto">
-					<div class="text-break">
-						{{ storeInfo.about }}
-					</div>
+					<div class="text-break pt-2" v-html="replaceNewLine(storeInfo.about)"></div>
 				</div>
 			</div>
 			<div class="row pb-2 align-items-center">
@@ -41,7 +39,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row pb-2 align-items-center">
+			<div class="row mt-2 pb-2 align-items-center">
 				<div class="col-auto">
 					<div class="form-check form-switch">
 						<input class="form-check-input" type="checkbox" role="switch" id="swaitch_order" v-model="storeInfo.setting.allowOrderWithoutLogIn">
@@ -49,7 +47,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="row pb-2 align-items-center" v-if="storeInfo.setting.untilAmountFreeShipping">
+			<div class="row mb-2 pb-2 align-items-center" v-if="storeInfo.setting.untilAmountFreeShipping">
 				<div class="col-auto">
 					購物滿「{{ storeInfo.setting.untilAmountFreeShipping }}」免運費
 				</div>
@@ -95,5 +93,9 @@ function getShippingText() {
 		
 	}
 	return text.slice(0, -2)
+}
+
+function replaceNewLine(str) {
+	return str.replace(/\n/g, "<br />")
 }
 </script>

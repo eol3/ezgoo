@@ -148,6 +148,12 @@ router.post('/', auth, async function(req, res, next) {
   if (validator.fail) {
     next({statusCode: 400, ...validator.errors}); return;
   }
+
+  const userStore = require(process.cwd() + '/models/user/userStore')
+  const userStoreList = await userStore.getList({ userId: req.session.user.id })
+  if (userStoreList.length >= 5) {
+    return res.status(422).json({ msg: '每個帳號不能創建超過5個商店，如需刪除商店請寫E-mail聯絡我們。' })
+  }
   
   // 預設值
   useData.status = 0
@@ -158,7 +164,6 @@ router.post('/', auth, async function(req, res, next) {
 
   result = await Store.getOne({ id: newStoreId })
   
-  const userStore = require(process.cwd() + '/models/user/userStore')
   await userStore.create({
     userId: useData.createBy,
     storeId: newStoreId,

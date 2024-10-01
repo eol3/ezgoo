@@ -90,6 +90,18 @@ function attachCondition(condition, query) {
 		query.where({ 'status': condition.status })
 	}
 
+	if (condition.word) {
+		query.whereLike('content', '%'+condition.word+'%')
+	}
+
+	if (condition.startAt) {
+		query.where('createAt', '>=', condition.startAt)
+	}
+	
+	if (condition.endAt) {
+		query.where('createAt', '<', condition.endAt)
+	}
+
 }
 
 model.create = async function (data) {

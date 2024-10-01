@@ -30,6 +30,10 @@
 							<label class="form-label">數量</label>
 							<input type="number" class="form-control" v-model="formData.number" :disabled="loading">
 						</div>
+						<div class="form-group mt-2">
+							<label class="form-label">條碼</label>
+							<input type="text" class="form-control" v-model="formData.barcode" :disabled="loading">
+						</div>
 					</div>
 					<div class="col-md-6">
 						<div class="form-group mt-2">
@@ -132,6 +136,7 @@ defineFormData({
 	name: '',
 	price: 0,
 	number: 0,
+	barcode: '',
 	describe: '',
 	status: 0,
 })
@@ -158,6 +163,7 @@ onActivated(() => {
 			name: '',
 			price: 0,
 			number: 0,
+			barcode: '',
 			describe: '',
 			status: 0,
 		})
@@ -269,6 +275,7 @@ async function save() {
 		name: 'string',
 		price: 'required|numeric',
 		number: 'numeric',
+		barcode: 'string',
 		describe: 'string',
 		status: 'required|enum:status',
 	}, 'product');

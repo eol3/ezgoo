@@ -21,11 +21,17 @@ router.get('/count', auth, async function(req, res, next) {
     userId: req.session.user.id,
 		storeId: req.query.storeId,
 		status: req.query.status,
+    word: req.query.word,
+    startAt: req.query.startAt,
+    endAt: req.query.endAt,
 	}
 	
 	const validator = wrapValidator(useData, {
 		storeId: 'numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    word: 'string',
+    startAt: 'date',
+    endAt: 'date',
   }, 'order')
   
   if (validator.fail) {
@@ -55,19 +61,25 @@ router.get('/', auth, async function(req, res, next) {
     userId: req.session.user.id,
 		storeId: req.query.storeId,
 		status: req.query.status,
+    word: req.query.word,
 		sortBy: req.query.sortBy,
 	  orderBy: req.query.orderBy,
 		limit: req.query.limit || 10,
-		offset: req.query.offset || 0
+		offset: req.query.offset || 0,
+    startAt: req.query.startAt,
+    endAt: req.query.endAt,
 	}
 	
 	const validator = wrapValidator(useData, {
 		storeId: 'numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    word: 'string',
 	  sortBy: 'string|enum:sortBy',
 	  orderBy: 'string|enum:orderBy',
 	  limit: 'numeric|min:0',
-	  offset: 'numeric|min:0'
+	  offset: 'numeric|min:0',
+    startAt: 'date',
+    endAt: 'date',
   }, 'order')
   
   if (validator.fail) {

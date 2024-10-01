@@ -84,6 +84,7 @@ router.post('/', async function(req, res, next) {
     productOption: req.body.productOption,
     price: req.body.price,
     number: req.body.number,
+    barcode: req.body.barcode,
 		createBy: req.session.user.id,
 		updateBy: req.session.user.id,
   }
@@ -93,6 +94,7 @@ router.post('/', async function(req, res, next) {
     productId: 'required|numeric|min:1',
     price: 'numeric',
     number: 'numeric',
+    barcode: 'string',
   }, 'product');
   
   if (validator.fail) {
@@ -119,6 +121,7 @@ router.put('/:productVarintId', async function(req, res, next) {
     productOption: req.body.productOption,
     price: req.body.price,
     number: req.body.number,
+    barcode: req.body.barcode,
 		createBy: req.session.user.id,
 		updateBy: req.session.user.id,
   }
@@ -129,6 +132,7 @@ router.put('/:productVarintId', async function(req, res, next) {
     productId: 'required|numeric|min:1',
     price: 'numeric',
     number: 'numeric',
+    barcode: 'string',
   }, 'product');
   
   if (validator.fail) {

@@ -1,19 +1,32 @@
 <template>
 	<div class="row justify-content-between">
-		<div class="col-12 col-lg-6 mb-3 mb-md-0">
+		<div class="col-12 col-lg-1 mb-3 mb-md-0">
 			<div class="d-flex">
 				<div class="col-auto pe-0 d-flex align-items-center">
 				</div>
 			</div>
 		</div>
-		<div class="col-12 col-lg-6">
+		<div class="col-12 col-lg-11">
 			<div class="d-flex justify-content-end">
-				<div class="my-auto me-1">
+				<div class="me-3">
+					<div class="btn-group" role="group" aria-label="Basic example">
+						<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#datePickerModal">
+							日期區間
+							<span v-if="route.query.startAt && route.query.endAt">
+								: {{ route.query.startAt }} ~ {{ route.query.endAt }}
+							</span>
+						</button>
+						<button class="btn btn-outline-secondary btn-sm" v-if="route.query.startAt && route.query.endAt" @click="clearDateRange()">
+							<i class="far fa-times-circle"></i>
+						</button>
+					</div>
+				</div>
+				<div class="d-flex align-items-center me-2">
 					<div>狀態</div>
 				</div>
-				<div class="me-2">
+				<div class="me-3">
 					<select class="form-select form-select-sm" v-model="queryObj.status" @change="changeStatus()">
-					  <option value="all">全部</option>
+					  <option :value="'all'">全部</option>
 						<option v-for="(item, key) in mapStatus" :value="item.value">{{ item.text }}</option>
 					</select>
 				</div>
@@ -97,6 +110,7 @@
 			:total-data="totalData"
 		></pagination>
 	</div>
+	<DatePickerModal @selectedDate="selectedDate"></DatePickerModal>
 </template>
 
 <script setup>
@@ -105,7 +119,9 @@ import { useStore } from "vuex";
 import { useRoute, useRouter, onBeforeRouteUpdate  } from "vue-router";
 import Pagination from "@/components/Pagination.vue";
 import SearchBar from "@/components/SearchBar.vue"
+import DatePickerModal from "@/components/modals/DatePickerModal.vue"
 import { isSame } from '@/tools/libs'
+import moment from 'moment';
 
 import CRUDTools from "@/tools/composition/CRUD";
 import { mapStatus, getMapStatus } from "@/tools/composition/order"
@@ -133,6 +149,8 @@ initQueryObj({
 	orderBy: 'desc',
 	limit: perPage.value,
 	offset: perPage.value * (currentPage.value - 1),
+	startAt: null,
+	endAt: null,
 })
 
 onMounted(async () => {
@@ -167,6 +185,12 @@ function setQueryObj(route) {
 	if (route.query.page) currentPage.value = Number(route.query.page)
 	else currentPage.value = 1
 	queryObj.offset = perPage.value * (currentPage.value - 1)
+	if (route.query.startAt) {
+		queryObj.startAt = moment(route.query.startAt).toDate().toISOString()
+	} else queryObj.startAt = null
+	if (route.query.endAt) {
+		queryObj.endAt = moment(route.query.endAt).endOf('day').toDate().toISOString()
+	} else queryObj.endAt = null
 }
 
 function changeStatus() {
@@ -183,6 +207,8 @@ async function getListAndCount() {
 		getListCount({
 			word: queryObj.word,
 			status: queryObj.status,
+			startAt: queryObj.startAt,
+			endAt: queryObj.endAt
 		}),
 	])
 	loading.value = false
@@ -206,4 +232,17 @@ function getContentText(content) {
 	return text.slice(0, -1)
 }
 
+function selectedDate(dateRange) {
+	const query = Object.assign({}, route.query);
+  query.startAt = dateRange.startAt
+	query.endAt = dateRange.endAt
+  router.push({ query: query })
+}
+
+function clearDateRange() {
+	const query = Object.assign({}, route.query);
+  delete query.startAt
+	delete query.endAt
+  router.push({ query: query })
+}
 </script>

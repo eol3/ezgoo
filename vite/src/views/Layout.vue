@@ -5,7 +5,7 @@
 			返回
 		</a>
 		<router-link class="navbar-brand pb-1" to="/" v-if="!isShowBack()">
-      <img width="100" src="@/assets/logo.png" alt="EzGOO"/>
+      <img width="100" src="@/assets/logo.png" alt="EzGoo"/>
     </router-link>
     <ul class="navbar-nav ms-auto">
     	<li class="nav-item position-relative" @click="cartRead()">
@@ -35,6 +35,7 @@
   <div class="footer">
     <div class="text-center p-3 bg-2">
       © 2021 ~ 2024 EzGoo
+			<a class="text-decoration-none" href="mailto:support@ezgoo.biz">聯絡信箱</a>
     </div>
   </div>
 </template>
