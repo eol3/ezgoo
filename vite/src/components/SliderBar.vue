@@ -2,7 +2,7 @@
 	<div :class="['slider h-100', {'active': $store.state.showSlider.left}]">
     <nav class="navbar navbar-expand p-3">
       <ul class="navbar-nav">
-  			<li class="nav-item cursor-pointer d-xl-none" @click="clickCloseSlider">
+  			<li class="nav-item cursor-pointer d-xl-none d-flex align-items-center" @click="clickCloseSlider">
   				<span class="nav-link icon-link">
   	      	<i class="fas fa-bars fa-fw"></i>
   	      </span>

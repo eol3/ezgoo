@@ -4,7 +4,7 @@
 		<div class="manage-wrap">
 			<nav class="navbar navbar-expand manage-head p-3">
 				<ul class="navbar-nav d-xl-none">
-					<li class="nav-item cursor-pointer" @click="openSlider()">
+					<li class="nav-item cursor-pointer d-flex align-items-center" @click="openSlider()">
 						<span class="nav-link icon-link">
 			      	<i class="fa-solid fa-bars fa-fw"></i>
 			      </span>
