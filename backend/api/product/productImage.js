@@ -5,6 +5,7 @@ const Product = require(process.cwd() + '/models/product/product')
 const multer  = require('multer')
 const upload = multer({ dest: 'tmp' })
 const { authStore }= require(process.cwd() + '/tools/libs')
+const sharp = require("sharp");
 
 module.exports = router
 
@@ -120,14 +121,23 @@ router.post('/', upload.any('files'), async function (req, res, next) {
 
     await ProductImage.update({ id: result[0] }, { path: dir, priority: result[0] })
 
+    let oldPath = './tmp/' + file.filename
+    let convertPath = './tmp/convert.jpg'
+    // 壓縮圖片
+    if (ext === '.jpg') {
+      await sharp(oldPath).jpeg({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+    } else if (ext === '.png') {
+      await sharp(oldPath).png({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+    }
+    fs.unlinkSync(oldPath); // 刪掉原始檔
+
     // 移動檔案
     dir = './public' + dir
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir, { recursive: true });
     }
-    let oldPath = './tmp/' + file.filename
     let newPath = dir + '/' + useData.filename
-    fs.renameSync(oldPath, newPath)
+    fs.renameSync(convertPath, newPath)
 
   }
   

@@ -67,7 +67,7 @@
 				</div>
 			</div>
 			<div class="col-4 col-md-7 d-flex align-items-center">
-				<router-link :to="baseUrl + item.id" class="d-flex align-items-center text-decoration-none" style="color: inherit;">
+				<router-link :to="baseUrl + item.id" class="w-100 d-flex align-items-center text-decoration-none" style="color: inherit;">
 					<div>
 						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
 					</div>
@@ -115,11 +115,6 @@
 						<i class="fa-solid fa-ellipsis"></i>
 					</div>
 					<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownNotify">
-						<li>
-							<button class="dropdown-item" @click="goMobileDropdownItem('/' + modelName + '/' + item.id  + '?storeId=' + storeId + '&preview=true')">
-								預覽
-							</button>
-						</li>
 						<li>
 							<button class="dropdown-item" @click="goMobileDropdownItem(baseUrl + item.id + '/edit')">
 								編輯
