@@ -33,6 +33,18 @@
               {{ formValidFeild('password') ? formValid.errors.password[0] : '&nbsp;' }}
             </div>
           </div>
+					<div>
+						<p>
+							註冊即代表，您已閱讀並同意易購網購物平台的
+							<router-link class="text-decoration-none" target="_blank" to="/page/terms-of-service">
+								服務條款
+							</router-link>
+							與
+							<router-link class="text-decoration-none" target="_blank" to="/page/privacy-policy">
+								隱私政策
+							</router-link>
+						</p>
+					</div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" @click="register()" :disabled="loading">

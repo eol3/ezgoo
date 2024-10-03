@@ -115,6 +115,20 @@ const routes = [
           }
         ]
       },
+      {
+        path: "/page",
+        component: () => import("../views/page/Layout.vue"),
+        children: [
+          {
+            path: "privacy-policy",
+            component: () => import("../views/page/PrivacyPolicy.vue"),
+          },
+          {
+            path: "terms-of-service",
+            component: () => import("../views/page/Service.vue"),
+          }
+        ]
+      },
     ],
   },
   {

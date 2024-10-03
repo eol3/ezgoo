@@ -35,6 +35,14 @@
   <div class="footer">
     <div class="text-center p-3 bg-2">
       © 2021 ~ 2024 EzGoo
+			<router-link class="text-decoration-none" to="/page/terms-of-service">
+				服務條款
+			</router-link>
+			·
+			<router-link class="text-decoration-none" to="/page/privacy-policy">
+				隱私權政策
+			</router-link>
+			·
 			<a class="text-decoration-none" href="mailto:support@ezgoo.biz">聯絡信箱</a>
     </div>
   </div>
