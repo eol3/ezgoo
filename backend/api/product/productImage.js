@@ -5,7 +5,7 @@ const Product = require(process.cwd() + '/models/product/product')
 const multer  = require('multer')
 const upload = multer({ dest: 'tmp' })
 const { authStore }= require(process.cwd() + '/tools/libs')
-const sharp = require("sharp");
+const sharp = require("sharp")
 
 module.exports = router
 
@@ -86,7 +86,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
   // 檢查檔案格式
   const fs = require('fs');
   let checkFile = true
-  const allowType = ['image/jpeg', 'image/png']
+  const allowType = ['image/jpeg', 'image/png', 'image/webp']
   for (const file of req.files) {
     if (!allowType.includes(file.mimetype)) {
       checkFile = false
@@ -98,19 +98,17 @@ router.post('/', upload.any('files'), async function (req, res, next) {
       fs.unlinkSync('tmp/' + file.filename);
     }
     return next({statusCode: 400,
-      errors: { images: [ '圖片格式必須是jpg或png' ] }
+      errors: { images: [ '圖片格式必須是jpg, png, webp' ] }
     })
   }
 
   for (const file of req.files) {
 
-    let ext = ''
-    if (file.mimetype.indexOf('jpeg') > -1) ext = '.jpg'
-    else if (file.mimetype.indexOf('png') > -1) ext = '.png'
-
     file.originalname = Buffer.from(file.originalname, 'latin1').toString(
       'utf8',
     );
+
+    let ext = '.' + file.originalname.split('.').pop()
 
     useData.originalname = file.originalname
     useData.filename = 'default' + ext
@@ -122,12 +120,14 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     await ProductImage.update({ id: result[0] }, { path: dir, priority: result[0] })
 
     let oldPath = './tmp/' + file.filename
-    let convertPath = './tmp/convert.jpg'
+    let convertPath = './tmp/convert'
     // 壓縮圖片
-    if (ext === '.jpg') {
+    if (file.mimetype.indexOf('jpeg') > -1) {
       await sharp(oldPath).jpeg({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
-    } else if (ext === '.png') {
+    } else if (file.mimetype.indexOf('png') > -1) {
       await sharp(oldPath).png({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+    } else {
+      fs.copyFileSync(oldPath, convertPath)
     }
     fs.unlinkSync(oldPath); // 刪掉原始檔
 

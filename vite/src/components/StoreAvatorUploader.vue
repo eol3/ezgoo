@@ -17,7 +17,17 @@
         </div>
       </div>
     </div>
-    <input type="file" class="form-control" name="storeImages" @focus="formValidClear()" :disabled="loading" @change="selectedFile" ref="fileupload">
+    <input
+			type="file"
+			class="form-control"
+			name="productImages"
+			multiple="multiple"
+			accept="image/png, image/jpeg, image/gif, image/webp"
+			@focus="formValidClear()"
+			:disabled="parentLoading || uploading"
+			@change="selectedFile"
+			ref="fileupload"
+		>
     <div class="form-text text-danger">
       {{ formValidFeild('images') ? formValid.errors.images[0] : '' }}
     </div>

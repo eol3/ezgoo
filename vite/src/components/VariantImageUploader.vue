@@ -30,9 +30,19 @@
         </div>
       </div>
     </div>
-    <input type="file" class="form-control" name="productImages" multiple="multiple" @focus="formValidClear()" :disabled="parentLoading || uploading || isNoSelect()" @change="selectedFile" ref="fileupload">
+    <input
+			type="file"
+			class="form-control"
+			name="productImages"
+			multiple="multiple"
+			accept="image/png, image/jpeg, image/gif, image/webp"
+			@focus="formValidClear()"
+			:disabled="parentLoading || uploading"
+			@change="selectedFile"
+			ref="fileupload"
+		>
     <div class="form-text text-danger">
-      {{ formValidFeild('productImages') ? formValid.errors.productImages[0] : '' }}
+      {{ formValidFeild('images') ? formValid.errors.images[0] : '' }}
     </div>
   </div>
 </template>
