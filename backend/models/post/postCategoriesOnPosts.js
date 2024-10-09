@@ -55,6 +55,11 @@ model.getCount = async function(condition) {
 	let result = {}
 	let query = knex(tableName)
 	
+	if (condition.postStatus) {
+		query.join('post', 'post.id', 'postCategoriesOnPosts.postId')
+		query.where({ 'post.status': condition.postStatus })
+	}
+
 	if (condition.postId) {
 		query.where({ 'postId': condition.postId })
 	}

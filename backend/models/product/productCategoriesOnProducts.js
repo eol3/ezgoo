@@ -54,6 +54,11 @@ model.getCount = async function(condition) {
 	
 	let result = {}
 	let query = knex(tableName)
+
+	if (condition.productStatus) {
+		query.join('product', 'product.id', 'productCategoriesOnProducts.productId')
+		query.where({ 'product.status': condition.productStatus })
+	}
 	
 	if (condition.productId) {
 		query.where({ 'productId': condition.productId })

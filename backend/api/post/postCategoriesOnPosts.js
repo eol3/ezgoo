@@ -103,6 +103,7 @@ async function updateNumber(ids) {
   const postCategory = require(process.cwd() + '/models/post/postCategory')
   for (const id of ids) {
     let result = await postCategoriesOnPosts.getCount({
+      productStatus: 1,
       postCategoryId: id
     })
     await postCategory.update({ id: id }, { number: result.total })
