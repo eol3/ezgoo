@@ -65,7 +65,9 @@ router.post('/', async function(req, res, next) {
     })
   }
   await ProductCategoriesOnProducts.create(multi)
-  // console.log(result)
+  
+  updateNumber(useData.productCategoryIds)
+
   res.status(200).json();
 })
 
@@ -93,6 +95,18 @@ router.delete('/', async function(req, res, next) {
   })) return
 
   await ProductCategoriesOnProducts.delete(useData)
-  // console.log(result)
+  
+  updateNumber(useData.productCategoryIds)
+
   res.status(200).json();
 })
+
+async function updateNumber(ids) {
+  const productCategory = require(process.cwd() + '/models/product/productCategory')
+  for (const id of ids) {
+    let result = await ProductCategoriesOnProducts.getCount({
+      postCategoryId: id
+    })
+    await productCategory.update({ id: id }, { number: result.total })
+  }
+}

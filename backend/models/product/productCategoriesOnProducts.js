@@ -50,6 +50,27 @@ model.getList = async function (condition) {
 	return result
 }
 
+model.getCount = async function(condition) {
+	
+	let result = {}
+	let query = knex(tableName)
+	
+	if (condition.productId) {
+		query.where({ 'productId': condition.productId })
+	}
+	
+	if (condition.productCategoryId) {
+		query.where({ 'productCategoryId': condition.productCategoryId })
+	}
+
+	query.countDistinct(tableName + '.id as total')
+	
+	result = await query
+	result = result[0]
+	
+	return result
+}
+
 model.create = async function (data) {
 	return await knex(tableName).insert(data)
 }

@@ -208,11 +208,11 @@ async function addCart(item) {
 
 .product-card {
   width: 180px;
-  height: 230px;
+  height: 240px;
 }
 .product-card img {
-  height: 120px;
-  object-fit: cover;
+  height: 130px;
+  object-fit: contain;
 }
 
 .product-card .body-text-wrap {

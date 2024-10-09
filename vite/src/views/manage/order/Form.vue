@@ -175,7 +175,8 @@ import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 import { mapStatus, getMapStatus } from "@/tools/composition/order"
 import storeTools from "@/tools/composition/store"
-import * as XLSX from 'xlsx';
+// import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style'
 
 const store = useStore()
 const route = useRoute()
@@ -292,20 +293,49 @@ async function save() {
 
 async function toExcel() {
   const wb = XLSX.utils.book_new()
-  let arr = [
-    ['條碼', '商品名稱', '數量', '價格']
-  ]
+
+  // let arr = []
+  // // STEP 2: Create data rows and styles
+  // arr.push([
+  //   { v: "訂單編號", t: "s", s: { font: { sz: 18 } } },
+  //   { v: order.value.id, t: "s", s: { font: { sz: 18 } } },
+  // ])
+
+  // // STEP 3: Create worksheet with rows; Add worksheet to workbook
+  // const ws = XLSX.utils.aoa_to_sheet(arr);
+  // XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+  // // STEP 4: Write Excel file to browser
+  // XLSX.writeFile(wb, "xlsx-js-style-demo.xlsx");
+  // return
+
+  let borderBottomStyle = { border: { bottom: { style: 'thin', color: { rgb: "000000" } } } }
+  let arr = []
+  arr.push([
+    { v: '訂單編號', t: "s", s: { font: { sz: 14 } } },
+    { v: order.value.id , t: "s", s: { font: { sz: 14 } } }
+  ])
+  arr.push([]) // 空一行
+  arr.push([
+    { v: '條碼', t: "s", s: borderBottomStyle },
+    { v: '商品名稱', t: "s", s: borderBottomStyle },
+    { v: '數量', t: "s", s: borderBottomStyle },
+    { v: '價格', t: "s", s: borderBottomStyle }
+  ])
   await getProductList()
   for (const product of order.value.content) {
-    arr.push([product.barcode, product.name, product.choiceNumber, getPrice(product)])
+    arr.push([
+      { v: product.barcode ? product.barcode : '', t: "s", s: borderBottomStyle },
+      { v: product.name, t: "s", s: borderBottomStyle },
+      { v: product.choiceNumber, t: "s", s: borderBottomStyle },
+      { v: getPrice(product), t: "s", s: borderBottomStyle }
+    ])
   }
   arr.push(['', '', '小計', order.value.footerInfo.subTotal])
   if (order.value.footerInfo.shippingFee) {
     arr.push(['', '', '運費', order.value.footerInfo.shippingFee])
   }
   arr.push(['', '', '總計', order.value.footerInfo.total])
-  arr.push([]) // 空一行
-  arr.push(['訂單編號ddd', order.value.id])
   arr.push([]) // 空一行
   arr.push(['付款方式', getPayment(order.value.payment, 'name')])
   arr.push(['運送方式', getShippingMethod(order.value.shippingMethod, 'name')])
@@ -315,10 +345,16 @@ async function toExcel() {
   arr.push(['電話', order.value.recipientInfo.tel])
   arr.push(['E-mail', order.value.payerInfo.email])
   arr.push(['地址', order.value.recipientInfo.address])
-  console.log(arr)
+  // console.log(arr)
   const ws = XLSX.utils.aoa_to_sheet(arr);
+  ws['!cols'] =  [
+    { width: 12 },
+    { width: 40 },
+    { width: 10 },
+    { width: 10 },
+  ];
   XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-  XLSX.writeFileXLSX(wb, "Order-" + order.value.id + ".xlsx");
+  XLSX.writeFile(wb, "Order-" + order.value.id + ".xlsx");
 }
 
 async function getProductList() {
@@ -342,7 +378,7 @@ async function getProductList() {
         }
       }
     }
-    console.log(order.value.content)
+    // console.log(order.value.content)
   }).finally(() => loading.value = false)
 }
 

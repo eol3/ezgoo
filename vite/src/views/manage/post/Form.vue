@@ -143,14 +143,23 @@ function getPostsOnCategories() {
 async function compareCagegory() {
 	let oldIdsArr = originalCategoryIds.split('-')
 	let newIdsArr = categoryIds.value.split('-')
-	let newIds = newIdsArr.filter(newId => 
-		oldIdsArr.find((element) => element !== newId
-	)).join('-')
-	let delIds = oldIdsArr.filter(oldId => 
-		newIdsArr.find((element) => element !== oldId
-	)).join('-')
-	addPostCategory(newIds)
-	delPostCategory(delIds)
+	let addIdsArr = [], delIdsArr = []
+	for (let i in oldIdsArr) {
+		for (let j in newIdsArr) {
+			if (oldIdsArr[i] === newIdsArr[j]) {
+				oldIdsArr[i] = -1
+				newIdsArr[j] = -1
+			}
+		}
+	}
+	for (let i in newIdsArr) {
+		if (newIdsArr[i] !== -1) addIdsArr.push(newIdsArr[i])
+	}
+	for (let i in oldIdsArr) {
+		if (oldIdsArr[i] !== -1) delIdsArr.push(oldIdsArr[i])
+	}
+	addPostCategory(addIdsArr.join('-'))
+	delPostCategory(delIdsArr.join('-'))
 }
 
 async function addPostCategory(postCategoryIds) {

@@ -71,14 +71,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useStore } from "vuex";
-import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
+import { useRoute, useRouter, onBeforeRouteUpdate, onBeforeRouteLeave } from "vue-router";
 import { axios } from "@/tools/requestCache";
 import CategoryList from "@/components/category/List.vue";
 import SeletedList from "@/components/category/SeletedList.vue";
 import Pagination from "@/components/Pagination.vue";
 import SearchBar from "@/components/SearchBar.vue"
 import MobileFilterModal from "@/components/modals/MobileFilterModal.vue"
-import { listToTree } from '@/tools/libs'
+import { setHead, listToTree, traverseSubtree } from '@/tools/libs'
 
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -111,6 +111,8 @@ const postCategory = ref([])
 const treeList = ref([])
 const selectedItems = ref([])
 
+const storeInfo = ref(null)
+
 onMounted(() => {
   setQueryObj(route)
   getListAndCount()
@@ -122,6 +124,12 @@ onBeforeRouteUpdate((to) => {
 	setQueryObj(to)
 	getListAndCount()
 });
+
+onBeforeRouteLeave((to, from) => {
+  if (to.path.startsWith('/store/')) {
+    setSelfHead('')
+  }
+})
 
 function setQueryObj(route) {
 	if (route.query.word) queryObj.word = route.query.word
@@ -165,12 +173,15 @@ function getPostCategory() {
 
 function setSelectedByQuery() {
   if (!route.query.categoris) return
-  postCategory.value.forEach((obj) => {
-    if (obj.id == route.query.categoris) {
-      obj.active = true
-      selectedItems.value.push(obj)
+  let firstCategoryId = route.query.categoris.split('-')[0]
+  for (const item of postCategory.value) {
+    if (item.id == firstCategoryId) {
+      item.active = true
+      selectedItems.value.push(item)
+      setSelfHead(item.name + ' - ')
+      break
     }
-  })
+  }
 }
 
 function selectedItem(item) {
@@ -183,8 +194,18 @@ function selectedItem(item) {
     }
   })
   const query = Object.assign({}, route.query);
-  if (item.id === 'root') delete query.categoris
-  else query.categoris = item.id
+  if (item.id === 'root') {
+    delete query.categoris
+    setSelfHead('')
+  } else {
+    let ids = ''
+    traverseSubtree(treeList.value, item.id, (node) => {
+      ids += node.id + '-'
+    });
+    ids = ids.slice(0, -1)
+    query.categoris = ids
+    setSelfHead(selectedItems.value[0].name + ' - ')
+  }
   if (query.page) delete query.page
   router.push({ query: query })
 }
@@ -200,6 +221,7 @@ function unSelectedItem(item) {
   delete query.categoris
   delete query.page
   router.push({ query: query })
+  setSelfHead('')
 }
 
 function unSelectedWord() {
@@ -208,6 +230,15 @@ function unSelectedWord() {
   delete query.word
   delete query.page
   router.push({ query: query })
+}
+
+async function setSelfHead(text) {
+  storeInfo.value = await store.dispatch('getCache', 'currentStore')
+  setHead({
+    title: text + storeInfo.value.name,
+    description: text + storeInfo.value.about,
+    url: document.URL
+  })
 }
 </script>
 

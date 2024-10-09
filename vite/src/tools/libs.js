@@ -258,6 +258,45 @@ export function listToTree(list) {
   return roots;
 }
 
+// 遞歸尋找特定節點的函數
+function findNode(treeArray, nodeId) {
+  for (let node of treeArray) {
+    if (node.id === nodeId) {
+      return node;
+    }
+    if (node.children) {
+      const found = findNode(node.children, nodeId);
+      if (found) return found;
+    }
+  }
+  return null; // 如果找不到則返回 null
+}
+
+// 遞歸遍歷子樹的函數
+export function traverseTree(node, callback) {
+  if (!node) return;
+
+  // 執行回調函數對當前節點進行操作
+  callback(node);
+
+  // 遞歸遍歷子節點
+  if (node.children && node.children.length > 0) {
+    node.children.forEach(child => traverseTree(child, callback));
+  }
+}
+
+// 主函數，找到指定節點後遍歷其子樹
+export function traverseSubtree(treeArray, nodeId, callback) {
+  const node = findNode(treeArray, nodeId);
+  if (node) {
+    // console.log(`Start traversing subtree of ${nodeId}`);
+    traverseTree(node, callback);
+  } else {
+    console.log(`Node ${nodeId} not found`);
+    return false
+  }
+}
+
 
 function serialize(obj) {
   var str = [];

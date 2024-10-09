@@ -4,6 +4,7 @@
       <div class="narmal-link-wrap w-100 d-flex justify-content-between align-items-center mb-1 rounded-3 cursor-pointer" :class="{ active: childrenCategory.active }">
         <div class="w-100 p-2 rounded-3 rounded-3" @click="clickItem(childrenCategory)">
           {{ childrenCategory.id === 'root' ? '所有分類' : childrenCategory.name }}
+          {{ childrenCategory.number ? '(' + childrenCategory.number + ')' : '' }}
         </div>
         <template v-if="hasChildren">
           <span v-show="!childrenCategory.hasExpand" class="py-2 px-3" @click="clickExpand">

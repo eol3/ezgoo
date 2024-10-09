@@ -18,7 +18,8 @@
     "vue-axios": "^3.5.2",
     "vue-router": "^4.2.5",
     "vuex": "^4.1.0",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
+    "xlsx-js-style": "^1.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
