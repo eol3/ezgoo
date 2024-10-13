@@ -1,6 +1,8 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
 const Product = require(process.cwd() + '/models/product/product')
+const productCategory = require(process.cwd() + '/models/product/productCategory')
+const ProductCategoriesOnProducts = require(process.cwd() + '/models/product/productCategoriesOnProducts')
 const { authStore }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
@@ -167,6 +169,8 @@ router.post('/', async function(req, res, next) {
 
   result = await Product.create(useData)
   // console.log(result)
+  // updateCategoryNumber(useData.id)
+
   res.status(200).json({ id: result[0] });
 })
 
@@ -209,6 +213,8 @@ router.put('/:productId', async function(req, res, next) {
   
   result = await Product.update({ id: useData.id }, useData)
   
+  // updateCategoryNumber(useData.id)
+
   res.status(200).json();
 })
 
@@ -234,7 +240,26 @@ router.delete('/:productId', async function(req, res, next) {
   
   result = await Product.delete({ id: useData.id })
   // 刪除相關圖片，刪除分類關係，刪除variant
-  
+  deleteRealte(useData.id)
+
   res.status(200).json();
 
 })
+
+async function updateCategoryNumber(id) {
+  const list = await ProductCategoriesOnProducts.getList({ productId: id })
+  for (item of list) {
+    let result = await ProductCategoriesOnProducts.getCount({
+      productStatus: 1,
+      productCategoryId: item.productCategoryId
+    })
+    await productCategory.update({ id: item.productCategoryId }, { number: result.total })
+  }
+}
+
+async function deleteRealte(id) {
+  await updateCategoryNumber(id)
+  ProductCategoriesOnProducts.delete({ productId: id })
+  const productVariant = require(process.cwd() + '/models/product/productVariant')
+  productVariant.delete({ productId: id })
+}

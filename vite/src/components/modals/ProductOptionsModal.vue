@@ -29,6 +29,9 @@
           <div class="mb-3">
             <button class="btn btn-outline-primary" @click="newOption">新增商品選項</button>
           </div>
+          <div class="mb-3">
+            註：如已有對應商品，更改選項會自動刪除
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" @click="confirm()" :disabled="loading">

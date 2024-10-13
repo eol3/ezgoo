@@ -72,7 +72,7 @@
 						<hr />
 						<div class="form-group mt-2">
 							<label class="form-label">狀態</label>
-							<select class="form-select" v-model="formData.status" :disabled="loading">
+							<select class="form-select" v-model="formData.status" :disabled="loading" @change="isChangeStatus = true">
 								<option selected :value="0">未上架</option>
 								<option :value="1">上架</option>
 							</select>
@@ -131,6 +131,7 @@ const categoryIds = ref('')
 const imageUploaderRef = ref(null)
 const productOptionsModalRef = ref(null)
 const productOptions = ref([])
+const isChangeStatus = ref(false)
 
 defineFormData({
 	name: '',
@@ -158,6 +159,7 @@ onMounted(async () => {
 })
 
 onActivated(() => {
+	isChangeStatus.value = false
 	if (route.params.productId === undefined) {
 		defineFormData({
 			name: '',
@@ -226,6 +228,14 @@ async function compareCagegory() {
 	}
 	addProductCategory(addIdsArr.join('-'))
 	delProductCategory(delIdsArr.join('-'))
+	
+	if (isChangeStatus.value) {
+		await axios.put('/product/' + itemId.value + '/product-category/update-number', {
+			productCategoryIds: categoryIds.value
+		}, {
+			params: { storeId: storeId.value}
+		})
+	}
 }
 
 async function addProductCategory(productCategoryIds) {

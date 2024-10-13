@@ -69,6 +69,32 @@ router.post('/', async function(req, res, next) {
   res.status(200).json();
 })
 
+router.put('/update-number', async function(req, res, next) {
+
+  const useData = {
+    storeId: req.query.storeId,
+    postCategoryIds: req.body.postCategoryIds
+	}
+	
+	const validator = wrapValidator(useData, {
+    storeId: 'required|numeric|min:1',
+    postCategoryIds: 'required|idStringArray',
+  }, 'post')
+  
+  if (validator.fail) {
+  	return next({statusCode: 400, ...validator.errors})
+  }
+
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
+  
+  updateNumber(useData.postCategoryIds)
+
+  res.status(200).json();
+})
+
 router.delete('/', async function(req, res, next) {
 
   const useData = {
@@ -103,7 +129,7 @@ async function updateNumber(ids) {
   const postCategory = require(process.cwd() + '/models/post/postCategory')
   for (const id of ids) {
     let result = await postCategoriesOnPosts.getCount({
-      productStatus: 1,
+      postStatus: 1,
       postCategoryId: id
     })
     await postCategory.update({ id: id }, { number: result.total })

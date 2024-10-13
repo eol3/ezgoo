@@ -137,6 +137,9 @@
               <h5 class="mt-2 fw-bold">商品描述</h5>
               {{ product.describe }}
             </div>
+            <div class="col-12 col-md-10" v-if="product.barcode !== ''">
+              <div class="mt-2">商品條碼:{{ product.barcode }}</div>
+            </div>
           </div>
           <br /><br />
         </div>

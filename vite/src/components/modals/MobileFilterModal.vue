@@ -14,6 +14,7 @@
           <br v-else />
           <CategoryList
             :allCategories="allCategories"
+            :showShildrenNumber="showShildrenNumber"
             @selected-item="selectedItem"
             @unselected-item="unSelectedItem"
           >
@@ -38,7 +39,11 @@ const props = defineProps({
   allCategories: {
 		type: Array,
 		default: []
-	}
+	},
+  showShildrenNumber: {
+    type: Boolean,
+    default: false,
+  }
 })
 
 const emit = defineEmits(['selected-item', 'unselected-item'])

@@ -26,6 +26,7 @@ validatorjs.register('enum', function(value, requirement, attribute) {
 }, ':attribute value have to be spec word.');
 
 validatorjs.register('idStringArray', function(value) {
+	if (typeof value !== 'string') return false
 	let arr = value.split('-')
 	for (let i in arr) {
 		if (arr[i] === '0') return true

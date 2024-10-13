@@ -127,6 +127,7 @@ function attachCondition(condition, query) {
 	
 	if (condition.word) {
 		query.whereLike('name', '%'+condition.word+'%')
+		query.orWhereLike('barcode', '%'+condition.word+'%');
 	}
 
 	if (condition.status) {

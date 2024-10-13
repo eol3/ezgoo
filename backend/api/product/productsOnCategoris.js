@@ -71,6 +71,32 @@ router.post('/', async function(req, res, next) {
   res.status(200).json();
 })
 
+router.put('/update-number', async function(req, res, next) {
+
+  const useData = {
+    storeId: req.query.storeId,
+    productCategoryIds: req.body.productCategoryIds
+	}
+	
+	const validator = wrapValidator(useData, {
+    storeId: 'required|numeric|min:1',
+    productCategoryIds: 'required|idStringArray',
+  }, 'product')
+  
+  if (validator.fail) {
+  	return next({statusCode: 400, ...validator.errors})
+  }
+
+  if (!await authStore(req, next, {
+    storeId: useData.storeId,
+    role: ['owner', 'editor']
+  })) return
+  
+  updateNumber(useData.productCategoryIds)
+
+  res.status(200).json();
+})
+
 router.delete('/', async function(req, res, next) {
 
   const useData = {

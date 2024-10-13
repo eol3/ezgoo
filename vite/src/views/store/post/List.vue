@@ -8,6 +8,7 @@
       <CategoryList
         :allCategories="treeList"
         @selected-item="selectedItem"
+        :showShildrenNumber="true"
       >
       </CategoryList>
     </div>
@@ -65,6 +66,7 @@
     v-model="queryObj.word"
     :allCategories="treeList"
 		@selected-item="selectedItem"
+    :showShildrenNumber="true"
   ></MobileFilterModal>
 </template>
 

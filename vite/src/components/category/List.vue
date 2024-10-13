@@ -8,6 +8,7 @@
     <item
       :children-category="item"
       :expand="true"
+      :showShildrenNumber="showShildrenNumber"
       @selected-item="selectedItem"
       @unselected-item="unSelectedItem"
     >
@@ -24,6 +25,10 @@ const props = defineProps({
 		type: Array,
 		default: []
 	},
+  showShildrenNumber: {
+    type: Boolean,
+    default: false,
+  }
 })
 
 const emit = defineEmits(['selected-item', 'unselected-item'])

@@ -95,5 +95,15 @@ model.update = async function (condition, data) {
 }
 
 model.delete = async function (condition) {
-	return await knex(tableName).where('id', condition.id).del()
+	let query = knex(tableName)
+
+	if (condition.id) {
+		query.where({ 'id': condition.id })
+	}
+	
+	if (condition.productId) {
+		query.where({ 'productId': condition.productId })
+	}
+
+	return await query.del()
 }

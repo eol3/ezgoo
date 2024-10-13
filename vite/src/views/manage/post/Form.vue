@@ -28,7 +28,7 @@
 						<hr />
 						<div class="form-group mt-2">
 							<label class="form-label">狀態</label>
-							<select class="form-select" v-model="formData.status" :disabled="loading">
+							<select class="form-select" v-model="formData.status" :disabled="loading" @change="isChangeStatus = true">
 								<option selected :value="0">未公開</option>
 								<option :value="1">公開</option>
 							</select>
@@ -77,6 +77,7 @@ let originalCategoryIds = ''
 const categoryIds = ref('')
 
 const imageUploaderRef = ref(null)
+const isChangeStatus = ref(false)
 
 defineFormData({
 	content: '',
@@ -98,6 +99,7 @@ onMounted(async () => {
 })
 
 onActivated(() => {
+	isChangeStatus.value = false
 	if (route.params.postId === undefined) {
 		defineFormData({
     	content: '',
@@ -160,6 +162,13 @@ async function compareCagegory() {
 	}
 	addPostCategory(addIdsArr.join('-'))
 	delPostCategory(delIdsArr.join('-'))
+	if (isChangeStatus.value) {
+		await axios.put('/post/' + itemId.value + '/post-category/update-number', {
+			postCategoryIds: categoryIds.value
+		}, {
+			params: { storeId: storeId.value}
+		})
+	}
 }
 
 async function addPostCategory(postCategoryIds) {

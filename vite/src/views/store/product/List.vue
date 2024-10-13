@@ -7,6 +7,7 @@
       <hr v-if="treeList.length !== 0" />
       <CategoryList
         :allCategories="treeList"
+        :showShildrenNumber="true"
         @selected-item="selectedItem"
       >
       </CategoryList>
@@ -76,6 +77,7 @@
   <MobileFilterModal
     v-model="queryObj.word"
     :allCategories="treeList"
+    :showShildrenNumber="true"
 		@selected-item="selectedItem"
   ></MobileFilterModal>
   <AddCartModal
