@@ -137,8 +137,8 @@
               <h5 class="mt-2 fw-bold">商品描述</h5>
               {{ product.describe }}
             </div>
-            <div class="col-12 col-md-10" v-if="product.barcode !== ''">
-              <div class="mt-2">商品條碼:{{ product.barcode }}</div>
+            <div class="col-12 col-md-10" v-if="barcode.length > 0">
+              <div class="mt-2">商品條碼：{{ barcode.join(', ') }}</div>
             </div>
           </div>
           <br /><br />
@@ -172,10 +172,13 @@ const selectedProductVariant = ref(false)
 const choiceNumber = ref(1)
 const selectedOptions = ref([null, null, null]) // ['red', 'xl']
 const queryObj = reactive({
-  storeId: route.params.storeId
+  storeId: route.params.storeId,
+  withImage: true,
+  withVariant: true,
 })
 const productImages = ref([{ loading: true }])
 const rowImageWrap = ref(null)
+const barcode = ref([])
 
 onMounted( async () => {
   window.scrollTo(0, 0)
@@ -197,8 +200,12 @@ function getProduct() {
     queryObj.storeId = response.data.storeId
     product.value = response.data
     getStore()
-    getProductVariant()
-    getProductImages()
+    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
+    proudctVariant.value = response.data.variant
+    proudctVariant.value.forEach(element => {
+      if (element.barcode !== '') barcode.value.push(element.barcode)
+    });
+    productImages.value = response.data.image
   })
 }
 
@@ -208,25 +215,6 @@ function getStore() {
     params: queryObj
   }).then((response) => {
     storeInfo.value = response.data
-  })
-}
-
-function getProductVariant() {
-  axios.get('/product/' + route.params.productId + '/variant', {
-    params: queryObj
-  }).then((response) => {
-    proudctVariant.value = response.data
-  })
-}
-
-function getProductImages() {
-  axios.get('/product/' + route.params.productId + '/images', {
-    params: {
-      storeId: route.params.storeId,
-      status: 'all'
-    }
-  }).then((response) => {
-    productImages.value = response.data
   })
 }
 
@@ -247,8 +235,14 @@ function clickOption(pKye, item) {
       id: found.id,
       price: found.price,
     }
+    if (found.barcode !== '') barcode.value = [found.barcode]
   } else {
     selectedProductVariant.value = false
+    barcode.value = []
+    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
+    proudctVariant.value.forEach(element => {
+      if (element.barcode !== '') barcode.value.push(element.barcode)
+    });
   }
   const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
   if (foundKey > -1) {

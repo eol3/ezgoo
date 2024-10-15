@@ -102,11 +102,26 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     })
   }
 
+  let checkFileNameLength = true
   for (const file of req.files) {
-
     file.originalname = Buffer.from(file.originalname, 'latin1').toString(
       'utf8',
     );
+    if (file.originalname.length > 128) {
+      checkFileNameLength = false
+      break;
+    }
+  }
+  if (!checkFileNameLength) {
+    for (const file of req.files) {
+      fs.unlinkSync('tmp/' + file.filename);
+    }
+    return next({statusCode: 400,
+      errors: { images: [ '圖片檔名不能超過128字元' ] }
+    })
+  }
+
+  for (const file of req.files) {
 
     let ext = '.' + file.originalname.split('.').pop()
 

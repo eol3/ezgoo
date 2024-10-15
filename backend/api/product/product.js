@@ -3,6 +3,7 @@ const wrapValidator = require(process.cwd() + '/tools/validator')
 const Product = require(process.cwd() + '/models/product/product')
 const productCategory = require(process.cwd() + '/models/product/productCategory')
 const ProductCategoriesOnProducts = require(process.cwd() + '/models/product/productCategoriesOnProducts')
+const productVariant = require(process.cwd() + '/models/product/productVariant')
 const { authStore }= require(process.cwd() + '/tools/libs')
 
 module.exports = router
@@ -46,12 +47,16 @@ router.get('/:productId', async function(req, res, next) {
 		id: req.params.productId,
     storeId: req.query.storeId,
     status: req.query.status,
+    withImage: req.query.withImage,
+    withVariant: req.query.withVariant,
 	}
 	
 	const validator = wrapValidator(useData, {
 	  id: 'required|numeric|min:1',
     storeId: 'numeric|min:1', // 允許非必要，前台商品網址希望短一點不包含商店
     status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
+    withImage: 'boolean',
+    withVariant: 'boolean',
   }, 'product')
   
   if (validator.fail) {
@@ -77,6 +82,27 @@ router.get('/:productId', async function(req, res, next) {
     result.thumbnail = process.env.BASE_URL + result.thumbnail
   }
   result.options = JSON.parse(result.options)
+
+  if (useData.withImage) {
+    const ProductImage = require(process.cwd() + '/models/product/productImage')
+    let image = await ProductImage.getList({
+      productId: useData.id
+    })
+    for(const key in image) {
+      image[key].baseUrl = process.env.BASE_URL
+      image[key].options = JSON.parse(image[key].options)
+      image[key].productOption = JSON.parse(image[key].productOption)
+    }
+    result.image = image
+  }
+
+  if (useData.withVariant) {
+    let variant = await productVariant.getList({
+      productId: useData.id
+    })
+    variant.forEach(e => e.productOption = JSON.parse(e.productOption))
+    result.variant = variant
+  }
 
   res.json(result)
 })
@@ -260,6 +286,5 @@ async function updateCategoryNumber(id) {
 async function deleteRealte(id) {
   await updateCategoryNumber(id)
   ProductCategoriesOnProducts.delete({ productId: id })
-  const productVariant = require(process.cwd() + '/models/product/productVariant')
   productVariant.delete({ productId: id })
 }

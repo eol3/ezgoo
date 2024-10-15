@@ -177,7 +177,9 @@ const selectedProductVariant = ref(false)
 const choiceNumber = ref(1)
 const selectedOptions = ref([null, null, null]) // ['red', 'xl']
 const queryObj = reactive({
-  status: '1'
+  status: '1',
+  withImage: true,
+  withVariant: true,
 })
 const productImages = ref([{ loading: true }])
 const rowImageWrap = ref(null)
@@ -203,6 +205,8 @@ function getProduct() {
     params: queryObj
   }).then((response) => {
     queryObj.storeId = response.data.storeId
+    getStore()
+    getUserStore()
     product.value = response.data
     setHead({
       title: product.value.name,
@@ -210,10 +214,11 @@ function getProduct() {
       url: document.URL
     })
     if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
-    getStore()
-    getUserStore()
-    getProductVariant()
-    getProductImages()
+    proudctVariant.value = response.data.variant
+    proudctVariant.value.forEach(element => {
+      if (element.barcode !== '') barcode.value.push(element.barcode)
+    });
+    productImages.value = response.data.image
   })
 }
 
@@ -237,25 +242,6 @@ function getUserStore() {
       })
     })
   }
-}
-
-function getProductVariant() {
-  axios.get('/product/' + route.params.productId + '/variant', {
-    params: queryObj
-  }).then((response) => {
-    proudctVariant.value = response.data
-    proudctVariant.value.forEach(element => {
-      if (element.barcode !== '') barcode.value.push(element.barcode)
-    });
-  })
-}
-
-function getProductImages() {
-  axios.get('/product/' + route.params.productId + '/images', {
-    params: queryObj
-  }).then((response) => {
-    productImages.value = response.data
-  })
 }
 
 function minus() {
