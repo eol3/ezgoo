@@ -40,7 +40,7 @@
     </div>
     <div class="section-line"></div>
     <div class="row mb-3 text-center">
-      <h4 class="fw-bold">近期案例</h4>
+      <h4 class="fw-bold">推薦商店</h4>
     </div>
     <div class="row justify-content-md-center mb-3">
       <div class="col col-lg-8 d-lg-flex justify-content-center">

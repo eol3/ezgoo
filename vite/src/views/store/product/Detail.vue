@@ -142,8 +142,8 @@
               <h5 class="mt-2 fw-bold">商品描述</h5>
               {{ product.describe }}
             </div>
-            <div class="col-12 col-md-10" v-if="product.barcode !== ''">
-              <div class="mt-2">商品條碼:{{ product.barcode }}</div>
+            <div class="col-12 col-md-10" v-if="barcode.length > 0">
+              <div class="mt-2">商品條碼：{{ barcode.join(', ') }}</div>
             </div>
           </div>
           <br /><br />
@@ -181,6 +181,7 @@ const queryObj = reactive({
 })
 const productImages = ref([{ loading: true }])
 const rowImageWrap = ref(null)
+const barcode = ref([])
 
 if (route.query.storeId) {
   queryObj.storeId = route.query.storeId
@@ -208,6 +209,7 @@ function getProduct() {
       image: product.value.thumbnail,
       url: document.URL
     })
+    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
     getStore()
     getUserStore()
     getProductVariant()
@@ -242,6 +244,9 @@ function getProductVariant() {
     params: queryObj
   }).then((response) => {
     proudctVariant.value = response.data
+    proudctVariant.value.forEach(element => {
+      if (element.barcode !== '') barcode.value.push(element.barcode)
+    });
   })
 }
 
@@ -270,8 +275,14 @@ function clickOption(pKye, item) {
       id: found.id,
       price: found.price,
     }
+    if (found.barcode !== '') barcode.value = [found.barcode]
   } else {
     selectedProductVariant.value = false
+    barcode.value = []
+    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
+    proudctVariant.value.forEach(element => {
+      if (element.barcode !== '') barcode.value.push(element.barcode)
+    });
   }
   const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
   if (foundKey > -1) {

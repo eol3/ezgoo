@@ -107,9 +107,6 @@ function getProductVariant() {
     params: queryObj
   }).then((response) => {
     proudctVariant.value = response.data
-    proudctVariant.value.forEach(e =>
-      e.productOption = e.productOption ? JSON.parse(e.productOption) : []
-    )
   })
 }
 

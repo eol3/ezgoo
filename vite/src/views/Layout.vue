@@ -34,7 +34,7 @@
 	</div>
   <div class="footer">
     <div class="text-center p-3 bg-2">
-      © 2021 ~ 2024 EzGoo
+      © 2024 EzGoo
 			<router-link class="text-decoration-none" to="/page/terms-of-service">
 				服務條款
 			</router-link>
