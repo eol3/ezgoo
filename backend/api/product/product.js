@@ -86,7 +86,9 @@ router.get('/:productId', async function(req, res, next) {
   if (useData.withImage) {
     const ProductImage = require(process.cwd() + '/models/product/productImage')
     let image = await ProductImage.getList({
-      productId: useData.id
+      productId: useData.id,
+      sortBy: 'priority',
+      orderBy: 'ASC',
     })
     for(const key in image) {
       image[key].baseUrl = process.env.BASE_URL
