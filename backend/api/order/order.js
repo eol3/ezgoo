@@ -505,8 +505,11 @@ function getOrderBody(order) {
             + "訂單狀態:已成立<br />訂單內容:<br />---<br />"
   for (let i in order.content) {
     let product = order.content[i]
+    let optionStr = product.selectedOptions.filter(Boolean).join(',')
+    optionStr = optionStr === '' ? '' : '(' + optionStr + ')'
     html += "<img src='" + product.thumbnail + "' width='30' />&nbsp;&nbsp;"
-        + product.name + "&nbsp;&nbsp;" + "x" + product.choiceNumber + "&nbsp;&nbsp;" + getPrice(product) + "<br />"
+        + product.name + optionStr + "&nbsp;&nbsp;"
+        + "x" + product.choiceNumber + "&nbsp;&nbsp;" + getPrice(product) + "<br />"
   }
   html += "---<br />"
   if (order.footerInfo.shippingFee) {
@@ -665,9 +668,10 @@ async function checkContent(content, res) {
   let productIds = []
   let variantIds = []
   for (const item of content) {
-    productIds.push(item.id)
     if (item.variant) {
       variantIds.push(item.variant.id)
+    } else {
+      productIds.push(item.id)
     }
   }
   let productList = await Product.getList({ ids: productIds })
@@ -675,15 +679,14 @@ async function checkContent(content, res) {
   if (variantIds.length !== 0) {
     productVariantList = await ProductVariant.getList({ ids: variantIds })
   }
-  
-  if (productIds.length !== productList.length) {
-    res.status(422).json()
-    return false
-  }
-  if (variantIds.length !== productVariantList.length) {
-    res.status(422).json()
-    return false
-  }
+  // if (productIds.length !== productList.length) {
+  //   res.status(422).json()
+  //   return false
+  // }
+  // if (variantIds.length !== productVariantList.length) {
+  //   res.status(422).json()
+  //   return false
+  // }
 
   let check = true
   // console.log(variantIds)
@@ -710,10 +713,6 @@ async function checkContent(content, res) {
       if (dbitem.id === item.variant.id) {
         if (dbitem.price !== item.variant.price) {
           item.variant.price = dbitem.price
-          check = false
-        }
-        if (dbitem.name !== item.name) {
-          item.name = dbitem.name
           check = false
         }
       }

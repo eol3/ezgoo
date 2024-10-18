@@ -8,6 +8,26 @@
         </div>
         <div class="modal-body" v-if="product">
           <div class="mt-2">
+            <div class="row-image-wrap d-flex align-items-center mb-1" ref="rowImageWrap">
+              <div class="product-no-image d-flex align-items-center justify-content-center bg-gray-200 mx-1 mb-2" v-if="productImages.length === 0">
+                <i>尚無圖片</i>
+              </div>
+              <div v-for="(item, key) in productImages" :key="key">
+                <div>
+                  <LoadingSpin
+                    v-if="item.loading === true"
+                    :width="160"
+                    :height="160"
+                    :borderRadius="'2%'"
+                  ></LoadingSpin>
+                  <div class="image-item d-flex align-items-center" v-else>
+                    <img :src="item.baseUrl + item.path + '/' + item.filename"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-2">
             <p v-if="product.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
             <h4 v-else class="fw-bold">{{ product.name }}</h4>
           </div>
@@ -42,7 +62,7 @@
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
-            <button class="btn btn-outline-primary btn-sm" @click="addCart()">加入購物車</button>
+            <button class="btn btn-outline-primary btn-sm" @click="addCart()" :disabled="loading">加入購物車</button>
           </div>
         </div>
       </div>
@@ -56,6 +76,7 @@ import { onMounted, ref, reactive, watch  } from 'vue'
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { setCart } from '@/tools/libs'
+import LoadingSpin from "@/components/LoadingSpin.vue";
 
 const store = useStore()
 
@@ -74,6 +95,8 @@ const selectedOptions = ref([null, null, null]) // ['red', 'xl']
 const proudctVariant = ref([])
 const selectedProductVariant = ref(false)
 const choiceNumber = ref(1)
+const productImages = ref([{ loading: true }])
+const rowImageWrap = ref(null)
 
 const queryObj = reactive({
   storeId: null,
@@ -94,7 +117,13 @@ watch(() => props.product , async (newValue) => {
   choiceNumber.value = 1
   queryObj.storeId = props.product.storeId
   storeInfo.value = await store.dispatch('getCache', 'currentStore')
-  getProductVariant()
+  loading.value = true
+  Promise.all([
+    getProductVariant(),
+    getProductImages()
+  ]).then(() => {
+    loading.value = false
+  })
 })
 
 watch(show , async (newValue) => {
@@ -107,6 +136,14 @@ function getProductVariant() {
     params: queryObj
   }).then((response) => {
     proudctVariant.value = response.data
+  })
+}
+
+function getProductImages() {
+  axios.get('/product/' + props.product.id + '/images', {
+    params: queryObj
+  }).then((response) => {
+    productImages.value = response.data
   })
 }
 
@@ -124,6 +161,12 @@ function clickOption(pKye, item) {
     }
   } else {
     selectedProductVariant.value = false
+  }
+  const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
+  if (foundKey > -1) {
+    rowImageWrap.value.scrollLeft = 330 * foundKey
+    let item = productImages.value[foundKey]
+    selectedProductVariant.value.thumbnail = item.baseUrl + item.path + '/' + item.filename
   }
 }
 
@@ -158,15 +201,6 @@ function addCart() {
     })
     return
   }
-
-  if (!selectedProductVariant.value) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '尚未選擇商品選項'
-    })
-    return
-  }
-
   props.product.selectedOptions = selectedOptions.value
   props.product.variant = selectedProductVariant.value
   props.product.choiceNumber = choiceNumber.value
@@ -181,6 +215,31 @@ function addCart() {
 </script>
 
 <style lang="scss" scoped>
+
+.product-no-image {
+  width: 160px;
+  height: 160px;
+  border-radius: 2%;
+	background-color: var(--d-gray-200);
+	color: $gray-600;
+}
+
+.row-image-wrap {
+	width: 100%;
+	overflow-x: auto;
+}
+
+.image-item {
+	width: 160px;
+  height: 160px;
+	overflow: hidden;
+  margin: 0px 5px;
+}
+
+.image-item img {
+	width: 100%;
+}
+
 .product-number-group {
   width: 140px
 }

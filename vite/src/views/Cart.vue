@@ -33,7 +33,8 @@
                 <div class="product-row d-flex flex-row align-items-center">
                   <div>
                     <router-link :to="'/product/' + product.id">
-                      <img :src="product.thumbnail ? product.thumbnail : 'https://placehold.co/200'" />
+                      <img v-if="product.variant && product.variant.thumbnail" :src="product.variant.thumbnail" />
+                      <img v-else :src="product.thumbnail ? product.thumbnail : 'https://placehold.co/200'" />
                     </router-link>
                   </div>
                   <div class="ms-2 d-flex flex-column">

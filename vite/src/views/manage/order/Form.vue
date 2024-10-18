@@ -322,11 +322,17 @@ async function toExcel() {
     { v: '數量', t: "s", s: borderBottomStyle },
     { v: '價格', t: "s", s: borderBottomStyle }
   ])
-  await getProductList()
+  // await getProductList()
   for (const product of order.value.content) {
+    let barcodeStr = product.barcode ? product.barcode : ''
+    if (product.variant && product.variant.barcode) {
+      barcodeStr = product.variant.barcode
+    }
+    let optionStr = product.selectedOptions.filter(Boolean).join(',')
+    optionStr = optionStr === '' ? '' : '(' + optionStr + ')'
     arr.push([
-      { v: product.barcode ? product.barcode : '', t: "s", s: borderBottomStyle },
-      { v: product.name, t: "s", s: borderBottomStyle },
+      { v: barcodeStr, t: "s", s: borderBottomStyle },
+      { v: product.name + optionStr, t: "s", s: borderBottomStyle },
       { v: product.choiceNumber, t: "s", s: borderBottomStyle },
       { v: getPrice(product), t: "s", s: borderBottomStyle }
     ])

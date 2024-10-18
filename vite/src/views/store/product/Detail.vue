@@ -261,7 +261,10 @@ function clickOption(pKye, item) {
       id: found.id,
       price: found.price,
     }
-    if (found.barcode !== '') barcode.value = [found.barcode]
+    if (found.barcode !== '') {
+      barcode.value = [found.barcode]
+      selectedProductVariant.value.barcode = found.barcode
+    }
   } else {
     selectedProductVariant.value = false
     barcode.value = []
@@ -273,6 +276,8 @@ function clickOption(pKye, item) {
   const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
   if (foundKey > -1) {
     rowImageWrap.value.scrollLeft = 330 * foundKey
+    let item = productImages.value[foundKey]
+    selectedProductVariant.value.thumbnail = item.baseUrl + item.path + '/' + item.filename
   }
 }
 
@@ -283,17 +288,22 @@ function isSame(array1, array2) {
 }
 
 function addCart() {
-  if (store.state.preview) {
+  if (storeInfo.value.status === 0) {
     store.dispatch('showAlert', {
       type: 'warning',
-      text: '預覽模式無法新增至購物車'
+      text: '商店未開放，無法下單'
     })
     return
-  }
-  if (storeInfo.value.status === 2) {
+  } else if (storeInfo.value.status === 2) {
     store.dispatch('showAlert', {
       type: 'warning',
       text: '商店僅展示無法下單'
+    })
+    return
+  } else if (storeInfo.value.status === 3) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '商店維護中，無法下單'
     })
     return
   }

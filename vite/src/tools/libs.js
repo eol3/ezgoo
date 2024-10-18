@@ -130,6 +130,7 @@ function addProdutToCart(cart, storeInfo, product) {
     name: product.name,
     price: product.price,
     choiceNumber: product.choiceNumber,
+    barcode: product.barcode,
     variant: product.variant,
     selectedOptions: product.selectedOptions,
     thumbnail: product.thumbnail
