@@ -118,6 +118,7 @@ watch(() => props.product , async (newValue) => {
   queryObj.storeId = props.product.storeId
   storeInfo.value = await store.dispatch('getCache', 'currentStore')
   loading.value = true
+  productImages.value = [{ loading: true }]
   Promise.all([
     getProductVariant(),
     getProductImages()
@@ -198,6 +199,13 @@ function addCart() {
     store.dispatch('showAlert', {
       type: 'warning',
       text: '商店維護中，無法下單'
+    })
+    return
+  }
+  if (isSame(selectedOptions.value, [null, null, null])) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚未選擇商品選項'
     })
     return
   }

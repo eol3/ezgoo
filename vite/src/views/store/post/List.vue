@@ -198,6 +198,7 @@ function selectedItem(item) {
   const query = Object.assign({}, route.query);
   if (item.id === 'root') {
     delete query.categoris
+    selectedItems.value = []
     setSelfHead('')
   } else {
     let ids = ''

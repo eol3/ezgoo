@@ -56,7 +56,7 @@
                 </router-link>
               </div>
               <div class="d-flex justify-content-between align-items-center">
-                <div>${{ item.price }}</div>
+                <div class="text-primary">${{ item.price }}</div>
                 <div class="cursor-pointer" @click="addCart(item)">
                   <i class="fas fa-shopping-cart"></i>
                 </div>
@@ -70,6 +70,7 @@
           v-model="currentPage"
           :per-page="perPage"
           :total-data="totalData"
+          :changePageYPosition="340"
         ></pagination>
       </div>
     </div>
@@ -217,6 +218,7 @@ function selectedItem(item) {
   const query = Object.assign({}, route.query);
   if (item.id === 'root') {
     delete query.categoris
+    selectedItems.value = []
     setSelfHead('')
   } else {
     let ids = ''

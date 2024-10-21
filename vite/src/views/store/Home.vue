@@ -69,7 +69,7 @@
               </router-link>
             </div>
             <div class="d-flex justify-content-between align-items-center">
-              <div>${{ item.price }}</div>
+              <div class="text-primary">${{ item.price }}</div>
               <div class="cursor-pointer" @click="addCart(item)">
                 <i class="fas fa-shopping-cart"></i>
               </div>

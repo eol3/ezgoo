@@ -211,6 +211,26 @@
             </div>
             <div class="row my-3 justify-content-center">
               <div class="col-12 col-md-6 text-center">
+                <i class="fa-regular fa-square-check"></i>
+                下單即代表，您已閱讀並同意
+                <template v-if="!store.state.localUser">
+                  易購網購物平台的
+                  <router-link class="text-decoration-none" to="/page/terms-of-service">
+                    服務條款
+                  </router-link>
+                  與
+                  <router-link class="text-decoration-none" to="/page/privacy-policy">
+                    隱私政策
+                  </router-link>
+                  與
+                </template>
+                <router-link class="text-decoration-none" :to="'/store/' + storeInfo.id + '/about'">
+                  商家的資訊
+                </router-link>
+              </div>
+            </div>
+            <div class="row my-3 justify-content-center">
+              <div class="col-12 col-md-6 text-center">
                 <button class="btn btn-outline-success" @click="save" :disabled="loading">
                   儲存送出
                 </button>

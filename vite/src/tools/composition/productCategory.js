@@ -31,7 +31,9 @@ export default () => {
   }
   
   function selectedItem(item) {
-    selectedCategories.value.push(item)
+    if (item.id !== 'root') {
+      selectedCategories.value.push(item)
+    }
     setIds()
   }
   
@@ -50,6 +52,7 @@ export default () => {
   function setIds() {
     let ids = ''
     for (const item of selectedCategories.value) {
+      if (item.id === 'root') continue
       ids += item.id + '-'
     }
     ids = ids.slice(0, -1)

@@ -39,6 +39,7 @@
 			  </div>
 				<div>
 					<p>
+						<i class="fa-regular fa-square-check"></i>
 						註冊即代表，您已閱讀並同意易購網購物平台的
 						<router-link class="text-decoration-none" to="/page/terms-of-service">
 							服務條款

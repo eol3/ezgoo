@@ -46,6 +46,10 @@ const props = defineProps({
 	showPageNum: {
 		type: Number,
 		default: 3
+	},
+	changePageYPosition: {
+		type: Number,
+		default: 0
 	}
 })
 
@@ -78,7 +82,7 @@ const pages = computed(() => {
 })
 
 async function changePage(i) {
-	window.scrollTo(0, 0)
+	window.scrollTo(0, props.changePageYPosition)
 	emit('change-page', i)
 	currentPage.value = i
 	router.push({ query: {
