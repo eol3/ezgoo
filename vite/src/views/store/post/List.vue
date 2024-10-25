@@ -96,7 +96,7 @@ const { loading,
 
 modelName.value = 'post'
 storeId.value = route.params.storeId
-perPage.value = 16
+perPage.value = 20
 
 initQueryObj({
 	//移除storeId,查詢自帶storeId

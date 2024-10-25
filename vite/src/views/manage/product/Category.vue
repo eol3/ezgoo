@@ -174,7 +174,8 @@ async function save() {
     id: '',
     name: formData.value.name,
     parentId: formData.value.parentId,
-    children: null
+    children: null,
+    priority: '',
   }
   if (formMode.value === 'new') {
     let response = await newItem()
@@ -182,6 +183,7 @@ async function save() {
       list.value.splice(0, 0, { id: 'root', name: 'root', parentId: null, children: null })
     }
     newCategory.id = response.data.id
+    newCategory.priority = response.data.id
     list.value.push(newCategory)
   } else if (formMode.value === 'edit') {
     await editItem()

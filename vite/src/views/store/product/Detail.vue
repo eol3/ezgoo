@@ -307,6 +307,13 @@ function addCart() {
     })
     return
   }
+  if (isSame(selectedOptions.value, [null, null, null])) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚未選擇商品選項'
+    })
+    return
+  }
   product.value.selectedOptions = selectedOptions.value
   product.value.variant = selectedProductVariant.value
   product.value.choiceNumber = choiceNumber.value
