@@ -290,6 +290,13 @@ onMounted(() => {
   loading.value = true
   window.scrollTo(0, 0)
   setContent()
+  if (content.value.length === 0) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚未選購商品，返回商店重新選購。'
+    })
+    router.push('/store/' + route.query.storeId)
+  }
 
   getStore(route.query.storeId).then(() => {
     if (storeInfo.value.status === 2) {
@@ -374,7 +381,7 @@ function save() {
   formData.value.content = content.value
 
   loading.value = true
-  axios.post('/order/checkout', formData.value).then(() => {
+  axios.post('/order/checkout', formData.value, { selfErrorHandle: true }).then(() => {
     deleteStoreInCart()
     store.commit('setCart', {
       number: 0
@@ -393,7 +400,7 @@ function save() {
       })
       router.push('/store/' + storeInfo.value.id)
     }
-  }).catch(error => {
+  }).catch(async (error) => {
     if (error.response && error.response.status === 400) {
       formValid.value = {
         fails: true,
@@ -413,10 +420,23 @@ function save() {
         } else if (error.response.data.footerInfo) {
           formData.value.footerInfo = error.response.data.footerInfo
         }
-        store.dispatch('showAlert', {
-          type: 'warning',
-          text: '訂單資料有異動，請確認後再下單'
-        })
+        if (content.value.length === 0) {
+          deleteStoreInCart()
+          store.commit('setCart', {
+            number: getCartItemNumber(cart.value)
+          })
+          await syncCart()
+          store.dispatch('showAlert', {
+            type: 'warning',
+            text: '所有選購商品已下架，返回商店重新選購。'
+          })
+          router.push('/store/' + route.query.storeId)
+        } else {
+          store.dispatch('showAlert', {
+            type: 'warning',
+            text: '訂單資料有異動，請確認後再下單。'
+          })
+        }
       }
     } else {
       console.log(error)

@@ -229,7 +229,7 @@ async function compareCagegory() {
 	addProductCategory(addIdsArr.join('-'))
 	delProductCategory(delIdsArr.join('-'))
 	
-	if (isChangeStatus.value) {
+	if (isChangeStatus.value && categoryIds.value !== '') {
 		await axios.put('/product/' + itemId.value + '/product-category/update-number', {
 			productCategoryIds: categoryIds.value
 		}, {

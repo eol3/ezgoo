@@ -674,51 +674,84 @@ async function checkContent(content, res) {
       productIds.push(item.id)
     }
   }
-  let productList = await Product.getList({ ids: productIds })
-  let productVariantList = []
+  let productList = []
+  if (productIds.length !== 0) {
+    productList = await Product.getList({ ids: productIds, status: 1 })
+  }
+  let variantList = []
   if (variantIds.length !== 0) {
-    productVariantList = await ProductVariant.getList({ ids: variantIds })
+    variantList = await ProductVariant.getList({ ids: variantIds, status: 1 })
   }
-  // if (productIds.length !== productList.length) {
-  //   res.status(422).json()
-  //   return false
-  // }
-  // if (variantIds.length !== productVariantList.length) {
-  //   res.status(422).json()
-  //   return false
-  // }
-
+  
   let check = true
-  // console.log(variantIds)
-  // console.log(productVariantList)
-  for (const dbitem of productList) {
-    for (const item of content) {
-      if (item.variant) continue
-      if (dbitem.id === item.id) {
-        if (dbitem.price !== item.price) {
-          item.price = dbitem.price
-          check = false
-        }
-        if (dbitem.name !== item.name) {
-          item.name = dbitem.name
-          check = false
-        }
+  let checkExist = true
+  let newContet = []
+  for (const i in content) {
+    const item = content[i]
+    if (item.variant) {
+      check = checkVariant(item, variantList)
+      checkExist = checkVariantExist(item, variantList)
+      if (checkExist) {
+        newContet.push(item)
+      }
+    } else {
+      check = checkProduct(item, productList)
+      checkExist = checkProductExist(item, productList)
+      if (checkExist) {
+        newContet.push(item)
       }
     }
   }
+  
+  if (!check || !checkExist) {
+    res.status(422).json({content: newContet})
+    return false
+  } else return true
+}
 
-  for (const dbitem of productVariantList) {
-    for (const item of content) {
-      if (!item.variant) continue
-      if (dbitem.id === item.variant.id) {
-        if (dbitem.price !== item.variant.price) {
-          item.variant.price = dbitem.price
-          check = false
-        }
-      }
+function checkProduct(contentItem, productList) {
+  let check = true
+  for (const item of productList) {
+    if (item.name !== contentItem.name) {
+      contentItem.name = item.name
+      check = false
+    }
+    if (item.price !== contentItem.price) {
+      contentItem.price = item.price
+      check = false
     }
   }
-  if (!check) res.status(422).json({content: content})
+  return check
+}
+
+function checkProductExist(contentItem, productList) {
+  let check = false
+  for (const item of productList) {
+    if (item.id === contentItem.id) {
+      check = true
+    }
+  }
+  return check
+}
+
+function checkVariant(contentItem, variantList) {
+  let check = true
+  for (const item of variantList) {
+    if (item.price !== contentItem.variant.price) {
+      contentItem.variant.price = item.price
+      check = false
+    }
+  }
+  return check
+}
+
+function checkVariantExist(contentItem, variantList) {
+  let check = false
+  for (const item of variantList) {
+    if (item.id === contentItem.variant.id) {
+      check = true
+    }
+  }
   return check
 }
 

@@ -21,23 +21,23 @@ model.getList = async function (condition) {
 	let query = knex(tableName)
 	
 	if (condition.id) {
-		query.where({ 'id': condition.id })
+		query.where({ 'productVariant.id': condition.id })
 	}
 
 	if (condition.ids) {
 		query.where(function() {
 			for (let item of condition.ids) {
-				this.orWhere({ 'id': item })
+				this.orWhere({ 'productVariant.id': item })
 			}
 		})
 	}
 
 	if (condition.storeId) {
-		query.where({ 'storeId': condition.storeId })
+		query.where({ 'productVariant.storeId': condition.storeId })
 	}
 
 	if (condition.productId) {
-		query.where({ 'productId': condition.productId })
+		query.where({ 'productVariant.productId': condition.productId })
 	}
 	
 	if (condition.status) {
