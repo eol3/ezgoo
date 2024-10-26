@@ -8,8 +8,6 @@ const session = require('express-session')
 const cookieParser = require('cookie-parser');
 const FileStore = require('session-file-store')(session)
 
-app.use(require('prerender-node').set('prerenderServiceUrl', process.env.PRERENDER_SERVICE_URL))
-
 const compression = require('compression')
 app.use(compression())
 
@@ -22,6 +20,7 @@ app.get('/*', (req, res, next) => {
   } else if (req.originalUrl.startsWith('/uploads')) {
     res.status(404).send()
   } else {
+    app.use(require('prerender-node').set('prerenderServiceUrl', process.env.PRERENDER_SERVICE_URL))
     res.sendFile(process.cwd() + '/public/dist/index.html');
   }
 })
