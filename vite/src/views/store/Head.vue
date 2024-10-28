@@ -42,7 +42,7 @@
             <div class="fs-5 fw-bold cut-text">
               {{ storeInfo.name }}
             </div>
-            <div class="text-secondary cut-text">
+            <div class="text-secondary cut-text cursor-pointer" @click="router.push(baseUrl + '/about')">
               {{ storeInfo.about }}
             </div>
           </div>

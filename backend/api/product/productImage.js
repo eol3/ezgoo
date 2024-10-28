@@ -137,23 +137,29 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     let oldPath = './tmp/' + file.filename
     let convertPath = './tmp/convert'
     // 壓縮圖片
+    let isCompress = false
     if (file.mimetype.indexOf('jpeg') > -1) {
       await sharp(oldPath).jpeg({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+      isCompress = true
     } else if (file.mimetype.indexOf('png') > -1) {
       await sharp(oldPath).png({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+      isCompress = true
     } else {
       fs.copyFileSync(oldPath, convertPath)
     }
-    fs.unlinkSync(oldPath); // 刪掉原始檔
 
     // 移動檔案
     dir = './public' + dir
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir, { recursive: true });
     }
-    let newPath = dir + '/' + useData.filename
-    fs.renameSync(convertPath, newPath)
-
+    fs.renameSync(convertPath, dir + '/' + useData.filename)
+    if (isCompress) {
+      fs.renameSync(oldPath, dir + '/original' + ext) // 有壓縮保留原始檔
+    } else {
+      fs.unlinkSync(oldPath); // 沒有壓縮刪掉原始檔
+    }
+    
   }
   
   res.status(200).json();

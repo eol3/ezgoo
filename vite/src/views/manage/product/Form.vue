@@ -191,7 +191,7 @@ async function needNewItem(callback, data) {
 	let response = await saveItem()
 	store.dispatch('showAlert', {
 		type: 'success',
-		text: '新增商品成功'
+		text: '已新增草稿'
 	})
 	formMode.value = 'edit'
 	itemId.value = String(response.data.id)
@@ -226,9 +226,8 @@ async function compareCagegory() {
 	for (let i in oldIdsArr) {
 		if (oldIdsArr[i] !== -1) delIdsArr.push(oldIdsArr[i])
 	}
-	addProductCategory(addIdsArr.join('-'))
-	delProductCategory(delIdsArr.join('-'))
-	
+	await addProductCategory(addIdsArr.join('-'))
+	await delProductCategory(delIdsArr.join('-'))
 	if (isChangeStatus.value && categoryIds.value !== '') {
 		await axios.put('/product/' + itemId.value + '/product-category/update-number', {
 			productCategoryIds: categoryIds.value
