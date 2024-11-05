@@ -188,8 +188,7 @@ const { loading, baseUrl, storeId, itemId,
 	formValid, formValidFeild, formValidClear,
 	getItem, saveItem } = CRUDTools()
 
-const {payment, shippingMethod, getStore, getPayment,
-  getShippingMethod } = storeTools()
+const {getStore, getPayment, getShippingMethod } = storeTools()
 
 modelName.value = 'order'
 storeId.value = route.params.storeId

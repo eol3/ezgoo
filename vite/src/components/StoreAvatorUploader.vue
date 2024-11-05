@@ -24,7 +24,7 @@
 			multiple="multiple"
 			accept="image/png, image/jpeg, image/gif, image/webp"
 			@focus="formValidClear()"
-			:disabled="parentLoading || uploading"
+			:disabled="loading"
 			@change="selectedFile"
 			ref="fileupload"
 		>

@@ -3,19 +3,65 @@ import { axios } from "@/tools/requestCache";
 
 export default () => {
 
-  const storeInfo = ref({})
-  const payment = ref([])
-  const shippingMethod = ref([])
-  const setting = ref({})
+  const storeInfo = ref({
+    payment: [],
+    shippingMethod: [],
+  })
+  const defaultPayment = ref([
+    {
+      id: 1,
+      name: '匯款',
+      enable: false,
+      tip: '',
+      fee: 0,
+    },
+    {
+      id: 2,
+      name: '取貨付款',
+      enable: false,
+      tip: '',
+      fee: 0,
+    }
+  ])
+  const defaultShippingMethod = ref([
+    {
+      id: 1,
+      name: '宅配',
+      enable: false,
+      tip: '',
+      fee: 0,
+    },
+    {
+      id: 2,
+      name: '到店取貨',
+      enable: false,
+      tip: '',
+      fee: 0,
+    },
+    {
+      id: 3,
+      name: '超商取貨',
+      enable: false,
+      tip: '',
+      fee: 0,
+    },
+    {
+        id: 4,
+        name: '面交',
+        enable: false,
+        tip: '',
+        fee: 0,
+      },
+  ])
 
   async function getStore(storeId) {
     let response = {}
     try {
       response = await axios.get("/store/" + storeId + "?status=1")
       storeInfo.value = response.data
-      payment.value = response.data.payment
-      shippingMethod.value = response.data.shippingMethod
-      setting.value = response.data.setting
+      // payment.value = response.data.payment
+      // shippingMethod.value = response.data.shippingMethod
+      // setting.value = response.data.setting
       return response
     } catch(error) {
       console.log(error)
@@ -24,20 +70,20 @@ export default () => {
   }
 
   function getFirstEnablePaymentId() {
-    let result = payment.value.find(e => e.enable)
+    let result = storeInfo.value.payment[0]
     if (result) return result.id
     else return false
   }
 
   function getFirstEnableShippingMethodId() {
     // for (let item of )
-    let result = shippingMethod.value.find(e => e.enable)
+    let result = storeInfo.value.shippingMethod.find[0]
     if (result) return result.id
     else return false
   }
 
   function getPayment(id, field) {
-    let result = payment.value.find(e => e.id === id)
+    let result = storeInfo.value.payment.find(e => e.id === id)
     if (result) {
       if (field) return result[field]
       return result
@@ -45,7 +91,7 @@ export default () => {
   }
 
   function getShippingMethod(id, field) {
-    let result = shippingMethod.value.find(e => e.id === id)
+    let result = storeInfo.value.shippingMethod.find(e => e.id === id)
     if (result) {
       if (field) return result[field]
       return result
@@ -54,9 +100,8 @@ export default () => {
 
   return {
     storeInfo,
-    payment,
-    shippingMethod,
-    setting,
+    defaultPayment,
+    defaultShippingMethod,
     getStore,
     getFirstEnablePaymentId,
     getPayment,

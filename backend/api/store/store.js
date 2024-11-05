@@ -238,6 +238,8 @@ router.put('/:storeId', auth, async function(req, res, next) {
     if (!checkShippingMethod) return next({statusCode: 422, msg: '尚會設定運送方式'})
   }
 
+  checkDefaultValue(useData)
+
   useData.payment = JSON.stringify(useData.payment)
   useData.shippingMethod = JSON.stringify(useData.shippingMethod)
   useData.setting = JSON.stringify(useData.setting)
@@ -249,7 +251,23 @@ router.put('/:storeId', auth, async function(req, res, next) {
 
 // 設定商家預設值
 function setDefaultValue(useData) {
-  useData.payment = [
+  useData.payment = []
+  useData.shippingMethod = []
+
+  useData.setting = {
+    untilAmountFreeShipping: null, // 訂單達到多少免運費
+    allowOrderWithoutLogIn: true // 允許未登入下單
+  }
+
+  useData.payment = JSON.stringify(useData.payment)
+  useData.shippingMethod = JSON.stringify(useData.shippingMethod)
+  useData.setting = JSON.stringify(useData.setting)
+
+}
+
+
+function checkDefaultValue(useData) {
+  let defaultPayment = [
     {
       id: 1,
       name: '匯款',
@@ -263,17 +281,20 @@ function setDefaultValue(useData) {
       enable: false,
       tip: '',
       fee: 0,
-    },
-    // {
-    //   id: 3,
-    //   name: '信用卡',
-    //   enable: false,
-    //   tip: '',
-    //   fee: 0,
-    // }
-    // 信用卡暫時不用
+    }
   ]
-  useData.shippingMethod = [
+  if (useData.payment) {
+    for (let dItem of defaultPayment) {
+      for (let item of useData.payment) {
+        if (dItem.id === item.id) {
+          delete dItem.enable
+          dItem.tip = item.tip
+          dItem.fee = item.fee
+        }
+      }
+    }
+  }
+  let defaultShippingMethod = [
     {
       id: 1,
       name: '宅配',
@@ -303,14 +324,19 @@ function setDefaultValue(useData) {
       fee: 0,
     },
   ]
-
-  useData.setting = {
-    untilAmountFreeShipping: null, // 訂單達到多少免運費
-    allowOrderWithoutLogIn: true // 允許未登入下單
+  if (useData.shippingMethod) {
+    for (let dItem of defaultShippingMethod) {
+      for (let item of useData.shippingMethod) {
+        if (dItem.id === item.id) {
+          delete dItem.enable
+          dItem.tip = item.tip
+          dItem.fee = item.fee
+        }
+      }
+    }
   }
-
-  useData.payment = JSON.stringify(useData.payment)
-  useData.shippingMethod = JSON.stringify(useData.shippingMethod)
-  useData.setting = JSON.stringify(useData.setting)
-
+  // let defaultSetting = {
+  //   untilAmountFreeShipping: null, // 訂單達到多少免運費
+  //   allowOrderWithoutLogIn: true // 允許未登入下單
+  // }
 }

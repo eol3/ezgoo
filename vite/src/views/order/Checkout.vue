@@ -115,8 +115,8 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold fs-sm">付款方式</label>
                   <select class="form-select mb-2" v-model="formData.payment" :disabled="loading">
-                    <template v-for="item in payment">
-                      <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
+                    <template v-for="item in storeInfo.payment">
+                      <option :value="item.id">{{ item.name }}</option>
                     </template>
                   </select>
                   <div class="my-1 p-2 bg-2 rounded-2" v-if="getPayment(formData.payment, 'tip') && getPayment(formData.payment, 'tip') !== ''">
@@ -153,8 +153,8 @@
                 <div class="mb-3">
                   <label class="form-label fw-bold fs-sm">運送方式</label>
                   <select class="form-select mb-2" v-model="formData.shippingMethod" :disabled="loading" @change="getFooterInfo()">
-                    <template v-for="item in shippingMethod">
-                      <option v-if="item.enable" :value="item.id">{{ item.name }}</option>
+                    <template v-for="item in storeInfo.shippingMethod">
+                      <option :value="item.id">{{ item.name }}</option>
                     </template>
                   </select>
                   <div class="my-1 p-2 bg-2 rounded-2" v-if="getShippingMethod(formData.shippingMethod, 'tip') && getShippingMethod(formData.shippingMethod, 'tip') !== ''">
@@ -256,9 +256,7 @@ import CRUDTools from "@/tools/composition/CRUD";
 import RegisterModal from '@/components/modals/RegisterModal.vue';
 
 const { loading, formValid, formValidFeild, formValidClear } = CRUDTools()
-const { payment, shippingMethod, setting, getStore, storeInfo,
-    getFirstEnablePaymentId, getPayment,
-    getFirstEnableShippingMethodId, getShippingMethod } = storeTools()
+const { getStore, storeInfo, getPayment, getShippingMethod } = storeTools()
 
 const store = useStore()
 const route = useRoute()
@@ -306,18 +304,18 @@ onMounted(() => {
       })
       router.push('/cart')
     }
-    if (!setting.value.allowOrderWithoutLogIn && !store.state.localUser) {
+    if (!storeInfo.value.setting.allowOrderWithoutLogIn && !store.state.localUser) {
       store.dispatch('showAlert', {
         type: 'warning',
         text: '請先登入'
       })
       router.push('/login?redirect=' + encodeURI(route.fullPath))
     }
-    formData.value.payment = getFirstEnablePaymentId()
-    formData.value.shippingMethod = getFirstEnableShippingMethodId()
+    formData.value.payment = storeInfo.value.payment[0].id
+    formData.value.shippingMethod = storeInfo.value.shippingMethod[0].id
     getFooterInfo()
   }).catch(error => {
-    
+    console.log(error)
   }).finally(() => {
     loading.value = false
   })
@@ -517,11 +515,11 @@ async function syncCart() {
 function getFooterInfo() {
   let info = { subTotal: getSubTotal(content.value) }
   formData.value.footerInfo = info
-  let shippingFee = getShippingFee(shippingMethod.value, formData.value.shippingMethod)
+  let shippingFee = getShippingFee(storeInfo.value.shippingMethod, formData.value.shippingMethod)
   if (shippingFee) {
     formData.value.footerInfo.shippingFee = shippingFee
   }
-  let freeShipping = getFreeShipping(setting.value, formData.value.footerInfo)
+  let freeShipping = getFreeShipping(storeInfo.value.setting, formData.value.footerInfo)
   if (freeShipping) {
     delete formData.value.footerInfo.shippingFee
     formData.value.footerInfo.freeShipping = true
@@ -550,7 +548,7 @@ function getSubTotal(list) {
 function getShippingFee(shippingMethod, id) {
   let total = 0
   for (const item of shippingMethod) {
-    if (item.enable && item.id === id) {
+    if (item.id === id) {
       total = item.fee
     }
   }

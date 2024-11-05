@@ -3,7 +3,7 @@
     <div class="col-lg-10">
       <div class="row">
         <div class="col-md-6">
-          <div class="form-group mb-3" v-for="item of shippingMethod">
+          <div class="form-group mb-3" v-for="item of defaultShippingMethod">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" :id="'swaitch_'+item.id" v-model="item.enable">
               <label class="form-check-label" :for="'swaitch_'+item.id">{{ item.name }}</label>
@@ -25,7 +25,7 @@
           <hr />
           <div class="form-group mt-2">
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" role="switch" id="swaitch_shipping" v-model="enableShipping">
+              <input class="form-check-input" type="checkbox" role="switch" id="swaitch_shipping" v-model="enableFreeShipping">
               <label class="form-check-label" for="swaitch_shipping">訂單滿額免運</label>
             </div>
             <div class="row g-3 align-items-center">
@@ -38,7 +38,7 @@
                   class="form-control"
                   @focus="error = false"
                   v-model="setting.untilAmountFreeShipping"
-                  :disabled="loading || !enableShipping"
+                  :disabled="loading || !enableFreeShipping"
                 >
               </div>
             </div>
@@ -69,7 +69,7 @@ const router = useRouter()
 const emit = defineEmits(['updateLayoutStatus'])
 
 const loading = ref(false)
-const shippingMethod = ref([
+const defaultShippingMethod = ref([
   {
     id: 1,
     name: '宅配',
@@ -105,7 +105,7 @@ const setting = ref({
   allowOrderWithoutLogIn: true // 允許未登入下單
 })
 
-const enableShipping = ref(false)
+const enableFreeShipping = ref(false)
 const error = ref(false)
 
 onActivated(() => {
@@ -115,14 +115,20 @@ onActivated(() => {
   })
   loading.value = true
   axios.get('/store/' + route.params.storeId).then((response) => {
-    if (response.data.shippingMethod) {
-      shippingMethod.value = response.data.shippingMethod
+    for (let dItem of defaultShippingMethod.value) {
+      for (let item of response.data.shippingMethod) {
+        if (dItem.id === item.id) {
+          dItem.enable = true
+          dItem.tip = item.tip
+          dItem.fee = item.fee
+        }
+      }
     }
     if (response.data.setting) {
       setting.value = response.data.setting
     }
     if (setting.value.untilAmountFreeShipping) {
-      enableShipping.value = true
+      enableFreeShipping.value = true
     }
   }).finally(() => { loading.value = false })
 })
@@ -130,7 +136,7 @@ onActivated(() => {
 function save() {
   if (loading.value) return
 
-  if (!enableShipping.value) {
+  if (!enableFreeShipping.value) {
     setting.value.untilAmountFreeShipping = null
   } else {
     if (!setting.value.untilAmountFreeShipping) {
@@ -143,10 +149,19 @@ function save() {
     }
   }
 
+  let shippingMethod = []
+  for (const item of defaultShippingMethod.value) {
+    if (item.enable) {
+      let newItem = Object.assign({}, item)
+      delete newItem.enable
+      shippingMethod.push(newItem)
+    }
+  }
+
   loading.value = true
 
   axios.put('/store/' + route.params.storeId, {
-    shippingMethod: shippingMethod.value,
+    shippingMethod: shippingMethod,
     setting: setting.value
   }).then(() => {
     store.dispatch('showAlert', {

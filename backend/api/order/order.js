@@ -568,7 +568,7 @@ function sendMailToCustomerOnArrived(userEmail, orderId) {
 function checkPayment(storePayment, value) {
   for (item of storePayment) {
     if (item.id === value) {
-      return item.enable
+      return true
     }
   }
   return false
@@ -577,7 +577,7 @@ function checkPayment(storePayment, value) {
 function checkShippingMethod(storeShippingMethod, value) {
   for (item of storeShippingMethod) {
     if (item.id === value) {
-      return item.enable
+      return true
     }
   }
   return false
@@ -601,7 +601,7 @@ function getSubTotal(list) {
 function getShippingFee(shippingMethod, id) {
   let total = 0
   for (const item of shippingMethod) {
-    if (item.enable && item.id === id) {
+    if (item.id === id) {
       total = item.fee
     }
   }
@@ -702,7 +702,7 @@ async function checkContent(content, res) {
       }
     }
   }
-  
+
   if (!check || !checkExist) {
     res.status(422).json({content: newContet})
     return false
@@ -712,13 +712,15 @@ async function checkContent(content, res) {
 function checkProduct(contentItem, productList) {
   let check = true
   for (const item of productList) {
-    if (item.name !== contentItem.name) {
-      contentItem.name = item.name
-      check = false
-    }
-    if (item.price !== contentItem.price) {
-      contentItem.price = item.price
-      check = false
+    if (item.id === contentItem.id) {
+      if (item.name !== contentItem.name) {
+        contentItem.name = item.name
+        check = false
+      }
+      if (item.price !== contentItem.price) {
+        contentItem.price = item.price
+        check = false
+      }
     }
   }
   return check
@@ -737,9 +739,11 @@ function checkProductExist(contentItem, productList) {
 function checkVariant(contentItem, variantList) {
   let check = true
   for (const item of variantList) {
-    if (item.price !== contentItem.variant.price) {
-      contentItem.variant.price = item.price
-      check = false
+    if (item.id === contentItem.id) {
+      if (item.price !== contentItem.variant.price) {
+        contentItem.variant.price = item.price
+        check = false
+      }
     }
   }
   return check

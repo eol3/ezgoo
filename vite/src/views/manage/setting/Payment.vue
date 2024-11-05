@@ -3,7 +3,7 @@
     <div class="col-lg-10">
       <div class="row">
         <div class="col-md-6">
-          <div class="form-group mb-3" v-for="item of payment">
+          <div class="form-group mb-3" v-for="item of defaultPayment">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" role="switch" :id="'swaitch_'+item.id" v-model="item.enable">
               <label class="form-check-label" :for="'swaitch_'+item.id">{{ item.name }}</label>
@@ -45,7 +45,7 @@ const router = useRouter()
 const emit = defineEmits(['updateLayoutStatus'])
 
 const loading = ref(false)
-const payment = ref([
+const defaultPayment = ref([
   {
     id: 1,
     name: '匯款',
@@ -69,27 +69,41 @@ onActivated(() => {
   })
   loading.value = true
   axios.get('/store/' + route.params.storeId).then((response) => {
-    if (response.data.payment) {
-      // processData(response.data.payment)
-      payment.value = response.data.payment
+    for (let dItem of defaultPayment.value) {
+      for (let item of response.data.payment) {
+        if (dItem.id === item.id) {
+          dItem.enable = true
+          dItem.tip = item.tip
+          dItem.fee = item.fee
+        }
+      }
     }
   }).finally(() => { loading.value = false })
 })
 
-function processData(data) {
-  for (let i in data) {
-    if (data[i].id === 3 && data[i].name === '信用卡') {
-      data.splice(i, 1) //信用卡暫時不用
-    }
-  }
-}
+// function processData(data) {
+//   for (let i in data) {
+//     if (data[i].id === 3 && data[i].name === '信用卡') {
+//       data.splice(i, 1) //信用卡暫時不用
+//     }
+//   }
+// }
 
 function save() {
   if (loading.value) return
 
+  let payment = []
+  for (const item of defaultPayment.value) {
+    if (item.enable) {
+      let newItem = Object.assign({}, item)
+      delete newItem.enable
+      payment.push(newItem)
+    }
+  }
+
   loading.value = true
   axios.put('/store/' + route.params.storeId, {
-    payment: payment.value
+    payment: payment
   }).then(() => {
     store.dispatch('showAlert', {
       type: 'success',

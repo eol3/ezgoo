@@ -207,8 +207,7 @@ import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 
 const { loading, formValid, formValidFeild, formValidClear } = CRUDTools()
-const { payment, shippingMethod, setting, getStore,
-    getPayment, getShippingMethod } = storeTools()
+const { storeInfo, getStore, getPayment, getShippingMethod } = storeTools()
 
 const store = useStore()
 const route = useRoute()
@@ -303,7 +302,7 @@ function getFooterInfo() {
   if (shippingFee) {
     order.value.footerInfo.shippingFee = shippingFee
   }
-  let freeShipping = getFreeShipping(setting.value, order.value.footerInfo)
+  let freeShipping = getFreeShipping(storeInfo.setting.value, order.value.footerInfo)
   if (freeShipping) {
     delete order.value.footerInfo.shippingFee
     order.value.footerInfo.freeShipping = true

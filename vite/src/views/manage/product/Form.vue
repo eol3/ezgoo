@@ -178,6 +178,7 @@ onActivated(() => {
 		productOptions.value = []
 		productOptionsModalRef.value.setParentOptions(productOptions.value)
 		categoryIds.value = ''
+		originalCategoryIds = ''
 	} else {
 		formMode.value = 'edit'
 		emit('updateLayoutStatus', {
@@ -195,6 +196,10 @@ async function needNewItem(callback, data) {
 	})
 	formMode.value = 'edit'
 	itemId.value = String(response.data.id)
+	loading.value = true
+	await compareCagegory()
+	originalCategoryIds = categoryIds.value
+	loading.value = false
 	setTimeout(() => {
 		callback(data)
 	}, 1);
