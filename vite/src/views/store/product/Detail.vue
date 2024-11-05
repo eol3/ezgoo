@@ -327,10 +327,7 @@ function addCart() {
 function getPaymentText() {
 	let text = ''
 	for (const item of storeInfo.value.payment) {
-		if (item.enable) {
-			text += item.name + ", "
-		}
-		
+		text += item.name + ", "
 	}
 	return text.slice(0, -2)
 }
@@ -338,10 +335,7 @@ function getPaymentText() {
 function getShippingText() {
 	let text = ''
 	for (const item of storeInfo.value.shippingMethod) {
-		if (item.enable) {
-			text += item.name + ", "
-		}
-		
+    text += item.name + ", "
 	}
 	return text.slice(0, -2)
 }
