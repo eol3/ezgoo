@@ -145,6 +145,10 @@
             <div class="col-12 col-md-10" v-if="barcode.length > 0">
               <div class="mt-2">商品條碼：{{ barcode.join(', ') }}</div>
             </div>
+            <PublishedDate
+              :fieldText="'上架日期'"
+              :publishedAt="product.publishedAt">
+            </PublishedDate>
           </div>
           <br /><br />
         </div>
@@ -159,6 +163,7 @@ import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
+import PublishedDate from "@/components/PublishedDate.vue";
 import { setCart, setHead } from '@/tools/libs'
 
 const store = useStore()
@@ -335,7 +340,11 @@ function getPaymentText() {
 function getShippingText() {
 	let text = ''
 	for (const item of storeInfo.value.shippingMethod) {
-    text += item.name + ", "
+    if (item.fee > 0) {
+      text += item.name + `(運費:$${item.fee})` + ", "
+    } else {
+      text += item.name + ", "
+    }
 	}
 	return text.slice(0, -2)
 }

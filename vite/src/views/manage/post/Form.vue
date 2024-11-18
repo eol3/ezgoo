@@ -162,7 +162,7 @@ async function compareCagegory() {
 	}
 	await addPostCategory(addIdsArr.join('-'))
 	await delPostCategory(delIdsArr.join('-'))
-	if (isChangeStatus.value) {
+	if (isChangeStatus.value && categoryIds.value !== '') {
 		await axios.put('/post/' + itemId.value + '/post-category/update-number', {
 			postCategoryIds: categoryIds.value
 		}, {

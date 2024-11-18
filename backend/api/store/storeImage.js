@@ -5,6 +5,7 @@ const StoreImage = require(process.cwd() + '/models/store/storeImage')
 const multer  = require('multer')
 const upload = multer({ dest: 'tmp' })
 const { authStore, authUserStoreRole }= require(process.cwd() + '/tools/libs')
+const sharp = require("sharp")
 
 module.exports = router
 
@@ -114,23 +115,29 @@ router.post('/', upload.any('files'), async function (req, res, next) {
 
     let oldPath = './tmp/' + file.filename
     let convertPath = './tmp/convert'
+    let isCompress = false
     // 壓縮圖片
     if (file.mimetype.indexOf('jpeg') > -1) {
       await sharp(oldPath).jpeg({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+      isCompress = true
     } else if (file.mimetype.indexOf('png') > -1) {
       await sharp(oldPath).png({ quality: 60 }).keepExif().keepMetadata().toFile(convertPath);
+      isCompress = true
     } else {
       fs.copyFileSync(oldPath, convertPath)
     }
-    fs.unlinkSync(oldPath); // 刪掉原始檔
 
     // 移動檔案
     dir = './public' + dir
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir, { recursive: true });
     }
-    let newPath = dir + '/' + useData.filename
-    fs.renameSync(convertPath, newPath)
+    fs.renameSync(convertPath, dir + '/' + useData.filename)
+    if (isCompress) {
+      fs.renameSync(oldPath, dir + '/' + file.originalname) // 有壓縮保留原始檔
+    } else {
+      fs.unlinkSync(oldPath); // 沒有壓縮刪掉原始檔
+    }
 
   }
   

@@ -19,6 +19,18 @@
 					<div class="text-break pt-2" v-html="replaceNewLine(storeInfo.about)"></div>
 				</div>
 			</div>
+			<div class="row pb-2 align-items-start">
+				<div class="col-auto">
+					<label for="inputPassword6" class="col-form-label">相關連結</label>
+				</div>
+				<div class="col-auto">
+					<div v-for="(item, key) in storeInfo.otherUrl" class="mt-2">
+						<a :href="item.url" target="_blank" class="text-decoration-none">
+							<i class="fa-solid fa-link me-2"></i>{{ item.name }}
+						</a>
+					</div>
+				</div>
+			</div>
 			<div class="row pb-2 align-items-center">
 				<div class="col-auto">
 					<label for="inputPassword6" class="col-form-label">付款方式</label>
@@ -84,7 +96,11 @@ function getPaymentText() {
 function getShippingText() {
 	let text = ''
 	for (const item of storeInfo.value.shippingMethod) {
-		text += item.name + ", "
+		if (item.fee > 0) {
+      text += item.name + `(運費:$${item.fee})` + ", "
+    } else {
+      text += item.name + ", "
+    }
 	}
 	return text.slice(0, -2)
 }

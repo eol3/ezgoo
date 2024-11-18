@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-1">
+  <div class="flex-grow-1 bg-1">
     <div class="container">
       <div class="row justify-content-md-center py-3">
         <div class="col-12 col-lg-8 p-4 bg-0">
@@ -31,6 +31,10 @@
                   </div>
                 </div>
               </div>
+              <PublishedDate
+                :fieldText="'發佈日期'"
+                :publishedAt="post.publishedAt"
+              ></PublishedDate>
               <div class="row-image-wrap d-flex align-items-center my-2" ref="rowImageWrap">
                 <div v-for="(item, key) in postImages" :key="key">
                   <div>
@@ -63,6 +67,7 @@ import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
+import PublishedDate from "@/components/PublishedDate.vue";
 import { setHead } from '@/tools/libs'
 
 const store = useStore()

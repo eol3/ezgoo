@@ -22,6 +22,17 @@
             <label class="form-label">關於商店</label>
             <textarea class="form-control" rows="5" v-model="formData.about" :disabled="loading"></textarea>
           </div>
+          <div class="form-group mt-2">
+            <label class="form-label">相關連結</label><br />
+            <button class="btn btn-outline-secondary btn-sm mb-2" data-bs-toggle="modal" data-bs-target="#storeOtherUrlModal">
+              設定相關連結
+            </button>
+            <div v-for="(item, key) in formData.otherUrl" class="mt-2">
+              <a :href="item.url" target="_blank" class="text-decoration-none">
+                <i class="fa-solid fa-link me-2"></i>{{ item.name }}
+              </a>
+            </div>
+          </div>
           <hr />
           <div class="form-group mt-2">
             <label class="form-label">狀態</label>
@@ -51,6 +62,7 @@
       </div>
     </div>
   </div>
+  <StoreOtherUrlModal v-model="formData.otherUrl"></StoreOtherUrlModal>
 </template>
 
 <script setup>
@@ -59,6 +71,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import ImageUploader from "@/components/StoreImageUploader.vue";
 import AvatorUploader from "@/components/StoreAvatorUploader.vue";
+import StoreOtherUrlModal from "@/components/modals/StoreOtherUrlModal.vue";
 import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -80,6 +93,7 @@ defineFormData({
   name: '',
 	about: '',
   status: 0,
+  otherUrl: null,
   setting: {
     untilAmountFreeShipping: null, // 訂單達到多少免運費
     allowOrderWithoutLogIn: true // 允許未登入下單

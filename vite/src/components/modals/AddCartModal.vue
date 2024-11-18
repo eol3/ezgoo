@@ -1,5 +1,5 @@
 <template>
-	<div class="modal fade" id="addCartModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal fade" id="addCartModal" data-bs-backdrop="static" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -165,7 +165,7 @@ function clickOption(pKye, item) {
   }
   const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
   if (foundKey > -1) {
-    rowImageWrap.value.scrollLeft = 330 * foundKey
+    rowImageWrap.value.scrollLeft = 160 * foundKey
     let item = productImages.value[foundKey]
     selectedProductVariant.value.thumbnail = item.baseUrl + item.path + '/' + item.filename
   }

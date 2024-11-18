@@ -195,6 +195,10 @@ router.post('/', async function(req, res, next) {
 
   useData.options = []
 
+  if (useData.status === 1) {
+    useData.publishedAt = new Date().toISOString().replace('Z','').replace('T', ' ')
+  }
+
   result = await Product.create(useData)
   // console.log(result)
   // updateCategoryNumber(useData.id)
@@ -238,6 +242,11 @@ router.put('/:productId', async function(req, res, next) {
     storeId: useData.storeId,
     role: ['owner', 'editor']
   })) return
+
+  let result = await Product.getOne({ id: useData.id })
+  if (result.status === 0 && useData.status === 1) {
+    useData.publishedAt = new Date().toISOString().replace('Z','').replace('T', ' ')
+  }
   
   result = await Product.update({ id: useData.id }, useData)
   

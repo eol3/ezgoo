@@ -147,6 +147,10 @@ router.post('/', async function(req, res, next) {
     role: ['owner', 'editor']
   })) return
 
+  if (useData.status === 1) {
+    useData.publishedAt = new Date().toISOString().replace('Z','').replace('T', ' ')
+  }
+
   result = await Post.create(useData)
   // console.log(result)
   res.status(200).json({ id: result[0] });
@@ -179,6 +183,11 @@ router.put('/:postId', async function(req, res, next) {
     storeId: useData.storeId,
     role: ['owner', 'editor']
   })) return
+
+  let result = await Post.getOne({ id: useData.id })
+  if (result.status === 0 && useData.status === 1) {
+    useData.publishedAt = new Date().toISOString().replace('Z','').replace('T', ' ')
+  }
   
   result = await Post.update({ id: useData.id }, useData)
   

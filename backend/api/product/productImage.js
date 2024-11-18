@@ -155,7 +155,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     }
     fs.renameSync(convertPath, dir + '/' + useData.filename)
     if (isCompress) {
-      fs.renameSync(oldPath, dir + '/original' + ext) // 有壓縮保留原始檔
+      fs.renameSync(oldPath, dir + '/' + file.originalname) // 有壓縮保留原始檔
     } else {
       fs.unlinkSync(oldPath); // 沒有壓縮刪掉原始檔
     }

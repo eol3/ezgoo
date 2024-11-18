@@ -1,6 +1,6 @@
 const router = require("express-promise-router")({ mergeParams: true })
 const wrapValidator = require(process.cwd() + '/tools/validator')
-const postImage = require(process.cwd() + '/models/post/postImage')
+const PostImage = require(process.cwd() + '/models/post/postImage')
 const Post = require(process.cwd() + '/models/post/post')
 const multer  = require('multer')
 const upload = multer({ dest: 'tmp' })
@@ -33,7 +33,7 @@ router.get('/', async function(req, res, next) {
   })) return
 
   if (useData.status === '1') {
-    // 公開圖片需跟隨產品狀態是否上架，這樣可不必維護postImage.status的資料
+    // 公開圖片需跟隨產品狀態是否上架，這樣可不必維護PostImage.status的資料
     let post = await Post.getOne({ id: useData.postId })
     if (post.status !== 1) return next({statusCode: 403 })
   }
@@ -42,7 +42,7 @@ router.get('/', async function(req, res, next) {
   useData.sortBy = 'priority'
   useData.orderBy = 'ASC'
 	
-	let result = await postImage.getList(useData)
+	let result = await PostImage.getList(useData)
 
   for(const key in result) {
     result[key].baseUrl = process.env.BASE_URL
@@ -107,11 +107,11 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     useData.originalname = file.originalname
     useData.filename = 'default' + ext
     useData.size = file.size
-    let result = await postImage.create(useData)
+    let result = await PostImage.create(useData)
     
     let dir = '/uploads/post-images/' + result[0];
 
-    await postImage.update({ id: result[0] }, { path: dir, priority: result[0] })
+    await PostImage.update({ id: result[0] }, { path: dir, priority: result[0] })
 
     let oldPath = './tmp/' + file.filename
     let convertPath = './tmp/convert'
@@ -134,7 +134,7 @@ router.post('/', upload.any('files'), async function (req, res, next) {
     }
     fs.renameSync(convertPath, dir + '/' + useData.filename)
     if (isCompress) {
-      fs.renameSync(oldPath, dir + '/original' + ext) // 有壓縮保留原始檔
+      fs.renameSync(oldPath, dir + '/' + file.originalname) // 有壓縮保留原始檔
     } else {
       fs.unlinkSync(oldPath); // 沒有壓縮刪掉原始檔
     }
@@ -170,7 +170,7 @@ router.put('/:postImageId', async function(req, res, next) {
     role: ['owner', 'editor']
   })) return
   
-  result = await postImage.update({ id: useData.id }, useData)
+  result = await PostImage.update({ id: useData.id }, useData)
   
   res.status(200).json();
 })
@@ -197,7 +197,7 @@ router.delete('/:postImageId', async function(req, res, next) {
     role: ['owner', 'editor']
   })) return
   
-  await postImage.delete({ id: useData.id })
+  await PostImage.delete({ id: useData.id })
   
   // 刪除圖片
   const fs = require('fs');

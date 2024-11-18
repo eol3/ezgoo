@@ -110,6 +110,7 @@ router.get('/:storeId', async function(req, res, next) {
   // if (req.store.thumbnail) {
   //   req.store.thumbnail = process.env.BASE_URL + req.store.thumbnail
   // }
+  req.store.otherUrl = JSON.parse(req.store.otherUrl)
   req.store.payment = JSON.parse(req.store.payment)
   req.store.shippingMethod = JSON.parse(req.store.shippingMethod)
   req.store.setting = JSON.parse(req.store.setting)
@@ -186,6 +187,7 @@ router.put('/:storeId', auth, async function(req, res, next) {
     name: req.body.name,
     about: req.body.about,
     thumbnail: req.body.thumbnail,
+    otherUrl: req.body.otherUrl,
     payment: req.body.payment,
     shippingMethod: req.body.shippingMethod,
     setting: req.body.setting,
@@ -219,27 +221,14 @@ router.put('/:storeId', auth, async function(req, res, next) {
     result.payment = JSON.parse(result.payment)
     result.shippingMethod = JSON.parse(result.shippingMethod)
 
-    let checkPayment = false
-    for (let i in result.payment) {
-      if (result.payment[i].enable) {
-        checkPayment = true
-        break;
-      }
-    }
-    if (!checkPayment) return next({statusCode: 422, msg: '尚會設定付款方式'})
-
-    let checkShippingMethod = false
-    for (let i in result.shippingMethod) {
-      if (result.shippingMethod[i].enable) {
-        checkShippingMethod = true
-        break;
-      }
-    }
-    if (!checkShippingMethod) return next({statusCode: 422, msg: '尚會設定運送方式'})
+    if (result.payment.length === 0) return next({statusCode: 422, msg: '尚會設定付款方式'})
+    if (result.shippingMethod.length === 0) return next({statusCode: 422, msg: '尚會設定運送方式'})
+      
   }
 
   checkDefaultValue(useData)
 
+  useData.otherUrl = JSON.stringify(useData.otherUrl)
   useData.payment = JSON.stringify(useData.payment)
   useData.shippingMethod = JSON.stringify(useData.shippingMethod)
   useData.setting = JSON.stringify(useData.setting)
