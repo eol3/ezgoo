@@ -240,6 +240,7 @@ router.put('/:storeId', auth, async function(req, res, next) {
 
 // 設定商家預設值
 function setDefaultValue(useData) {
+  useData.otherUrl = []
   useData.payment = []
   useData.shippingMethod = []
 
@@ -248,6 +249,7 @@ function setDefaultValue(useData) {
     allowOrderWithoutLogIn: true // 允許未登入下單
   }
 
+  useData.otherUrl = JSON.stringify(useData.otherUrl)
   useData.payment = JSON.stringify(useData.payment)
   useData.shippingMethod = JSON.stringify(useData.shippingMethod)
   useData.setting = JSON.stringify(useData.setting)
