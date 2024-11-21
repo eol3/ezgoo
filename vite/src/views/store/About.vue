@@ -19,7 +19,7 @@
 					<div class="text-break pt-2" v-html="replaceNewLine(storeInfo.about)"></div>
 				</div>
 			</div>
-			<div class="row pb-2 align-items-start">
+			<div class="row pb-2 align-items-start" v-if="storeInfo.otherUrl.length > 0">
 				<div class="col-auto">
 					<label for="inputPassword6" class="col-form-label">相關連結</label>
 				</div>

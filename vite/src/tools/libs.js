@@ -72,6 +72,48 @@ export async function mergeCart() {
 	})
 }
 
+export function checkStoreStateBeforeAddCart(storeInfo, store) {
+  if (storeInfo.status === 0) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '商店未開放，無法下單'
+    })
+    return false
+  } else if (storeInfo.status === 2) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '商店僅展示無法下單'
+    })
+    return false
+  } else if (storeInfo.status === 3) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '商店維護中，無法下單'
+    })
+    return false
+  }
+  return true
+}
+
+export function addCart(storeInfo, product, selectedOptions, selectedProductVariant, choiceNumber, store) {
+  if (product.variantCount > 0 && isSame(selectedOptions, [null, null, null])) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚未選擇商品選項'
+    })
+    return false
+  }
+  product.selectedOptions = selectedOptions
+  product.variant = selectedProductVariant
+  product.choiceNumber = choiceNumber
+  setCart(storeInfo, product);
+  store.dispatch('showAlert', {
+    type: 'success',
+    text: '成功加入購物車'
+  })
+  return true
+}
+
 // product 必須包含choiceNumber, selectedOptions, variant, proudctVariantPrice
 export function setCart(storeInfo, product) {
   

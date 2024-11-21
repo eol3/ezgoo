@@ -1,10 +1,10 @@
 <template>
-	<div class="modal fade" id="addCartModal" data-bs-backdrop="static" tabindex="-1" role="dialog">
+	<div class="modal fade" id="addCartModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">加入購物車</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="show = false"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body" v-if="product">
           <div class="mt-2">
@@ -62,7 +62,7 @@
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
-            <button class="btn btn-outline-primary btn-sm" @click="addCart()" :disabled="loading">加入購物車</button>
+            <button class="btn btn-outline-primary btn-sm" @click="doAddCart()" :disabled="loading">加入購物車</button>
           </div>
         </div>
       </div>
@@ -75,7 +75,7 @@ import { Modal } from 'bootstrap'
 import { onMounted, ref, reactive, watch  } from 'vue'
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
-import { setCart } from '@/tools/libs'
+import { addCart } from '@/tools/libs'
 import LoadingSpin from "@/components/LoadingSpin.vue";
 
 const store = useStore()
@@ -102,9 +102,6 @@ const queryObj = reactive({
   storeId: null,
   status: '1'
 })
-if (store.state.preview) {
-  delete queryObj.status
-}
 
 let modal = reactive({})
 onMounted(async () => {
@@ -182,43 +179,12 @@ function minus() {
   if (choiceNumber.value < 1) choiceNumber.value = 1
 }
 
-function addCart() {
-  if (storeInfo.value.status === 0) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '商店未開放，無法下單'
-    })
-    return
-  } else if (storeInfo.value.status === 2) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '商店僅展示無法下單'
-    })
-    return
-  } else if (storeInfo.value.status === 3) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '商店維護中，無法下單'
-    })
-    return
+function doAddCart() {
+  if (addCart(storeInfo.value, props.product,
+      selectedOptions.value, selectedProductVariant.value,
+      choiceNumber.value, store)) {
+    show.value = false
   }
-  if (isSame(selectedOptions.value, [null, null, null])) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '尚未選擇商品選項'
-    })
-    return
-  }
-  props.product.selectedOptions = selectedOptions.value
-  props.product.variant = selectedProductVariant.value
-  props.product.choiceNumber = choiceNumber.value
-  setCart(storeInfo.value, props.product);
-  store.dispatch('showAlert', {
-    type: 'success',
-    text: '成功加入購物車'
-  })
-  show.value = false
-  modal.hide()
 }
 </script>
 

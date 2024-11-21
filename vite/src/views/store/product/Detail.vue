@@ -64,7 +64,7 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
-                <button class="btn btn-outline-primary btn-sm" @click="addCart()">加入購物車</button>
+                <button class="btn btn-outline-primary btn-sm" @click="doAddCart()">加入購物車</button>
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
-import { setCart, setHead } from '@/tools/libs'
+import { checkStoreStateBeforeAddCart, addCart, setHead } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -292,41 +292,11 @@ function isSame(array1, array2) {
   });
 }
 
-function addCart() {
-  if (storeInfo.value.status === 0) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '商店未開放，無法下單'
-    })
-    return
-  } else if (storeInfo.value.status === 2) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '商店僅展示無法下單'
-    })
-    return
-  } else if (storeInfo.value.status === 3) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '商店維護中，無法下單'
-    })
-    return
-  }
-  if (isSame(selectedOptions.value, [null, null, null])) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '尚未選擇商品選項'
-    })
-    return
-  }
-  product.value.selectedOptions = selectedOptions.value
-  product.value.variant = selectedProductVariant.value
-  product.value.choiceNumber = choiceNumber.value
-  setCart(storeInfo.value, product.value);
-  store.dispatch('showAlert', {
-    type: 'success',
-    text: '成功加入購物車'
-  })
+function doAddCart() {
+  if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return
+  addCart(storeInfo.value, product.value,
+    selectedOptions.value, selectedProductVariant.value,
+    choiceNumber.value, store)
 }
 
 function getPaymentText() {

@@ -70,7 +70,7 @@
             </div>
             <div class="d-flex justify-content-between align-items-center">
               <div class="text-primary">${{ item.price }}</div>
-              <div class="cursor-pointer" @click="addCart(item)">
+              <div class="cursor-pointer" @click="doAddCart(item)">
                 <i class="fas fa-shopping-cart"></i>
               </div>
             </div>
@@ -92,7 +92,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
 import AddCartModal from "@/components/modals/AddCartModal.vue"
-import { setCart } from '@/tools/libs'
+import { checkStoreStateBeforeAddCart, addCart } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -150,39 +150,17 @@ function getProducts() {
   }).finally(() => { productLoading.value = false })
 }
 
-async function addCart(item) {
-  if (item.variantCount > 0) {
+async function doAddCart(product) {
+  storeInfo.value = await store.dispatch('getCache', 'currentStore')
+  if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return
+
+  if (product.variantCount > 0) {
     addCartModalShow.value = true
-    selectedProduct.value = item
+    selectedProduct.value = product
   } else {
-    storeInfo.value = await store.dispatch('getCache', 'currentStore')
-    if (storeInfo.value.status === 0) {
-      store.dispatch('showAlert', {
-        type: 'warning',
-        text: '商店未開放，無法下單'
-      })
-      return
-    } else if (storeInfo.value.status === 2) {
-      store.dispatch('showAlert', {
-        type: 'warning',
-        text: '商店僅展示無法下單'
-      })
-      return
-    } else if (storeInfo.value.status === 3) {
-      store.dispatch('showAlert', {
-        type: 'warning',
-        text: '商店維護中，無法下單'
-      })
-      return
-    }
-    item.selectedOptions = [null, null, null]
-    item.variant = false
-    item.choiceNumber = 1
-    setCart(storeInfo.value, item);
-    store.dispatch('showAlert', {
-      type: 'success',
-      text: '成功加入購物車'
-    })
+    addCart(storeInfo.value, product,
+      [null, null, null], false, 1, store)
+    
   }
 }
 
