@@ -80,8 +80,7 @@
     </div>
   </div>
   <AddCartModal
-    v-model:show="addCartModalShow"
-    :product="selectedProduct"
+    ref="addCartModal"
   ></AddCartModal>
   <br /><br /><br /><br />
 </template>
@@ -110,10 +109,10 @@ const postList = ref([])
 const productLoading = ref(false)
 const productList = ref([])
 const baseUrl = '/store/' + route.params.storeId
-const selectedProduct = ref(null)
 
 const storeInfo = ref(null)
-const addCartModalShow = ref(false)
+
+const addCartModal = ref(null)
 
 let queryStatus = '1'
 
@@ -155,8 +154,7 @@ async function doAddCart(product) {
   if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return
 
   if (product.variantCount > 0) {
-    addCartModalShow.value = true
-    selectedProduct.value = product
+    addCartModal.value.openModal(product)
   } else {
     addCart(storeInfo.value, product,
       [null, null, null], false, 1, store)

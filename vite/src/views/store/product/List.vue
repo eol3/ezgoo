@@ -82,8 +82,7 @@
 		@selected-item="selectedItem"
   ></MobileFilterModal>
   <AddCartModal
-    v-model:show="addCartModalShow"
-    :product="selectedProduct"
+    ref="addCartModal"
   ></AddCartModal>
 </template>
 
@@ -131,10 +130,10 @@ initQueryObj({
 const productCategory = ref([])
 const treeList = ref([])
 const selectedItems = ref([])
-const selectedProduct = ref(null)
 
 const storeInfo = ref(null)
-const addCartModalShow = ref(false)
+
+const addCartModal = ref(null)
 
 onMounted(() => {
   setQueryObj(route)
@@ -270,8 +269,7 @@ async function doAddCart(product) {
   if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return
 
   if (product.variantCount > 0) {
-    addCartModalShow.value = true
-    selectedProduct.value = product
+    addCartModal.value.openModal(product)
   } else {
     addCart(storeInfo.value, product,
       [null, null, null], false, 1, store)

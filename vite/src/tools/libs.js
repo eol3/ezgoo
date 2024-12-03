@@ -47,6 +47,34 @@ export function setHead(data) {
   
 }
 
+export function compareArraysWithRules(array1, array2, rules) {
+  for (let i = 0; i < rules.length; i++) {
+    const rule = rules[i];
+    const value1 = array1[i];
+    const value2 = array2[i];
+
+    if (rule === "exact") {
+        // 檢查是否完全相等
+        if (value1 !== value2) {
+            return false;
+        }
+    } else if (rule === "exists") {
+        // 檢查 array2[i] 是否存在於 array1
+        if (!array1.includes(value2)) {
+            return false;
+        }
+    } else if (rule === "ignore") {
+        // 忽略該元素的檢查
+        continue;
+    } else {
+        // 未知的規則，返回錯誤
+        throw new Error(`Unknown rule: ${rule}`);
+    }
+  }
+
+  return true;
+}
+
 export async function mergeCart() {
   let response = await axios.get('/user/cart')
   let cart = response.data.content

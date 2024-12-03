@@ -36,7 +36,6 @@
                 <span class="fs-5 text-primary">
                   ${{ selectedProductVariant ? selectedProductVariant.price : product.price }}
                 </span>
-                <!-- <span class="ms-2 fw-light fst-italic text-decoration-line-through">$10</span> -->
               </div>
               <div class="my-2">
                 <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
@@ -45,6 +44,7 @@
                     <button
                       class="ms-1 btn btn-outline-secondary btn-sm"
                       :class="{ active: selectedOptions.indexOf(item) > -1 }"
+                      :disabled="!findOptionInVariant(pKey, item)"
                       v-for="(item, key) in pItem.values"
                       :key="key"
                       @click="clickOption(pKey, item)"
@@ -145,10 +145,12 @@
             <div class="col-12 col-md-10" v-if="barcode.length > 0">
               <div class="mt-2">商品條碼：{{ barcode.join(', ') }}</div>
             </div>
-            <PublishedDate
-              :fieldText="'上架日期'"
-              :publishedAt="product.publishedAt">
-            </PublishedDate>
+            <div class="col-12 col-md-10">
+              <PublishedDate
+                :fieldText="'上架日期'"
+                :publishedAt="product.publishedAt">
+              </PublishedDate>
+            </div>
           </div>
           <br /><br />
         </div>
@@ -164,7 +166,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
-import { checkStoreStateBeforeAddCart, addCart, setHead } from '@/tools/libs'
+import { compareArraysWithRules, checkStoreStateBeforeAddCart, addCart, setHead } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -293,10 +295,39 @@ function isSame(array1, array2) {
 }
 
 function doAddCart() {
+  if (proudctVariant.value.length > 0 && !selectedProductVariant.value) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '尚無此選項商品。'
+    })
+    return
+  }
   if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return
   addCart(storeInfo.value, product.value,
     selectedOptions.value, selectedProductVariant.value,
     choiceNumber.value, store)
+}
+
+function findOptionInVariant(pKey, findItem) {
+  let check = false
+  let compareArray = [null, null, null]
+  compareArray[pKey] = findItem
+  let rules = ["ignore", "ignore", "ignore"]
+  rules[pKey] = 'exact'
+  for (let i in selectedOptions.value) {
+    if (selectedOptions.value[i] && !compareArray[i]) {
+      compareArray[i] = selectedOptions.value[i]
+      rules[i] = 'exact'
+    }
+  }
+
+  for (const item of proudctVariant.value) {
+    if (compareArraysWithRules(item.productOption, compareArray, rules)) {
+      check = true
+      break;
+    }
+  }
+  return check
 }
 
 function getPaymentText() {

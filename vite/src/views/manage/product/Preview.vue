@@ -36,7 +36,6 @@
                 <span class="fs-5 text-primary">
                   ${{ selectedProductVariant ? selectedProductVariant.price : product.price }}
                 </span>
-                <!-- <span class="ms-2 fw-light fst-italic text-decoration-line-through">$10</span> -->
               </div>
               <div class="my-2">
                 <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
@@ -45,6 +44,7 @@
                     <button
                       class="ms-1 btn btn-outline-secondary btn-sm"
                       :class="{ active: selectedOptions.indexOf(item) > -1 }"
+                      :disabled="!findOptionInVariant(pKey, item)"
                       v-for="(item, key) in pItem.values"
                       :key="key"
                       @click="clickOption(pKey, item)"
@@ -64,7 +64,7 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
-                <button class="btn btn-outline-primary btn-sm" @click="addCart()">加入購物車</button>
+                <button class="btn btn-outline-primary btn-sm" @click="doAddCart()">加入購物車</button>
               </div>
             </div>
           </div>
@@ -140,6 +140,12 @@
             <div class="col-12 col-md-10" v-if="barcode.length > 0">
               <div class="mt-2">商品條碼：{{ barcode.join(', ') }}</div>
             </div>
+            <div class="col-12 col-md-10">
+              <PublishedDate
+                :fieldText="'上架日期'"
+                :publishedAt="product.publishedAt">
+              </PublishedDate>
+            </div>
           </div>
           <br /><br />
         </div>
@@ -149,12 +155,13 @@
 </template>
 
 <script setup>
-import { onMounted, onActivated, ref, reactive, nextTick } from 'vue';
+import { onMounted, onActivated, ref, reactive } from 'vue';
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
-import { setCart } from '@/tools/libs'
+import PublishedDate from "@/components/PublishedDate.vue";
+import { compareArraysWithRules } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -256,12 +263,34 @@ function isSame(array1, array2) {
   });
 }
 
-function addCart() {
+function doAddCart() {
   store.dispatch('showAlert', {
     type: 'warning',
     text: '預覽頁面無法新增至購物車'
   })
   return
+}
+
+function findOptionInVariant(pKey, findItem) {
+  let check = false
+  let compareArray = [null, null, null]
+  compareArray[pKey] = findItem
+  let rules = ["ignore", "ignore", "ignore"]
+  rules[pKey] = 'exact'
+  for (let i in selectedOptions.value) {
+    if (selectedOptions.value[i] && !compareArray[i]) {
+      compareArray[i] = selectedOptions.value[i]
+      rules[i] = 'exact'
+    }
+  }
+
+  for (const item of proudctVariant.value) {
+    if (compareArraysWithRules(item.productOption, compareArray, rules)) {
+      check = true
+      break;
+    }
+  }
+  return check
 }
 
 function getPaymentText() {

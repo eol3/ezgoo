@@ -1,5 +1,5 @@
 <template>
-	<div class="modal fade" id="addCartModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+	<div class="modal fade" id="addCartModal" data-bs-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -80,15 +80,11 @@ import LoadingSpin from "@/components/LoadingSpin.vue";
 
 const store = useStore()
 
-const show = defineModel('show')
+defineExpose({
+  openModal
+});
 
-const props = defineProps({
-	product: {
-		type: Object,
-		default: null
-	},
-})
-
+const product = ref(null)
 const storeInfo = ref(null)
 const loading = ref(false)
 const selectedOptions = ref([null, null, null]) // ['red', 'xl']
@@ -109,10 +105,12 @@ onMounted(async () => {
   modal = new Modal(modalEl)
 })
 
-watch(() => props.product , async (newValue) => {
+async function openModal(parentProduct) {
+  modal.show()
+  product.value = parentProduct
   selectedProductVariant.value = false
   choiceNumber.value = 1
-  queryObj.storeId = props.product.storeId
+  queryObj.storeId = product.value.storeId
   storeInfo.value = await store.dispatch('getCache', 'currentStore')
   loading.value = true
   productImages.value = [{ loading: true }]
@@ -122,15 +120,10 @@ watch(() => props.product , async (newValue) => {
   ]).then(() => {
     loading.value = false
   })
-})
-
-watch(show , async (newValue) => {
-  if (newValue) modal.show()
-  else modal.hide()
-})
+}
 
 function getProductVariant() {
-  axios.get('/product/' + props.product.id + '/variant', {
+  axios.get('/product/' + product.value.id + '/variant', {
     params: queryObj
   }).then((response) => {
     proudctVariant.value = response.data
@@ -138,7 +131,7 @@ function getProductVariant() {
 }
 
 function getProductImages() {
-  axios.get('/product/' + props.product.id + '/images', {
+  axios.get('/product/' + product.value.id + '/images', {
     params: queryObj
   }).then((response) => {
     productImages.value = response.data
@@ -180,10 +173,10 @@ function minus() {
 }
 
 function doAddCart() {
-  if (addCart(storeInfo.value, props.product,
+  if (addCart(storeInfo.value, product.value,
       selectedOptions.value, selectedProductVariant.value,
       choiceNumber.value, store)) {
-    show.value = false
+    modal.hide()
   }
 }
 </script>

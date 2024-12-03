@@ -31,6 +31,10 @@
                   </div>
                 </div>
               </div>
+              <PublishedDate
+                :fieldText="'發佈日期'"
+                :publishedAt="post.publishedAt"
+              ></PublishedDate>
               <div class="row-image-wrap d-flex align-items-center my-2" ref="rowImageWrap">
                 <div v-for="(item, key) in postImages" :key="key">
                   <div>
@@ -63,6 +67,7 @@ import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
+import PublishedDate from "@/components/PublishedDate.vue";
 
 const store = useStore()
 const route = useRoute()

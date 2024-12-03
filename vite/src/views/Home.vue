@@ -104,11 +104,11 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTWo" aria-expanded="true" aria-controls="collapseOne">
                 商店有哪些功能？
               </button>
             </h2>
-            <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+            <div id="collapseTWo" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
               <div class="accordion-body">
                 目前僅有商品管理與簡易的貼文發佈，後許會有優惠管理、會員管理、人員管理、第三方串接...等各類模組繼續開發
               </div>
@@ -116,11 +116,11 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTree" aria-expanded="false" aria-controls="collapseTwo">
                 是否串接第三方金流、物流？
               </button>
             </h2>
-            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+            <div id="collapseTree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
               <div class="accordion-body">
                 目前沒有串接任何第三方，未來會規劃串接
               </div>
