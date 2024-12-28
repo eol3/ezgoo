@@ -1,40 +1,59 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+易購網購物平台，前後端分離的系統架構，前端Vite + Vue 3，後端使用node.js(express.js)
 
-### What is this repository for? ###
+## Project setup (backeend) ##
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+```
+cd backend
+npm install
+```
 
-### How do I get set up? ###
+### Run develop mode ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+```
+cp .env.example .env.dev.local
+npm run dev
+```
 
-### Contribution guidelines ###
+### Run production mode ###
 
-* Writing tests
-* Code review
-* Other guidelines
+```
+cp .env.example .env.production.local
+npm run start
+```
+or
 
-### Who do I talk to? ###
+```
+cp .env.example .env
+node app.js
+```
 
-* Repo owner or admin
-* Other community or team contact
+## Project setup (frontend) ##
+
+```
+cd vite
+npm install
+```
+
+### Run develop mode ###
+
+```
+cp .env.example .env
+npm run dev
+```
+### Compiles and minifies for production ###
+
+```
+npm run build #這會複製dist資料夾到後端(/backend/public/)
+```
 
 ### 筆記 ###
 
-2024/09/27 溝通時間格式，https://apiux.com/2013/03/20/5-laws-api-dates-and-times/
-2024/09/10 api溝通json格式都不要用字串，formData可以，因為formData欄位只允許帶字串
-
-2023/11/25 使用vite和validatorjs套件在設定語言上會有點問題，必須預設英文再複寫
-2023/12/02 使用vite和validatorjs套件在我自己寫的wrapValidator function裡面，
+* 2024/09/27 溝通時間格式，https://apiux.com/2013/03/20/5-laws-api-dates-and-times/
+* 2024/09/10 api溝通json格式都不要用字串，formData可以，因為formData欄位只允許帶字串
+* 2023/11/25 使用vite和validatorjs套件在設定語言上會有點問題，必須預設英文再複寫
+* 2023/12/02 使用vite和validatorjs套件在我自己寫的wrapValidator function裡面，
 					 會有不穩定的錯誤，有時沒問題有時有問題，並且在設定語系使用useLang，
 					 也會有問題，必須使用setMessages
 					 
