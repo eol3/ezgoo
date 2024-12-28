@@ -108,7 +108,7 @@
                 商店有哪些功能？
               </button>
             </h2>
-            <div id="collapseTWo" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+            <div id="collapseTWo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
               <div class="accordion-body">
                 目前僅有商品管理與簡易的貼文發佈，後許會有優惠管理、會員管理、人員管理、第三方串接...等各類模組繼續開發
               </div>
