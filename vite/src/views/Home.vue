@@ -104,7 +104,7 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTWo" aria-expanded="true" aria-controls="collapseOne">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTWo" aria-expanded="false" aria-controls="collapseOne">
                 商店有哪些功能？
               </button>
             </h2>
