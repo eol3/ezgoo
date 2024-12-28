@@ -42,10 +42,10 @@ npm install
 cp .env.example .env
 npm run dev
 ```
-### Compiles and minifies for production ###
+### Compiles for production ###
 
 ```
-npm run build #這會複製dist資料夾到後端(/backend/public/)
+npm run build    #這會複製dist資料夾到後端(/backend/public/)
 ```
 
 ### 筆記 ###
@@ -53,11 +53,5 @@ npm run build #這會複製dist資料夾到後端(/backend/public/)
 * 2024/09/27 溝通時間格式，https://apiux.com/2013/03/20/5-laws-api-dates-and-times/
 * 2024/09/10 api溝通json格式都不要用字串，formData可以，因為formData欄位只允許帶字串
 * 2023/11/25 使用vite和validatorjs套件在設定語言上會有點問題，必須預設英文再複寫
-* 2023/12/02 使用vite和validatorjs套件在我自己寫的wrapValidator function裡面，
-					 會有不穩定的錯誤，有時沒問題有時有問題，並且在設定語系使用useLang，
-					 也會有問題，必須使用setMessages
-					 
-					 api溝通資料型態可以不限定，數字可接受'123'或123，因為在後端都可以辨識
-					 省去前端轉換的問題，
-					 transtype function在前端會有問題，第一次成功之後再失敗會出錯
-					 api溝通資料如果是時間欄位必須是utc+0的時區
+* 2023/12/02 使用vite和validatorjs套件在我自己寫的wrapValidator function裡面，會有不穩定的錯誤，有時沒問題有時有問題，並且在設定語系使用useLang，也會有問題，必須使用setMessages。...
+api溝通資料型態可以不限定，數字可接受'123'或123，因為在後端都可以辨識，省去前端轉換的問題，transtype function在前端會有問題，第一次成功之後再失敗會出錯。
