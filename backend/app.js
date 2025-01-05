@@ -36,7 +36,7 @@ app.use(helmet())
 app.use(cookieParser());
 var sess = {
   store: new FileStore({logFn: function(){}}),
-  secret: '542A4D5AABF7A3D8531BB8A465F51',
+  secret: process.env.SESSION_SECRET,
   saveUninitialized: false,
   resave: false,
   rolling: true, // 不停延長session
