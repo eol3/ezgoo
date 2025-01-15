@@ -207,7 +207,8 @@ function getProduct() {
     queryObj.storeId = response.data.storeId
     product.value = response.data
     getStore()
-    if (product.value.barcode !== '') barcode.value = [product.value.barcode]
+    barcode.value = []
+    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
     proudctVariant.value = response.data.variant
     proudctVariant.value.forEach(element => {
       if (element.barcode !== '') barcode.value.push(element.barcode)
