@@ -1,47 +1,45 @@
 <template>
-  <nav class="navbar navbar-expand">
-    <router-link class="navbar-brand" to="/">
-      <img width="100" :src="logo" />
+  <!-- <div v-if="store.state.preview" class="bg-success p-2 text-white text-center">
+    預覽模式
+    <router-link :to="'/manage/store/' + route.params.storeId" class="btn btn-outline-primary btn-sm bg-2">
+      返回後台
     </router-link>
-    <ul class="navbar-nav ml-auto">
-      <li class="nav-item">
-        <router-link class="nav-link" to="/cart">
-          <img width="20" class="pb-1" :src="cart" />
-        </router-link>
-      </li>
-      <li class="nav-item pointer" data-toggle="modal" data-target="#registerModal">
-        <span class="nav-link">註冊</span>
-      </li>
-      <li class="nav-item pointer" data-toggle="modal" data-target="#loginModal">
-        <span class="nav-link">登入</span>
-      </li>
-    </ul>
-  </nav>
-  <router-view v-slot="{ Component }">
-    <keep-alive>
-      <component :is="Component" />
-    </keep-alive>
+  </div> -->
+  <template v-if="storeInfo">
+    <div v-if="tip" class="bg-warning p-2 text-white text-center">
+      {{ tip }}
+      <router-link :to="'/manage/store/' + route.params.storeId" class="btn btn-outline-primary btn-sm bg-2">
+        前往管理後台
+      </router-link>
+    </div>
+  </template>
+  <router-view v-slot="{ Component, route  }">
+    <component :is="Component"/>
   </router-view>
-  <alert />
-  <modals />
 </template>
-<script>
-// import { reactive } from "vue";
-import Alert from "@/components/Alert.vue";
-import Modals from "@/components/Modals.vue";
-import logo from "@/assets/logo.png";
-import cart from "@/assets/icons/cart_black.jpg";
+<script setup>
+import { ref, watch } from "vue";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 
-export default {
-  components: {
-    Alert,
-    Modals
-  },
-  data() {
-    return {
-      logo: logo,
-      cart: cart,
-    }
-  },
+const store = useStore()
+const route = useRoute()
+
+if (route.query.preview) {
+  store.commit('setPreview', true)
+} else {
+  store.commit('setPreview', false)
 }
+const storeInfo = ref(null)
+const tip = ref(null)
+watch(() => store.state.cache, async () => {
+	storeInfo.value = await store.dispatch('getCache', 'currentStore')
+  if (!storeInfo.value) tip.value = null
+  if (storeInfo.value.status === 0) {
+    tip.value = '商店未開放，'
+  } else if (storeInfo.value.status === 3) {
+    tip.value = '商店維護中，'
+  }
+  if (tip.value) tip.value += '此畫面只有你看的到'
+}, { deep: true });
 </script>

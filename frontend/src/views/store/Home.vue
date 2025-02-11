@@ -1,102 +1,211 @@
 <template>
-	<div class="row pt-3">
-    <div class="col-12">
-      <h6 class="mb-3">最新消息</h6>
-      <div class="col-md-10 offset-md-1">
-        <post-list :post="post"></post-list>
+	<div class="row">
+    <div class="col-12 col-md-10 offset-md-1">
+      <div class="d-flex justify-content-between my-3">
+        <div class="fw-bold">最新消息</div>
+        <router-link :to="baseUrl + '/post'" class="text-decoration-none" v-if="!postLoading && postList.length > 5">
+          查看全部
+          <i class="fa-solid fa-arrow-right"></i>
+        </router-link>
       </div>
-      <div class="row" v-show="post.length !== 0">
-        <div class="col-12 mt-3 text-center">
-          <router-link :to="'/store/' + $route.params.store_id + '/post'" class="text-decoration-none">
-            查看更多
+      <div v-if="postLoading" class="space-row text-center">
+        讀取中...
+      </div>
+      <div v-if="!postLoading && postList.length === 0" class="space-row text-center">
+        尚無資料
+      </div>
+      <div class="d-flex flex-nowrap overflow-x-auto mx-1">
+        <div class="post-card card flex-shrink-0 mb-3 me-3"
+          v-for="(item, key) in postList"
+          :key="key"
+          @click="router.push('/post/' + item.id)"
+        >
+          <router-link v-if="item.thumbnail" :to="'/post/'+item.id">
+            <img :src="item.thumbnail" class="card-img-top">
           </router-link>
+          <div class="card-body d-flex align-items-center align-self-center">
+            <p v-if="item.content === ''" class="card-text text-secondary fst-italic">尚無內容</p>
+            <router-link v-else :to="'/post/'+item.id" class="text-black text-decoration-none">
+              <p class="card-text">{{ item.content }}</p>
+            </router-link>
+          </div>
         </div>
       </div>
       <hr />
     </div>
   </div>
   <div class="row">
-    <div class="col-12">
-      <h6 class="mb-3">最新上架</h6>
-      <div class="row">
-        <div class="col-md-10 offset-md-1">
-          <product-list :product="product"></product-list>
-        </div>
+    <div class="col-12 col-md-10 offset-md-1">
+      <div class="d-flex justify-content-between my-3">
+        <div class="fw-bold">最新商品</div>
+        <router-link :to="baseUrl + '/product'" class="text-decoration-none" v-if="!productLoading && productList.length > 5">
+          查看全部
+          <i class="fa-solid fa-arrow-right"></i>
+        </router-link>
       </div>
-      <div class="row" v-show="product.length !== 0">
-        <div class="col-12 mt-3 text-center">
-          <router-link :to="'/store/' + $route.params.store_id + '/product'" class="text-decoration-none">
-            查看更多
+      <div v-if="productLoading" class="space-row text-center">
+        讀取中...
+      </div>
+      <div v-if="!productLoading && productList.length === 0" class="space-row text-center">
+        尚無資料
+      </div>
+      <div class="d-flex flex-nowrap overflow-x-auto mx-1">
+        <div class="product-card card flex-shrink-0 mb-3 me-3"
+          v-for="(item, key) in productList"
+          :key="key"
+        >
+          <router-link :to="'/product/'+item.id">
+            <img v-if="item.thumbnail" :src="item.thumbnail" class="card-img-top">
+            <img v-else src="https://placehold.co/600x400" class="card-img-top">
           </router-link>
+          <div class="card-body">
+            <div class="body-text-wrap">
+              <router-link :to="'/product/'+item.id" class="text-black text-decoration-none">
+                <p v-if="item.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
+                <p v-else class="card-text">
+                  <span v-if="item.status === 0" class="text-secondary fst-italic">(未上架)</span>
+                  {{ item.name }}
+                </p>
+              </router-link>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-primary">${{ item.price }}</div>
+              <div class="cursor-pointer" @click="doAddCart(item)">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <hr />
     </div>
   </div>
+  <AddCartModal
+    ref="addCartModal"
+  ></AddCartModal>
+  <br /><br /><br /><br />
 </template>
 
-<script>
-import PostList from "@/components/PostList.vue";
-import ProductList from "@/components/ProductList.vue";
-import no_image_sm from '@/assets/no-image-sm.webp';
+<script setup>
+import { ref, watch, onMounted } from 'vue'
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
+import { axios } from "@/tools/requestCache";
+import AddCartModal from "@/components/modals/AddCartModal.vue"
+import { checkStoreStateBeforeAddCart, addCart } from '@/tools/libs'
 
-export default {
-  name: "product",
-	components: {
-    PostList,
-    ProductList
-  },
-	data() {
-		return {
-			post: [],
-			product: []
-		}
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+
+const props = defineProps({
+	storeInfo: {
+		type: Object,
+		default: null
 	},
-	created() {
-    this.init_post();
-    this.init_product()
-    this.getList()
-	},
-	methods: {
-    init_post() {
-      for(let i = 0; i < 4; i++) {
-        this.post[i] = {
-          image_url: no_image_sm,
-          content: ''
-        }
-      }
-    },
-    init_product() {
-      for (let i = 0;i < 4; i++) {
-        this.product[i] = {
-          name: "",
-          price: null,
-          spec: null,
-          spec_price: 0,
-          thumbnail: no_image_sm
-        }
-      }
-    },
-		getList() {
-		  let obj = {
-        page_size: 8,
-        page_num: 1
-      };
-			this.axios
-				.get("/store/" + this.$route.params.store_id + "/post", {
-					params: obj
-				})
-				.then(response => {
-					this.post = response.data.data
-				});
-			this.axios
-        .get("/store/" + this.$route.params.store_id + "/product", {
-          params: obj
-        })
-        .then(response => {
-          this.product = response.data.data;
-        });
-		}
-	}
+})
+
+const postLoading = ref(false)
+const postList = ref([])
+const productLoading = ref(false)
+const productList = ref([])
+const baseUrl = '/store/' + route.params.storeId
+
+const storeInfo = ref(null)
+
+const addCartModal = ref(null)
+
+let queryStatus = '1'
+
+onMounted(() => {
+  getPosts()
+  getProducts()
+})
+
+function getPosts() {
+  postLoading.value = true
+  axios.get('/post/', {
+    params: {
+      storeId: route.params.storeId,
+      status: queryStatus,
+      sortBy: 'id',
+      orderBy: 'desc'
+    }
+  }).then((response) => {
+    postList.value = response.data
+  }).finally(() => { postLoading.value = false })
 }
+
+function getProducts() {
+  productLoading.value = true
+  axios.get('/product/', {
+    params: {
+      storeId: route.params.storeId,
+      status: queryStatus,
+      sortBy: 'id',
+      orderBy: 'desc'
+    }
+  }).then((response) => {
+    productList.value = response.data
+  }).finally(() => { productLoading.value = false })
+}
+
+async function doAddCart(product) {
+  storeInfo.value = await store.dispatch('getCache', 'currentStore')
+  if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return
+
+  if (product.variantCount > 0) {
+    addCartModal.value.openModal(product)
+  } else {
+    addCart(storeInfo.value, product,
+      [null, null, null], false, 1, store)
+    
+  }
+}
+
 </script>
+
+<style scoped lang="scss">
+.post-card {
+  cursor: pointer;
+  width: 180px;
+  height: 220px;
+}
+.post-card img {
+  height: 120px;
+  object-fit: cover;
+}
+.post-card .card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card {
+  width: 180px;
+  height: 240px;
+}
+.product-card img {
+  height: 130px;
+  object-fit: contain;
+}
+
+.product-card .body-text-wrap {
+  height: 70%;
+}
+
+.product-card .card-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.space-row {
+  height: 150px;
+  padding-top: 50px;
+}
+
+</style>

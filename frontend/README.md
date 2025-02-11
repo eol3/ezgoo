@@ -1,24 +1,11 @@
-# frontend
+# Vue 3 + Vite
 
-## Project setup
-```
-npm install
-```
+This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## Recommended IDE Setup
 
-### Compiles and minifies for production
-```
-npm run build
-```
+- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-### Lints and fixes files
-```
-npm run lint
-```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 筆記
+2024-03-10 快取組件的目的是為了切換畫面時，鋪墊正在等api中間的空白畫面，還是會打api，暫時無法節省，要控制清除快取資料有點麻煩。之後可能可以用一些過渡動畫，但現在懶得用

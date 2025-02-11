@@ -1,34 +1,28 @@
-import router from "@/router/index";
-import store from "@/store/index";
+import router from "../router/index";
+import store from "../store/index";
 import axios from "axios";
 
 // import { setupCache } from 'axios-cache-adapter'
 
-function serializeQuery(obj) {
-  let str = "?";
-  for (var key in obj) {
-      if (str != "") {
-          str += "&";
-      }
-      str += key + "=" + encodeURIComponent(obj[key]);
-  }
-  if (str === '?') return ''
-  else return str
-}
-
-// Create `axios-cache-adapter` instance
 // const cache = setupCache({
-//   key: req => {
-//     if (req.params === undefined) return req.url
-//     else return req.url + serializeQuery(req.params)
-//   },
 //   maxAge: 15 * 60 * 1000,
-//   exclude: { query: false }
+//   exclude: {
+//     query: false,
+//     methods: ['put', 'patch', 'delete']
+//   },
+//   invalidate: async (config, request) => {
+//     if (request.clearCacheEntry) {
+//       await config.store.removeItem(config.uuid)
+//     }
+//     if (request.method === 'post' || request.method === 'put' || request.method === 'delete') {
+//       await config.store.clear()
+//     }
+//   }
 // })
 
 const customAxios = axios.create({
   // adapter: cache.adapter,
-  timeout: 10000 // request timeout
+  // timeout: 10000 // request timeout
 })
 
 // axios.defaults.baseURL = "https://example.com/";
@@ -55,46 +49,109 @@ customAxios.interceptors.response.use(
     return response;
   },
   error => {
+    return handleError(error)
+  }
+);
+
+function handleError(error) {
     if (process.env.NODE_ENV === "development") {
-      console.log(error.response);
+      console.log(error);
     }
+    
+    if (error.code === 'ECONNABORTED') {
+      store.dispatch("showAlert", {
+        type: "danger",
+        text: '連線逾時'
+      });
+    }
+    
+    if(error.toJSON().message === 'Network Error'){
+      store.dispatch("showAlert", {
+        type: "danger",
+        text: '無法連接網路，請檢查確認網路後，重新整理葉面'
+      });
+    }
+
+    if (error.config.selfErrorHandle) {
+      return Promise.reject(error);
+    }
+
+    if (typeof error.response === 'undefined') {
+      return Promise.reject(error)
+    }
+    
     let msg = "";
-    if (typeof error.response.data.msg !== "undefined") {
+    if (typeof error.response.data !== 'undefined' && typeof error.response.data.msg !== "undefined") {
       msg = error.response.data.msg;
     } else {
       msg = error.response.statusText;
     }
-    
     // 400 為表單錯誤 不用提示視窗顯示
     
-    if (error.response.status === 403 || error.response.status === 404 || error.response.status === 422) {
+    // 403 禁止存取
+    if (error.response.status === 403 && !store.state.handleForbidden) {
+      store.state.handleForbidden = true // 避免同時多個403返回重複執行
+      setTimeout(() => {
+        store.state.handleForbidden = false //一秒後設回false
+      }, 1000);
+
+      if (msg === 'No login') {
+        if (store.state.localUser) {
+          msg = "登入逾時，請重新登入"
+        } else {
+          msg = "請先登入"
+        }
+        store.dispatch('userLogout')      
+        router.push('/login?redirect=' + encodeURI(window.location.pathname))
+      } else if (msg === 'System banned') {
+        msg = '商店已禁用'
+        router.push('/')
+      } else if (msg === 'Store not open') {
+        msg = '商店未開放'
+        router.push('/')
+      } else if (msg === 'Store maintaining') {
+        msg = '商店維護中'
+        router.push('/')
+      } else {
+        msg = '無權操作'
+        router.push('/')
+      }
+
+      store.dispatch("showAlert", {
+        type: "warning",
+        text: msg
+      })
       
-      store.dispatch("show_alert", {
+    }
+    
+    // 404 找不到網頁
+    if (error.response.status === 404) {
+      store.dispatch("showAlert", {
+        type: "warning",
+        text: "查無此內容"
+      });
+      router.push('/')
+    }
+    
+    // 422 422 Unprocessable Entity
+    // 資料格式錯誤，與400區別，以利前端分別顯示錯誤方式
+    // 多用於post, put
+    if (error.response.status === 422) {
+      store.dispatch("showAlert", {
         type: "warning",
         text: msg
       });
-      
-      if (error.response.status === 403) {
-        store.dispatch("memberLogout")
-        if (window.location.pathname !== '/member/login') {
-          router.push('/member/login?redirect=' + encodeURI(window.location.pathname))
-        }
-      } else if (error.response.status === 404) {
-        router.push('/')
-      } else {
-        // do nothing
-      }
     }
     
+    // 500 系統錯誤
     if (error.response.status === 500) {
-      store.dispatch("show_alert", {
+      store.dispatch("showAlert", {
         type: "danger",
         text: msg
       });
     }
     
     return Promise.reject(error);
-  }
-);
+}
 
-export default customAxios;
+export { customAxios as axios }

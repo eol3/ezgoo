@@ -1,8 +1,32 @@
 
-$primary: #ae2079;
+.navbar-border-bottom {
+  border-bottom: 1px solid $gray-300;
+}
 
-@import "bootstrap";
+.avatar-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
 
-.footer {
-  background-color: $gray-200;
+.avatar-image-sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.no-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+	background-color: var(--d-gray-200);
+	color: $gray-600;
+}
+
+.no-image-sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+	background-color: var(--d-gray-200);
+	color: $gray-600;
 }

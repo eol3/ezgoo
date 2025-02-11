@@ -1,50 +1,111 @@
 <template>
-  <div class="row pt-3 mx-3">
-    <div class="card">
-      <div class="card-body">
-        <div class="form-group row mt-2">
-          <label class="col-sm-2">關於我們:</label>
-          <div class="col-sm-10">
-            {{ $store.state.store.about }}
-          </div>
-        </div>
-        <div class="form-group row mt-2">
-          <label class="col-sm-2">公告:</label>
-          <div class="col-sm-10">
-            {{ $store.state.store.announcement }}
-          </div>
-        </div>
-        <div class="form-group row mt-2">
-          <label class="col-sm-2">地址:</label>
-          <div class="col-sm-10">
-            {{ $store.state.store.address }}
-          </div>
-        </div>
-        <div class="form-group row mt-2">
-          <label class="col-sm-2">電話:</label>
-          <div class="col-sm-10">
-            {{ $store.state.store.tel }}
-          </div>
-        </div>
-        <div class="form-group row mt-2">
-          <label class="col-sm-2">Facebook:</label>
-          <div class="col-sm-10">
-            {{ $store.state.store.fb_url }}
-          </div>
-        </div>
-        <div class="form-group row mt-2">
-          <label class="col-sm-2">Line:</label>
-          <div class="col-sm-10">
-            {{ $store.state.store.line_url }}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <br /><br />
+	<div class="row py-4">
+		<div class="col-12 col-lg-10 offset-lg-1" v-if="storeInfo">
+			<div class="row pb-2 align-items-center">
+				<div class="col-auto">
+					<label for="inputPassword6" class="col-form-label">商店名稱</label>
+				</div>
+				<div class="col-auto">
+					<div class="text-break">
+						{{ storeInfo.name }}
+					</div>
+				</div>
+			</div>
+			<div class="row pb-2 align-items-start">
+				<div class="col-auto">
+					<label for="inputPassword6" class="col-form-label">商店簡介</label>
+				</div>
+				<div class="col-auto">
+					<div class="text-break pt-2" v-html="replaceNewLine(storeInfo.about)"></div>
+				</div>
+			</div>
+			<div class="row pb-2 align-items-start" v-if="storeInfo.otherUrl.length > 0">
+				<div class="col-auto">
+					<label for="inputPassword6" class="col-form-label">相關連結</label>
+				</div>
+				<div class="col-auto">
+					<div v-for="(item, key) in storeInfo.otherUrl" class="mt-2">
+						<a :href="item.url" target="_blank" class="text-decoration-none">
+							<i class="fa-solid fa-link me-2"></i>{{ item.name }}
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="row pb-2 align-items-center">
+				<div class="col-auto">
+					<label for="inputPassword6" class="col-form-label">付款方式</label>
+				</div>
+				<div class="col-auto">
+					<div class="text-break">
+						{{ getPaymentText() }}
+					</div>
+				</div>
+			</div>
+			<div class="row pb-2 align-items-center">
+				<div class="col-auto">
+					<label for="inputPassword6" class="col-form-label">運送方式</label>
+				</div>
+				<div class="col-auto">
+					<div class="text-break">
+						{{ getShippingText() }}
+					</div>
+				</div>
+			</div>
+			<div class="row mt-2 pb-2 align-items-center">
+				<div class="col-auto">
+					<div class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" role="switch" id="swaitch_order" v-model="storeInfo.setting.allowOrderWithoutLogIn">
+						<label class="form-check-label" for="swaitch_order">允許未登入下單</label>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-2 pb-2 align-items-center" v-if="storeInfo.setting.untilAmountFreeShipping">
+				<div class="col-auto">
+					購物滿「{{ storeInfo.setting.untilAmountFreeShipping }}」免運費
+				</div>
+			</div>
+		</div>
+	</div>
 </template>
 
-<script>
-export default {
-};
+<script setup>
+import { onMounted, ref, watch } from 'vue';
+import { useStore } from "vuex";
+
+const store = useStore()
+
+const storeInfo = ref(null)
+// storeInfo.value = store.dispatch('getCache', 'currentStore')
+
+watch(() => store.state.cache, async () => {
+	storeInfo.value = await store.dispatch('getCache', 'currentStore')
+}, { deep: true });
+
+onMounted( async () => {
+  storeInfo.value = await store.dispatch('getCache', 'currentStore')
+})
+
+function getPaymentText() {
+	let text = ''
+	for (const item of storeInfo.value.payment) {
+		text += item.name + ", "
+	}
+	return text.slice(0, -2)
+}
+
+function getShippingText() {
+	let text = ''
+	for (const item of storeInfo.value.shippingMethod) {
+		if (item.fee > 0) {
+      text += item.name + `(運費:$${item.fee})` + ", "
+    } else {
+      text += item.name + ", "
+    }
+	}
+	return text.slice(0, -2)
+}
+
+function replaceNewLine(str) {
+	return str.replace(/\n/g, "<br />")
+}
 </script>

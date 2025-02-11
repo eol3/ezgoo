@@ -1,13 +1,15 @@
 <template>
-	<div v-show="$store.state.alert.show" :class="['alert', alert_type, 'alert-dismissible', 'fade', 'show', 'fixed-top', 'custom-alert']" role="alert" style="z-index: 1100;">
+	<div v-show="$store.state.alert.show" :class="['alert', 'alert-' + type, 'alert-dismissible', 'fade', 'show', 'fixed-top']" role="alert" style="z-index: 1100;">
 		<i v-if="type === 'success'" class="fa-solid fa-circle-check"></i>
-		<i v-if="type === 'danger' || type === 'warning'" class="fa-solid fa-circle-exclamation"></i>
+		<i v-if="type === 'warning'" class="fa-solid fa-circle-exclamation"></i>
+		<i v-if="type === 'danger'" class="fa-solid fa-circle-xmark"></i>
 		{{ $store.state.alert.text }}
 		<i class="fa-solid fa-xmark icon-close" @click="close()"></i>
 	</div>
 </template>
 
 <script>
+
 export default {
 	computed: {
 		type() {
@@ -27,7 +29,7 @@ export default {
 	},
 	methods: {
 		close() {
-			this.$store.commit("set_alert", {
+			this.$store.commit("setAlert", {
         show: false,
       })
 		},
@@ -50,32 +52,3 @@ export default {
 	}
 }
 </script>
-
-<style lang="scss">
-@import '@/assets/main.scss';
-.alert {
-	width: 40%;
-	margin: 30px auto;
-	color: $primary;
-  background-color: #fff;
-  border: 1px solid $primary;
-}
-@media (max-width: 768px) {
-	.alert {
-		width: 80%;
-	}
-}
-.alert .icon-close {
-	color: #e11477;
-	font-size: 18px;
-	position: absolute;
-  top: 0;
-  right: 0;
-  padding: 1.25rem 1rem;
-  opacity: .75;
-  cursor: pointer;
-}
-.alert .icon-close:hover {
-	opacity: 1;
-}
-</style>

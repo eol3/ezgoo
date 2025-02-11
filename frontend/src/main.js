@@ -3,11 +3,10 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import VueAxios from "vue-axios";
-import axios from "./tools/request";
+import { axios } from "./tools/requestCache";
 
-import './assets/main.scss';
+// import './assets/global.scss';
 import 'bootstrap';
-// import 'bootstrap/dist/css/bootstrap.min.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 
 createApp(App)
@@ -15,3 +14,5 @@ createApp(App)
 	.use(router)
 	.use(VueAxios, axios)
 	.mount('#app')
+
+store.dispatch('getLocalUser')
