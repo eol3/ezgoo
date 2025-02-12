@@ -5,9 +5,9 @@
         <div class="col-md-6">
           <div v-for="(pItem, pKey) in productOptions" :key="pKey">
             <span class="fw-bold">{{ pItem.name }}</span>
-            <div class="d-flex align-items-center">
+            <div>
               <button
-                class="ms-1 btn btn-outline-secondary btn-sm"
+                class="mx-1 my-1 btn btn-outline-secondary btn-sm"
                 :class="{ active: selectedOptions.indexOf(item) > -1 }"
                 v-for="(item, key) in pItem.values"
                 :key="key"
