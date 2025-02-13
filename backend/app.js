@@ -62,6 +62,8 @@ app.use(function (err, req, res, next) {
   } else {
     const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     console.error('request url:' + fullUrl)
+    console.error('request:')
+    console.error(req.headers)
     console.error(err)
     res.status(500)
     res.json({msg: 'Internal Server Error'})
