@@ -48,6 +48,15 @@ npm run dev
 npm run build    #這會複製dist資料夾到後端(/backend/public/)
 ```
 
+### Git 切換筆記 ###
+
+```
+git remote -v                              #列出遠端URL
+git branch --move master main              #移動分支到main
+git remote set-url origin <GIT_URL_HERE>   #設定遠端url
+git push --set-upstream origin main        #指定推到main
+```
+
 ### 筆記 ###
 
 * 2024/09/27 溝通時間格式，https://apiux.com/2013/03/20/5-laws-api-dates-and-times/
