@@ -1,0 +1,11 @@
+
+/* 需要再router載入前載入，不然預設顏色會跑出來 */
+
+#nprogress .bar {
+  background: #d975ab !important;
+  box-shadow: 0 0 4px #d975ab, 0 0 4px #d975ab !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 4px #d975ab, 0 0 4px #d975ab !important;
+}

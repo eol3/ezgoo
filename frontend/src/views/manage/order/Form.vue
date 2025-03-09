@@ -207,20 +207,7 @@ defineFormData({
 onMounted(async () => {
 	window.scrollTo(0, 0)
 	if (route.params.orderId !== undefined) {		
-		loading.value = true
-    axios.get('/order/' + route.params.orderId, {
-      params: {
-        storeId: storeId.value
-      }
-    }).then((response) => {
-      order.value = response.data
-      formData.value.status = order.value.status
-      formData.value.paymentStatus = order.value.paymentStatus
-      formData.value.comment = order.value.comment
-      getStore(order.value.storeId).finally(() => {
-        loading.value = false
-      })
-    })
+		getOrder()
 	}
 })
 
@@ -244,8 +231,26 @@ onActivated(() => {
 			title: '編輯訂單',
 			showBack: true,
 		})
+    getOrder()
 	}
 })
+
+function getOrder() {
+  loading.value = true
+  axios.get('/order/' + route.params.orderId, {
+    params: {
+      storeId: storeId.value
+    }
+  }).then((response) => {
+    order.value = response.data
+    formData.value.status = order.value.status
+    formData.value.paymentStatus = order.value.paymentStatus
+    formData.value.comment = order.value.comment
+    getStore(order.value.storeId).finally(() => {
+      loading.value = false
+    })
+  })
+}
 
 async function save() {
   if (loading.value) return

@@ -363,26 +363,31 @@ router.put('/:orderId', async function(req, res, next) {
   }
   
   let result = await Order.getOne({ id: useData.id })
+  result.storeInfo = JSON.parse(result.storeInfo)
+  result.content = JSON.parse(result.content)
+  result.footerInfo = JSON.parse(result.footerInfo)
+  result.payerInfo = JSON.parse(result.payerInfo)
 
   if (useData.storeId) {
+    // 有帶商家id，即表示商家操作，需驗證
     if (!await authStore(req, next, {
       storeId: useData.storeId,
       role: ['owner', 'editor']
     })) return
 
-    result.payerInfo = JSON.parse(result.payerInfo)
     if (useData.comment) {
-      sendMailToCustomerOnComment(result.payerInfo.email, result.id, useData.comment)
+      sendMailToCustomerOnComment(result, useData.comment)
     }
     if (result.status === 1 && useData.status === 2) {
-      sendMailToCustomerOnRecive(result.payerInfo.email, result.id)
+      sendMailToCustomerOnRecive(result, useData.status)
     } else if (useData.status === 3) {
-      sendMailToCustomerOnShipping(result.payerInfo.email, result.id)
+      sendMailToCustomerOnShipping(result, useData.status)
     } else if (useData.status === 4) {
-      sendMailToCustomerOnArrived(result.payerInfo.email, result.id)
+      sendMailToCustomerOnArrived(result, useData.status)
     }
   } else {
-    
+    // 買家操作
+
     if (!req.session.user) return next({statusCode: 403})
 
     // 未登入訪客下單，不能讓消費者修改
@@ -410,7 +415,7 @@ router.put('/:orderId', async function(req, res, next) {
 
     // 如買家有留言發送給商家
     if (useData.comment) {
-      sendMailToStoreOnComment(result.storeId, useData.id, useData.comment)
+      sendMailToStoreOnComment(result, useData.comment)
     }
   }
   
@@ -483,7 +488,7 @@ function addOrderLog(oriData, useData) {
 
 function sendMailToCustomerOnFirst(order) {
   let html = "<h4>您的訂單已成立，以下訂單資訊</h4>"
-  html += getOrderBody(order)
+  html += getOrderBody(order, 1)
   if (order.isGuset) {
     html += "由於您未登入下單，如需聯絡商家請至此<a href='" + process.env.BASE_URL + "/store/" + order.storeId + "'>連結</a>查看"
   } else {
@@ -495,14 +500,15 @@ function sendMailToCustomerOnFirst(order) {
 async function sendMailToStoreOnFirst(order) {
   let userInfo = await getStoreOwner(order.storeId)
   let html = "<h4>已收到訂單成立，以下訂單資訊</h4>"
-  html += getOrderBody(order)
+  html += getOrderBody(order, 1)
   html += "查看與管理訂單請至此<a href='" + process.env.BASE_URL + "/manage/store/" + order.storeId + "/order/" + order.id + "/edit'>連結</a>"
   Mailer.send(userInfo.email, '收到訂單通知', html).catch(console.error)
 }
 
-function getOrderBody(order) {
+function getOrderBody(order, targetOrderStatus) {
   let html = "訂單編號:" + order.id + "<br/>"
-            + "訂單狀態:已成立<br />訂單內容:<br />---<br />"
+  html += "訂單狀態:" + getOrderStatusWord(targetOrderStatus) + "<br />"
+  html += "訂單內容:<br />---<br />"
   for (let i in order.content) {
     let product = order.content[i]
     let optionStr = product.selectedOptions.filter(Boolean).join(',')
@@ -520,6 +526,7 @@ function getOrderBody(order) {
   return html
 }
 
+// todo:發送多個
 async function getStoreOwner(storeId) {
   const userStore = require(process.cwd() + '/models/user/userStore')
   let storeOwner = await userStore.getOne({
@@ -531,38 +538,67 @@ async function getStoreOwner(storeId) {
   return userInfo
 }
 
-async function sendMailToStoreOnComment(storeId, orderId, comment) {
-  let userInfo = await getStoreOwner(storeId)
+async function sendMailToStoreOnComment(order, comment) {
+  let userInfo = await getStoreOwner(order.storeInfo.id)
   let html = "<h4>買家訂單留言:</h4>"
             + "<p>" + comment + "</p>"
-            + "如需回復請至此<a href='" + process.env.BASE_URL + "/manage/store/" + storeId + "/order/" + orderId + "/edit'>連結</a>"
+            + "如需回復請至此<a href='" + process.env.BASE_URL + "/manage/store/" + order.storeInfo.id + "/order/" + order.id + "/edit'>連結</a>"
   
   Mailer.send(userInfo.email, '訂單留言通知', html).catch(console.error)
 }
 
-async function sendMailToCustomerOnComment(userEmail, orderId, comment) {
-  let html = "<h4>商家訂單留言:</h4>"
+async function sendMailToCustomerOnComment(order, comment) {
+  let html = "<h4>商家(" + order.storeInfo.name + ")訂單留言:</h4>"
             + "<p>" + comment + "</p>"
-            + "回復請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
-  Mailer.send(userEmail, '訂單留言通知', html).catch(console.error)
+            + "回復請至此<a href='" + process.env.BASE_URL + "/order/" + order.id + "'>連結</a>"
+  Mailer.send(order.payerInfo.email, '商家訂單留言通知', html).catch(console.error)
 }
 
-function sendMailToCustomerOnRecive(userEmail, orderId) {
-  let html = "<h4>商家已接受訂單</h4>"
-            + "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
-  Mailer.send(userEmail, '商家已接受訂單通知', html).catch(console.error)
+function sendMailToCustomerOnRecive(order, targetOrderStatus) {
+  let html = "<h4>商家(" + order.storeInfo.name + ")已接受訂單</h4>"
+  if (order.createBy === '-1') {
+    // 未登入下單
+    html += getOrderBody(order, targetOrderStatus)
+  } else {
+    html += "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + order.id + "'>連結</a>"
+  }
+  Mailer.send(order.payerInfo.email, '商家已接受訂單通知', html).catch(console.error)
 }
 
-function sendMailToCustomerOnShipping(userEmail, orderId) {
-  let html = "<h4>商家已出貨</h4>"
-            + "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
-  Mailer.send(userEmail, '商家已出貨通知', html).catch(console.error)
+function sendMailToCustomerOnShipping(order, targetOrderStatus) {
+  let html = "<h4>商家(" + order.storeInfo.name + ")已出貨</h4>"
+  if (order.createBy === '-1') {
+    // 未登入下單
+    html += getOrderBody(order, targetOrderStatus)
+  } else {
+    html += "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + order.id + "'>連結</a>"
+  }
+  Mailer.send(order.payerInfo.email, '商家已出貨通知', html).catch(console.error)
 }
 
-function sendMailToCustomerOnArrived(userEmail, orderId) {
+function sendMailToCustomerOnArrived(order, targetOrderStatus) {
   let html = "<h4>貨到通知</h4>"
-            + "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + orderId + "'>連結</a>"
-  Mailer.send(userEmail, '貨到通知', html).catch(console.error)
+  if (order.createBy === '-1') {
+    // 未登入下單
+    html += getOrderBody(order, targetOrderStatus)
+  } else {
+    html += "查看訂單詳情請至此<a href='" + process.env.BASE_URL + "/order/" + order.id + "'>連結</a>"
+  }
+    // todo: 之後有線上先付款再來做
+    // + "<br/><br/>"
+    // + "以下為完成取貨連結，點擊即表示完成取貨"
+    // + "<a href='" + process.env.BASE_URL + "/order/" + orderId + '/finished' + "'完成取貨連結</a>"
+  Mailer.send(order.payerInfo.email, '貨到通知', html).catch(console.error)
+}
+
+function getOrderStatusWord(status) {
+  // status: -1=取消,0=未成立,1=訂單成立,2=接受訂單,3=出貨,4=到貨,5=完成,6=退貨,7=收到退貨重新出貨,8=未取貨
+  switch(status) {
+    case 1: return '已成立';
+    case 2: return '已接收';
+    case 3: return '已出貨';
+    case 4: return '已到貨';
+  }
 }
 
 function checkPayment(storePayment, value) {

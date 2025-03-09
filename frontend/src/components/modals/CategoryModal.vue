@@ -24,6 +24,11 @@ import { Modal } from 'bootstrap'
 import { onMounted, reactive  } from 'vue'
 import CategoryList from "@/components/category/List.vue";
 
+import { onBeforeRouteLeave } from 'vue-router'
+onBeforeRouteLeave((to, from) => {
+  modal.hide()
+})
+
 const props = defineProps({
 	elementId: {
 		type: String,

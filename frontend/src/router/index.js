@@ -1,5 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import store from '@/store'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+import '@/assets/nprogress.css'
+
+// 關閉右上角轉圈圈圖示
+NProgress.configure({ showSpinner: false })
 
 const routes = [
   {
@@ -278,7 +284,12 @@ const router = createRouter({
   routes
 })
 
+var loadingTime = null
+
 router.beforeEach((to, from) => {
+  loadingTime = setTimeout(() => {
+    NProgress.start()
+  }, 3); // 3毫秒內未完成，就顯示進度條
   if (to.meta.requiresAuth) {
     if (store.state.localUser === null) {
       store.dispatch('userLogout')
@@ -294,6 +305,11 @@ router.beforeEach((to, from) => {
       }
     }
 	}
+})
+
+router.afterEach((to, from) => {
+  clearTimeout(loadingTime);
+  NProgress.done()
 })
 
 export default router

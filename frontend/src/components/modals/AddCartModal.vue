@@ -39,9 +39,9 @@
           <div class="my-2">
             <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
               <span class="fw-bold">{{ pItem.name }}</span>
-              <div class="d-flex align-items-center">
+              <div>
                 <button
-                  class="ms-1 btn btn-outline-secondary btn-sm"
+                  class="mx-1 my-1 btn btn-outline-secondary btn-sm"
                   :class="{ active: selectedOptions.indexOf(item) > -1 }"
                   v-for="(item, key) in pItem.values"
                   :key="key"
@@ -77,6 +77,11 @@ import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
 import { addCart } from '@/tools/libs'
 import LoadingSpin from "@/components/LoadingSpin.vue";
+
+import { onBeforeRouteLeave } from 'vue-router'
+onBeforeRouteLeave((to, from) => {
+  modal.hide()
+})
 
 const store = useStore()
 
