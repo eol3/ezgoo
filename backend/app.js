@@ -11,7 +11,10 @@ const FileStore = require('session-file-store')(session)
 const compression = require('compression')
 app.use(compression())
 
-app.use(require('prerender-node').set('prerenderServiceUrl', process.env.PRERENDER_SERVICE_URL))
+app.use(require('prerender-node')
+  .set('prerenderServiceUrl', process.env.PRERENDER_SERVICE_URL)
+  .blacklisted('/')
+)
 
 app.use('/uploads', express.static(process.cwd() + '/public/uploads', { maxAge: 31557600000 }))
 app.use(express.static(process.cwd() + '/public/dist', { maxAge: 31557600000 }))

@@ -2,34 +2,43 @@ import router from "../router/index";
 import store from "../store/index";
 import axios from "axios";
 
-import { setupCache } from 'axios-cache-adapter'
+import { setupCache } from 'axios-cache-interceptor'
 
-const cache = setupCache({
-  maxAge: 15 * 60 * 1000,
-  exclude: {
-    query: false,
-    methods: ['put', 'patch', 'delete']
-  },
-  invalidate: async (config, request) => {
-    if (request.clearCacheEntry) {
-      await config.store.removeItem(config.uuid)
-    }
-    if (request.method === 'post' || request.method === 'put' || request.method === 'delete') {
-      await config.store.clear()
-    }
-  }
-})
+const customAxios = setupCache(axios.create());
 
-const customAxios = axios.create({
-  adapter: cache.adapter,
+// import { setupCache } from 'axios-cache-adapter'
+
+// const cache = setupCache({
+//   maxAge: 15 * 60 * 1000,
+//   exclude: {
+//     query: false,
+//     methods: ['put', 'patch', 'delete']
+//   },
+//   invalidate: async (config, request) => {
+//     if (request.clearCacheEntry) {
+//       await config.store.removeItem(config.uuid)
+//     }
+//     if (request.method === 'post' || request.method === 'put' || request.method === 'delete') {
+//       await config.store.clear()
+//     }
+//   }
+// })
+
+// const customAxios = axios.create({
+  // adapter: cache.adapter,
   // timeout: 10000 // request timeout
-})
+// })
 
-// axios.defaults.baseURL = "https://example.com/";
+// customAxios.defaults.baseURL = "https://example.com/";
 
 customAxios.interceptors.request.use(
   config => {
-    // perform a task before the request is sent
+    
+    const method = config.method.toUpperCase();
+    if (['POST', 'PUT', 'DELETE'].includes(method)) {
+      customAxios.storage.clear();  // 清除所有快取
+    }
+
     config.url = "/api" + config.url;
     
     return config;
@@ -44,8 +53,6 @@ customAxios.interceptors.request.use(
 customAxios.interceptors.response.use(
   response => {
     // do something with the response data
-    // console.log("Response was received");
-
     return response;
   },
   error => {

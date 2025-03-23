@@ -79,7 +79,7 @@ model.update = async function (condition, data) {
 }
 
 model.storeThumbnailUrlHandl = function(store) {
-	if (store.thumbnail) {
+	if (store && store.thumbnail) {
     store.thumbnail = process.env.BASE_URL + store.thumbnail
   }
 }

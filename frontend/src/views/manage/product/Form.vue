@@ -32,7 +32,12 @@
 						</div>
 						<div class="form-group mt-2">
 							<label class="form-label">條碼</label>
-							<input type="text" class="form-control" v-model="formData.barcode" :disabled="loading">
+							<div class="input-group">
+								<input type="text" class="form-control" v-model="formData.barcode" :disabled="loading">
+								<button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#scanBarcodeModal">
+									<i class="fa-solid fa-barcode"></i>
+								</button>
+							</div>
 						</div>
 					</div>
 					<div class="col-md-6">
@@ -97,6 +102,7 @@
 		@selectedOptions="selectedOptions"
 		@hasDelVariantImage="hasDelVariantImage"
 	></ProductOptionsModal>
+	<ScanBarcodeModal @detectedBarcode="detectedBarcode"></ScanBarcodeModal>
 </template>
 
 <script setup>
@@ -107,6 +113,7 @@ import { axios } from "@/tools/requestCache";
 import ImageUploader from "@/components/ImageUploader.vue";
 import CategoryStatusRow from '@/components/category/StatusRow.vue';
 import ProductOptionsModal from '@/components/modals/ProductOptionsModal.vue';
+import ScanBarcodeModal from '@/components/modals/ScanBarcodeModal.vue'
 import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -329,6 +336,10 @@ async function save() {
 	} else if (formMode.value === 'edit') {
 		router.go(-1)
 	}
+}
+
+function detectedBarcode(barcode) {
+	formData.value.barcode = barcode
 }
 
 </script>

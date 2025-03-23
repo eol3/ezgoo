@@ -46,6 +46,10 @@ router.get('/account/:account', async function(req, res, next) {
   	return next({statusCode: 400, ...validator.errors})
   }
 
+  if (useData.account === 'undefined') {
+    return next({statusCode: 404 })
+  }
+
   let result = await Store.getOne({
     account: useData.account
   })

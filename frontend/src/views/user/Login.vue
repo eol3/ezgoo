@@ -39,6 +39,7 @@
 </template>
 
 <script>
+import { axios } from "@/tools/requestCache"
 import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
 import { mergeCart, setHead } from '@/tools/libs'
@@ -77,7 +78,7 @@ export default {
         return
 		  }
 		  this.loading = true
-		  this.axios.post('/user/login', this.formData).then(async (response) => {
+		  axios.post('/user/login', this.formData).then(async (response) => {
 		  	this.loading = false
       	this.formValid = {
           fails: false

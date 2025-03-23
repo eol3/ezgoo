@@ -16,6 +16,8 @@ export default ({ mode }) => {
     server: {
       host: process.env.VITE_HOST,
     	port: process.env.VITE_PORT,
+      // allowedHosts: ['test.ezgoo.biz'],
+      // hmr: { clientPort: 8086, protocol: 'wss' },
     	proxy: {
         '/api': {
           target: process.env.VITE_API_URL
