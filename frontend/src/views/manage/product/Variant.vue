@@ -55,7 +55,12 @@
           </div>
           <div class="form-group mt-2">
             <label class="form-label">條碼</label>
-            <input type="text" class="form-control" v-model="formData.barcode" :disabled="isNoSelect() || loading">
+            <div class="input-group">
+              <input type="text" class="form-control" v-model="formData.barcode" :disabled="isNoSelect() || loading">
+              <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#scanBarcodeModal">
+                <i class="fa-solid fa-barcode"></i>
+              </button>
+            </div>
           </div>
           <div class="mt-4 text-center">
     				<button class="btn btn-outline-success" @click="save" :disabled="isNoSelect() || loading">
@@ -68,6 +73,7 @@
     </div>
   </div>
   <confirm-modal></confirm-modal>
+  <ScanBarcodeModal @detectedBarcode="detectedBarcode"></ScanBarcodeModal>
 </template>
 
 <script setup>
@@ -77,6 +83,7 @@ import { useRoute } from "vue-router";
 import { axios } from "@/tools/requestCache";
 import ImageUploader from "@/components/VariantImageUploader.vue";
 import ConfirmModal from "@/components/modals/ConfirmModal.vue"
+import ScanBarcodeModal from '@/components/modals/ScanBarcodeModal.vue'
 import wrapValidator from '@/tools/validator'
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -241,5 +248,9 @@ function deleteItemInModal() {
 			})
 		}
 	})
+}
+
+function detectedBarcode(barcode) {
+	formData.value.barcode = barcode
 }
 </script>
