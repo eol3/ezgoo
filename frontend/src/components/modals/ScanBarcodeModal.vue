@@ -7,11 +7,18 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="d-flex justify-content-center">
-            <video ref="videoRef" class="video-preview" autoplay playsinline></video>
+          <div class="d-flex justify-content-center mb-3">
+            <div class="d-flex justify-content-center align-items-center camera-wrap">
+              <div
+                v-if="msg !== ''"
+                @click="startCamera"
+              >
+                {{ msg }}
+              </div>
+              <video ref="videoRef" v-else class="video-preview" autoplay playsinline></video>
+            </div>
           </div>
           <canvas ref="canvasRef" class="d-none"></canvas>
-          <!-- <p>{{ log }}</p> -->
         </div>
       </div>
     </div>
@@ -29,7 +36,7 @@ const videoRef = ref(null);
 const canvasRef = ref(null);
 let stream = null;
 let scanning = false;
-// const log = ref('')
+const msg = ref('')
 
 const emit = defineEmits(['detectedBarcode'])
 
@@ -55,13 +62,24 @@ async function startCamera() {
     stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: "environment" },
     });
+  } catch (error) {
+    if (error.name === "NotAllowedError") {
+      msg.value = '請檢查相機權限設定，並允許存取。'
+    } else if (error.name ===  'NotReadableError') {
+      msg.value = '未找到相機。'
+    } else {
+      msg.value = error.name
+    }
+    console.log(error.name)
+  }
+  try {
     videoRef.value.srcObject = stream;
     videoRef.value.play();
     scanning = true;
     scanBarcode();
     
   } catch (err) {
-    // log.value = JSON.stringify(err, Object.getOwnPropertyNames(err))
+    // msg.value = JSON.stringify(err, Object.getOwnPropertyNames(err))
   }
 }
 
@@ -79,7 +97,7 @@ async function scanBarcode() {
   try {
     detect(imageData)
   }  catch (err) {
-    // log.value = JSON.stringify(err, Object.getOwnPropertyNames(err))
+    // msg.value = JSON.stringify(err, Object.getOwnPropertyNames(err))
   }
   requestAnimationFrame(scanBarcode);
 }
@@ -101,7 +119,7 @@ async function detect(source) {
     formats: ["EAN-13", "Code128", "Code39"],
     maxNumberOfSymbols: 1,
   });
-  // log.value = JSON.stringify(results)
+  // msg.value = JSON.stringify(results)
   if (results.length > 0) {
     stopCamera()
     emit('detectedBarcode', results[0].text)
@@ -124,5 +142,11 @@ function stopCamera() {
   width: 300px;
   height: 200px;
   object-fit: cover; /* 確保畫面不變形 */
+}
+.camera-wrap {
+  width: 300px;
+  height: 200px;
+  background-color: black;
+  color: white;
 }
 </style>

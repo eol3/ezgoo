@@ -11,7 +11,7 @@
 					<i class="fa-solid fa-plus"></i>
 					新增商品
 				</router-link>
-				<a v-show="showBack" class="btn btn-outline-secondary btn-sm" @click="$router.go(-1)">
+				<a v-show="showBack" class="btn btn-outline-secondary btn-sm" style="width: 65px;" @click="$router.go(-1)">
 					<i class="fas fa-arrow-left"></i>
 					返回
 				</a>

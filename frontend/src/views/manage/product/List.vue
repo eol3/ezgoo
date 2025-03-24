@@ -1,6 +1,6 @@
 <template>
 	<div class="row justify-content-between">
-		<div class="col-12 col-lg-6 mb-3 mb-md-0">
+		<div class="col-12 col-lg-6 mb-2 mb-md-0">
 			<div class="d-flex">
 				<!-- <div class="col-auto pe-2">
 					<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#multiSetModal">批次修改</button>
@@ -16,18 +16,22 @@
 			</div>
 		</div>
 		<div class="col-12 col-lg-6">
-			<div class="d-flex justify-content-end">
-				<div class="my-auto me-1">
-					<div>狀態</div>
+			<div class="row justify-content-end">
+				<div class="col-12 col-md-8 d-flex justify-content-md-end mb-2 mb-md-0 pe-0">
+					<div class="my-auto me-1">
+						狀態
+					</div>
+					<div class="me-2">
+						<select class="form-select form-select-sm" v-model="queryObj.status" @change="changeStatus()">
+							<option value="all">全部</option>
+							<option value="0">未上架</option>
+							<option value="1">已上架</option>
+						</select>
+					</div>
 				</div>
-				<div class="me-2">
-					<select class="form-select form-select-sm" v-model="queryObj.status" @change="changeStatus()">
-					  <option value="all">全部</option>
-					  <option value="0">未上架</option>
-					  <option value="1">已上架</option>
-					</select>
+				<div class="col-12 col-md-4">
+					<SearchBar v-model="queryObj.word" :showBarcode="true"></SearchBar>
 				</div>
-				<SearchBar v-model="queryObj.word"></SearchBar>
 			</div>
 		</div>
 	</div>

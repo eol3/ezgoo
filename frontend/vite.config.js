@@ -17,11 +17,14 @@ export default ({ mode }) => {
       host: process.env.VITE_HOST,
     	port: process.env.VITE_PORT,
       // allowedHosts: ['test.ezgoo.biz'],
-      // hmr: { clientPort: 8086, protocol: 'wss' },
+      // hmr: { host: "test.ezgoo.biz", protocol: 'wss' },
     	proxy: {
         '/api': {
           target: process.env.VITE_API_URL
-        },
+        }
+        // '/uploads': {
+        //   target: process.env.VITE_API_URL
+        // }
     	}
     },
     build: {
