@@ -17,7 +17,7 @@
 		</div>
 		<div class="col-12 col-lg-6">
 			<div class="row justify-content-end">
-				<div class="col-12 col-md-8 d-flex justify-content-md-end mb-2 mb-md-0 pe-0">
+				<div class="col-md-4 d-flex justify-content-md-end mb-2 mb-md-0 pe-0">
 					<div class="my-auto me-1">
 						狀態
 					</div>
@@ -29,7 +29,7 @@
 						</select>
 					</div>
 				</div>
-				<div class="col-12 col-md-4">
+				<div class="col-md-5 col-lg-8">
 					<SearchBar v-model="queryObj.word" :showBarcode="true"></SearchBar>
 				</div>
 			</div>
@@ -86,22 +86,20 @@
 				<span v-else>${{ item.price }}</span>
 			</div>
 			<div class="col-3 col-md-1 text-center">
-				<span v-if="item.status === -1">
-					<small>
-						<i class="fas fa-circle text-secondary"></i>
-						草稿
-					</small>
-				</span>
 				<span v-if="item.status === 0">
 					<small>
 						<i class="fas fa-circle text-warning"></i>
-						未上架
+						<span class="d-none d-md-inline">
+							未上架
+						</span>
 					</small>
 				</span>
 				<span v-if="item.status === 1">
 					<small>
 						<i class="fas fa-circle text-success"></i>
-						已上架
+						<span class="d-none d-md-inline">
+							已上架
+						</span>
 					</small>
 				</span>
 			</div>

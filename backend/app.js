@@ -8,6 +8,8 @@ const session = require('express-session')
 const cookieParser = require('cookie-parser');
 const FileStore = require('session-file-store')(session)
 
+app.disable('x-powered-by');
+
 const compression = require('compression')
 app.use(compression())
 

@@ -113,6 +113,7 @@ defineFormData({
 const productId = ref(route.params.productId)
 const productName = ref('')
 const productOptions = ref([])
+const productPrice = ref(0)
 const selectedOptions = ref([null, null, null]) // ['red', 'xl']
 const imageUploaderRef = ref(null)
 
@@ -126,6 +127,7 @@ onActivated(async () => {
   if (storeProduct) {
     productName.value = storeProduct.name
     productOptions.value = storeProduct.options
+    productPrice.value = storeProduct.price
   } else {
     let response = await axios.get('/product/' + productId.value, {
       params: {
@@ -134,6 +136,7 @@ onActivated(async () => {
     })
     productName.value = response.data.name
     productOptions.value = response.data.options
+    productPrice.value = storeProduct.price
   }
   
   if (productName.value !== '') {
@@ -169,7 +172,7 @@ function clickOption(pKye, item) {
   } else {
     formMode.value = 'new'
     setFormData({
-      price: 0,
+      price: productPrice.value,
       number: 0,
       barcode: '',
     })
