@@ -185,10 +185,10 @@ function getProductCategory() {
       orderBy: 'asc'
     }
   }).then((response) => {
-    productCategory.value = response.data
+    let rootArr = [{ id: 'root', name: 'root', parentId: null, children: null }]
+    productCategory.value = rootArr.concat(response.data)
     if (productCategory.value.length === 0) return
     setSelectedByQuery()
-    productCategory.value.splice(0, 0, { id: 'root', name: 'root', parentId: null, children: null })
     treeList.value = listToTree(productCategory.value)
   })
 }
