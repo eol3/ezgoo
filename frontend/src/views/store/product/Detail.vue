@@ -298,7 +298,7 @@ function doAddCart() {
   if (proudctVariant.value.length > 0 && !selectedProductVariant.value) {
     store.dispatch('showAlert', {
       type: 'warning',
-      text: '尚無此選項商品。'
+      text: '還有商覑選項尚未選擇。'
     })
     return
   }

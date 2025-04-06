@@ -178,6 +178,13 @@ function minus() {
 }
 
 function doAddCart() {
+  if (proudctVariant.value.length > 0 && !selectedProductVariant.value) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '還有商覑選項尚未選擇。'
+    })
+    return
+  }
   if (addCart(storeInfo.value, product.value,
       selectedOptions.value, selectedProductVariant.value,
       choiceNumber.value, store)) {
