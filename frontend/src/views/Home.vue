@@ -57,7 +57,7 @@
         </div>
         <div class="store-card card flex-shrink-0 m-2" style="width: 18rem;">
           <router-link to="/store/3" class="text-decoration-none">
-            <img src="@/assets/images/cover_2.png" class="card-img-top">
+            <img src="@/assets/images/cover_3.jpg" class="card-img-top">
           </router-link>
           <div class="card-body">
             <router-link to="/store/3" class="text-black text-decoration-none">
@@ -108,7 +108,7 @@
             </h2>
             <div id="collapseTWo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
               <div class="accordion-body">
-                目前僅有商品管理與簡易的貼文發佈，後許會有優惠管理、會員管理、人員管理、第三方串接...等各類模組繼續開發
+                目前僅有商品管理與簡易的貼文發佈，後續會有優惠管理、會員管理、人員管理、第三方串接...等各類模組繼續開發
               </div>
             </div>
           </div>
