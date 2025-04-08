@@ -50,9 +50,7 @@
                   </div>
                 </div>
               </div>
-              <div>
-                {{ replaceNewLine(post.content) }}
-              </div>
+              <div v-html="replaceNewLine(post.content)"></div>
             </div>
           </div>
         </div>
