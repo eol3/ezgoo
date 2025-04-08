@@ -51,7 +51,7 @@
                 </div>
               </div>
               <div>
-                {{ post.content }}
+                {{ replaceNewLine(post.content) }}
               </div>
             </div>
           </div>
@@ -132,6 +132,10 @@ function getPostImages() {
   }).then((response) => {
     postImages.value = response.data
   })
+}
+
+function replaceNewLine(str) {
+	return str.replace(/\n/g, "<br />")
 }
 </script>
 
