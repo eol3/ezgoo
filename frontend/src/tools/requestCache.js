@@ -29,7 +29,9 @@ const customAxios = setupCache(axios.create());
   // timeout: 10000 // request timeout
 // })
 
-// customAxios.defaults.baseURL = "https://example.com/";
+if (import.meta.env.MODE === 'production') {
+  customAxios.defaults.baseURL = import.meta.env.VITE_API_URL
+}
 
 customAxios.interceptors.request.use(
   config => {
