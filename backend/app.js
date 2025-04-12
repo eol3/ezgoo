@@ -7,6 +7,9 @@ const helmet = require('helmet')
 const session = require('express-session')
 const cookieParser = require('cookie-parser');
 const FileStore = require('session-file-store')(session)
+const cors = require('cors')
+
+app.use(cors())
 
 app.disable('x-powered-by');
 
