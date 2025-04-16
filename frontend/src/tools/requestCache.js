@@ -29,10 +29,10 @@ const customAxios = setupCache(axios.create());
   // timeout: 10000 // request timeout
 // })
 
-if (import.meta.env.MODE === 'production') {
+if (import.meta.env.MODE === 'capacitor') {
   customAxios.defaults.baseURL = import.meta.env.VITE_API_URL
 }
-
+// customAxios.defaults.withCredentials = true;
 customAxios.interceptors.request.use(
   config => {
     
