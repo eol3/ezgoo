@@ -1,6 +1,6 @@
 import router from "../router/index";
 import store from "../store/index";
-import { axios } from "@/tools/request";
+import { axios } from "@/tools/requestCache"
 
 export function setHead(data) {
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && rm -rf ../backend/public/dist/ && cp -R dist/ ../backend/public/dist/",
+    "dev:cap": "vite --mode capacitor",
     "build:cap": "vite build --mode capacitor",
     "preview": "vite preview"
   },
