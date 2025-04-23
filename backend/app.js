@@ -7,9 +7,30 @@ const helmet = require('helmet')
 const session = require('express-session')
 const cookieParser = require('cookie-parser');
 const FileStore = require('session-file-store')(session)
-const cors = require('cors')
 
-app.use(cors())
+// 跨域 先不用
+// const cors = require('cors')
+
+// const allowedOrigins = [
+//   'http://148.113.201.93:8081',
+//   'http://localhost:8081',       // 開發用瀏覽器
+//   'capacitor://localhost',       // iOS WebView
+//   'http://localhost',            // Android WebView
+//   'https://test.ezgoo.biz',
+//   'https://www.ezgoo.biz',
+//   'https://ezgoo.biz',
+// ];
+
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   credentials: true
+// }))
 
 app.disable('x-powered-by');
 
@@ -48,9 +69,15 @@ var sess = {
   saveUninitialized: false,
   resave: false,
   rolling: true, // 不停延長session
-  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+  cookie: {
+    secure: false,
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    // sameSite: 'none'
+  }
 }
-if(process.env.NODE_ENV === 'production'){
+
+if(process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test'){
 	app.set('trust proxy', 1) // trust first proxy
   sess.cookie.secure = true // serve secure cookies
 }

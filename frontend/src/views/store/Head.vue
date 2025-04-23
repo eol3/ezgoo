@@ -175,7 +175,7 @@ function getStore() {
   })
 
   if (store.state.localUser) {
-    axios.get('/user/store/' + route.params.storeId).then(response => {
+    axios.get('/user/store/' + route.params.storeId, { selfErrorHandle: true }).then(response => {
       userStore.value = response.data
       store.dispatch('setCache', {
         key: 'currentUserStore',

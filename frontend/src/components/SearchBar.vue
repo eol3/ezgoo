@@ -1,7 +1,7 @@
 <template>
   <div class="me-1">
     <div class="input-group">
-      <input type="text" class="search-input form-control form-control-sm" v-model="word">
+      <input type="text" class="search-input form-control form-control-sm" v-model="word" @keyup.enter="goSearch()">
       <span class="input-group-text custom-input-text" v-if="word !== '' && word !== null" @click="clear()">
         <i class="far fa-times-circle"></i>
       </span>

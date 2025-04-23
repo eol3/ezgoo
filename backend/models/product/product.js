@@ -112,22 +112,24 @@ function attachCondition(condition, query) {
 	if (condition.ids) {
 		query.where(function() {
 			for (let item of condition.ids) {
-				this.orWhere({ 'id': item })
+				this.orWhere({ 'product.id': item })
 			}
 		})
 	}
 
 	if (condition.storeId) {
-		query.where({ 'storeId': condition.storeId })
+		query.where({ 'product.storeId': condition.storeId })
 	}
 
 	if (condition.account) {
-		query.where({ 'account': condition.account })
+		query.where({ 'product.account': condition.account })
 	}
 	
 	if (condition.word) {
 		query.whereLike('name', '%'+condition.word+'%')
-		query.orWhereLike('barcode', '%'+condition.word+'%');
+		query.join('productVariant', 'product.id', 'productVariant.productId')
+		query.orWhereLike('product.barcode', '%'+condition.word+'%');
+		query.orWhereLike('productVariant.barcode', '%'+condition.word+'%');
 	}
 
 	if (condition.status) {

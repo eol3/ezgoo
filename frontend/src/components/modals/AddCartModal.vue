@@ -43,6 +43,7 @@
                 <button
                   class="mx-1 my-1 btn btn-outline-secondary btn-sm"
                   :class="{ active: selectedOptions.indexOf(item) > -1 }"
+                  :disabled="!findOptionInVariant(pKey, item)"
                   v-for="(item, key) in pItem.values"
                   :key="key"
                   @click="clickOption(pKey, item)"
@@ -75,7 +76,7 @@ import { Modal } from 'bootstrap'
 import { onMounted, ref, reactive, watch  } from 'vue'
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
-import { addCart } from '@/tools/libs'
+import { compareArraysWithRules, addCart } from '@/tools/libs'
 import LoadingSpin from "@/components/LoadingSpin.vue";
 
 import { onBeforeRouteLeave } from 'vue-router'
@@ -181,7 +182,7 @@ function doAddCart() {
   if (proudctVariant.value.length > 0 && !selectedProductVariant.value) {
     store.dispatch('showAlert', {
       type: 'warning',
-      text: '還有商覑選項尚未選擇。'
+      text: '還有商品選項尚未選擇。'
     })
     return
   }
@@ -190,6 +191,28 @@ function doAddCart() {
       choiceNumber.value, store)) {
     modal.hide()
   }
+}
+
+function findOptionInVariant(pKey, findItem) {
+  let check = false
+  let compareArray = [null, null, null]
+  compareArray[pKey] = findItem
+  let rules = ["ignore", "ignore", "ignore"]
+  rules[pKey] = 'exact'
+  for (let i in selectedOptions.value) {
+    if (selectedOptions.value[i] && !compareArray[i]) {
+      compareArray[i] = selectedOptions.value[i]
+      rules[i] = 'exact'
+    }
+  }
+
+  for (const item of proudctVariant.value) {
+    if (compareArraysWithRules(item.productOption, compareArray, rules)) {
+      check = true
+      break;
+    }
+  }
+  return check
 }
 </script>
 

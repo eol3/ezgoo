@@ -77,7 +77,7 @@ function handleError(error) {
     if(error.toJSON().message === 'Network Error'){
       store.dispatch("showAlert", {
         type: "danger",
-        text: '無法連接網路，請檢查確認網路後，重新整理葉面'
+        text: '網路連線錯誤'
       });
     }
 
