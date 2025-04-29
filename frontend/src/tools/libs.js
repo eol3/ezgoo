@@ -131,6 +131,13 @@ export function addCart(storeInfo, product, selectedOptions, selectedProductVari
     })
     return false
   }
+  if (product.variantCount > 0 && !selectedProductVariant) {
+    store.dispatch('showAlert', {
+      type: 'warning',
+      text: '還有商品選項尚未選擇。'
+    })
+    return false
+  }
   product.selectedOptions = selectedOptions
   product.variant = selectedProductVariant
   product.choiceNumber = choiceNumber

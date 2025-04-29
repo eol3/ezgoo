@@ -37,21 +37,13 @@
             </span>
           </div>
           <div class="my-2">
-            <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
-              <span class="fw-bold">{{ pItem.name }}</span>
-              <div>
-                <button
-                  class="mx-1 my-1 btn btn-outline-secondary btn-sm"
-                  :class="{ active: selectedOptions.indexOf(item) > -1 }"
-                  :disabled="!findOptionInVariant(pKey, item)"
-                  v-for="(item, key) in pItem.values"
-                  :key="key"
-                  @click="clickOption(pKey, item)"
-                >
-                  {{ item }}
-                </button>
-              </div>
-            </div>
+            <ProductOptionsTags
+              :productOptions="product.options"
+              :proudctVariant="proudctVariant"
+              v-model:selectedOptions="selectedOptions"
+              v-model:selectedProductVariant="selectedProductVariant"
+              @onClickOption="clickOption"
+            ></ProductOptionsTags>
           </div>
           <div class="d-flex my-3">
             <div class="product-number-group input-group me-2">
@@ -76,8 +68,9 @@ import { Modal } from 'bootstrap'
 import { onMounted, ref, reactive, watch  } from 'vue'
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
-import { compareArraysWithRules, addCart } from '@/tools/libs'
+import { addCart } from '@/tools/libs'
 import LoadingSpin from "@/components/LoadingSpin.vue";
+import ProductOptionsTags from '@/components/ProductOptionsTags.vue';
 
 import { onBeforeRouteLeave } from 'vue-router'
 onBeforeRouteLeave((to, from) => {
@@ -144,21 +137,7 @@ function getProductImages() {
   })
 }
 
-function clickOption(pKye, item) {
-  if (selectedOptions.value[pKye] === item) {
-    selectedOptions.value[pKye] = null
-  } else {
-    selectedOptions.value[pKye] = item
-  }
-  const found = proudctVariant.value.find(e => isSame(e.productOption, selectedOptions.value))
-  if (found) {
-    selectedProductVariant.value = {
-      id: found.id,
-      price: found.price,
-    }
-  } else {
-    selectedProductVariant.value = false
-  }
+function clickOption() {
   const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
   if (foundKey > -1) {
     rowImageWrap.value.scrollLeft = 160 * foundKey
@@ -179,13 +158,6 @@ function minus() {
 }
 
 function doAddCart() {
-  if (proudctVariant.value.length > 0 && !selectedProductVariant.value) {
-    store.dispatch('showAlert', {
-      type: 'warning',
-      text: '還有商品選項尚未選擇。'
-    })
-    return
-  }
   if (addCart(storeInfo.value, product.value,
       selectedOptions.value, selectedProductVariant.value,
       choiceNumber.value, store)) {
@@ -193,27 +165,6 @@ function doAddCart() {
   }
 }
 
-function findOptionInVariant(pKey, findItem) {
-  let check = false
-  let compareArray = [null, null, null]
-  compareArray[pKey] = findItem
-  let rules = ["ignore", "ignore", "ignore"]
-  rules[pKey] = 'exact'
-  for (let i in selectedOptions.value) {
-    if (selectedOptions.value[i] && !compareArray[i]) {
-      compareArray[i] = selectedOptions.value[i]
-      rules[i] = 'exact'
-    }
-  }
-
-  for (const item of proudctVariant.value) {
-    if (compareArraysWithRules(item.productOption, compareArray, rules)) {
-      check = true
-      break;
-    }
-  }
-  return check
-}
 </script>
 
 <style lang="scss" scoped>

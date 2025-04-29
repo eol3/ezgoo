@@ -24,23 +24,41 @@
           <div v-if="formMode === 'list'" class="mb-3">
             <button class="btn btn-outline-primary" @click="newCategory">新增商品分類</button>
           </div>
-          <div v-if="formMode === 'new' || formMode === 'edit'" class="input-group mb-3">
-            <input type="text" class="form-control" v-model="formData.name" placeholder="請輸入商品分類名稱">
-            <button class="btn btn-outline-success" type="button" @click="save">
-              儲存
-            </button>
-            <button v-if="formMode === 'edit'" class="btn btn-outline-danger" type="button" @click="deleteCategory">刪除</button>
-            <button v-if="formMode === 'new' || formMode === 'edit'" class="btn btn-outline-secondary" type="button" @click="cancelEdit">取消</button>
-          </div>
-          <label v-if="formMode === 'new' || formMode === 'edit'" class="form-label">
-            <template v-if="selectedStatus">
-              已選擇上層分類「{{ selectedStatus }}」
-            </template>
-            <template v-else>
-              請選擇上層分類
-            </template>
-          </label>
-          <label v-else></label>
+          <template v-if="formMode === 'new' || formMode === 'edit'">
+            <div class="input-group mb-2">
+              <input type="text" class="form-control" v-model="formData.name" placeholder="請輸入商品分類名稱">
+              <button class="btn btn-outline-success" type="button" @click="save">
+                儲存
+              </button>
+              <button v-if="formMode === 'edit'" class="btn btn-outline-danger" type="button" @click="deleteCategory">刪除</button>
+              <button v-if="formMode === 'new' || formMode === 'edit'" class="btn btn-outline-secondary" type="button" @click="cancelEdit">取消</button>
+            </div>
+            <div class="form-group mb-2">
+              <label class="form-label">商品分類描述</label>
+              <textarea class="form-control" rows="1" v-model="formData.describe" :disabled="loading"></textarea>
+            </div>
+            <div class="form-check mb-2">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                v-model="formData.inHome"
+                id="checkInHome"
+                :true-value="1"
+                :false-value="0"
+              >
+              <label class="form-check-label" for="checkInHome">
+                是否顯示於首頁
+              </label>
+            </div>
+            <label class="form-label">
+              <template v-if="selectedStatus">
+                已選擇上層分類「{{ selectedStatus }}」
+              </template>
+              <template v-else>
+                請選擇上層分類
+              </template>
+            </label>
+          </template>
           <div class="category-wrap p-2 rounded-3">
             <div v-if="list.length === 0">
           		尚無分類
@@ -102,7 +120,9 @@ initQueryObj({
 onMounted(async () => {
   defineFormData({
     name: '',
-    parentId: null
+    parentId: null,
+    describe: null,
+    inHome: 0
   })
   getCategory()
 })
@@ -117,7 +137,8 @@ onActivated(async () => {
 async function getCategory() {
   return getList(queryObj).then(() => {
     if (list.value.length === 0) return
-    list.value.splice(0, 0, { id: 'root', name: 'root', parentId: null, children: null })
+    let rootArr = [{ id: 'root', name: 'root', parentId: null, children: null }]
+    list.value = rootArr.concat(list.value)
     for (const item of list.value) {
       item.active = false
     }
@@ -163,7 +184,9 @@ function newCategory() {
   formMode.value = 'new'
   defineFormData({
     name: '',
-    parentId: null
+    parentId: null,
+    describe: null,
+    inHome: 0
   })
 }
 
@@ -173,6 +196,8 @@ async function save() {
   const newCategory = {
     id: '',
     name: formData.value.name,
+    describe: formData.value.describe,
+    inHome: formData.value.inHome,
     parentId: formData.value.parentId,
     children: null,
     priority: '',
@@ -184,19 +209,25 @@ async function save() {
     }
     newCategory.id = response.data.id
     newCategory.priority = response.data.id
+    newCategory.describe = response.data.describe
+    newCategory.inHome = response.data.inHome
     list.value.push(newCategory)
   } else if (formMode.value === 'edit') {
     await editItem()
     let editCategory = getTreeItem(treeList.value, itemId.value)
     editCategory.name = newCategory.name
     editCategory.parentId = newCategory.parentId
+    editCategory.describe = newCategory.describe
+    editCategory.inHome = newCategory.inHome
     formMode.value = 'list'
   }
   loading.value = false
   treeList.value = listToTree(list.value)
   defineFormData({
     name: '',
-    parentId: null
+    parentId: null,
+    describe: null,
+    inHome: 0
   })
   clearActive(treeList.value)
   selectedStatus.value = null
@@ -223,6 +254,8 @@ function editCategory(item) {
   formMode.value = 'edit'
   itemId.value = item.id
   formData.value.name = item.name
+  formData.value.describe = item.describe
+  formData.value.inHome = item.inHome
   formData.value.parentId = null
   delete formData.value.priority
   selectedStatus.value = null
@@ -242,7 +275,9 @@ function cancelEdit() {
   clearActive(treeList.value)
   defineFormData({
     name: '',
-    parentId: null
+    parentId: null,
+    describe: null,
+    inHome: 0
   })
 }
 

@@ -96,7 +96,7 @@
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
               <div class="accordion-body">
-                目前免費，需收費的時候會發e-mail通知
+                目前免費，需收費的時候會提前公告，並發e-mail通知
               </div>
             </div>
           </div>

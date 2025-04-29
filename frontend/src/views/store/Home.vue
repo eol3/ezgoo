@@ -79,6 +79,45 @@
       </div>
     </div>
   </div>
+  <div class="row mt-2" v-for="(productLine, pkey) in productInhome" :key="pkey">
+    <div class="col-12 col-md-10 offset-md-1">
+      <div class="d-flex justify-content-between my-3">
+        <div class="fw-bold">{{ productLine.name }}</div>
+        <router-link :to="baseUrl + '/product?categoris=' +  productLine.categoryIds" class="text-decoration-none">
+          查看全部
+          <i class="fa-solid fa-arrow-right"></i>
+        </router-link>
+      </div>
+      <div class="d-flex flex-nowrap overflow-x-auto mx-1">
+        <div class="product-card card flex-shrink-0 mb-3 me-3"
+          v-for="(item, key) in productLine.products"
+          :key="key"
+        >
+          <router-link :to="'/product/'+item.id">
+            <img v-if="item.thumbnail" :src="item.thumbnail" class="card-img-top">
+            <img v-else src="https://placehold.co/600x400" class="card-img-top">
+          </router-link>
+          <div class="card-body">
+            <div class="body-text-wrap">
+              <router-link :to="'/product/'+item.id" class="text-black text-decoration-none">
+                <p v-if="item.name === ''" class="card-text text-secondary fst-italic">尚無內容</p>
+                <p v-else class="card-text">
+                  <span v-if="item.status === 0" class="text-secondary fst-italic">(未上架)</span>
+                  {{ item.name }}
+                </p>
+              </router-link>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-primary">${{ item.price }}</div>
+              <div class="cursor-pointer" @click="doAddCart(item)">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <AddCartModal
     ref="addCartModal"
   ></AddCartModal>
@@ -91,7 +130,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
 import AddCartModal from "@/components/modals/AddCartModal.vue"
-import { checkStoreStateBeforeAddCart, addCart } from '@/tools/libs'
+import { checkStoreStateBeforeAddCart, addCart, listToTree, traverseSubtree } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -108,6 +147,7 @@ const postLoading = ref(false)
 const postList = ref([])
 const productLoading = ref(false)
 const productList = ref([])
+const productInhome = ref([])
 const baseUrl = '/store/' + route.params.storeId
 
 const storeInfo = ref(null)
@@ -119,6 +159,7 @@ let queryStatus = '1'
 onMounted(() => {
   getPosts()
   getProducts()
+  getProductsInHome()
 })
 
 function getPosts() {
@@ -147,6 +188,51 @@ function getProducts() {
   }).then((response) => {
     productList.value = response.data
   }).finally(() => { productLoading.value = false })
+}
+
+function getProductsInHome() {
+  axios.get('/product-category/', {
+    params: {
+      storeId: route.params.storeId,
+      status: queryStatus,
+      sortBy: 'priority',
+      orderBy: 'asc'
+    }
+  }).then((response) => {
+    for (const item of response.data) {
+      if (item.inHome) {
+        let ids = ''
+        traverseSubtree(listToTree(response.data), item.id, (node) => {
+          ids += node.id + '-'
+        });
+        ids = ids.slice(0, -1)
+        productInhome.value.push({
+          categoryIds: ids,
+          name: item.name,
+          products: []
+        })
+      }
+    }
+    for (const item of productInhome.value) {
+      getProductInCategory(item)
+    }
+  })
+}
+
+function getProductInCategory(productLine) {
+  axios.get('/product', {
+    params: {
+      storeId: 2,
+      categoris: productLine.categoryIds,
+      status: 1,
+      sortBy: 'priority',
+      orderBy: 'asc',
+      limit: 20,
+      offset: 0,
+    }
+  }).then((response) => {
+    productLine.products = response.data
+  })
 }
 
 async function doAddCart(product) {

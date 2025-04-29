@@ -47,6 +47,8 @@ router.post('/', async function(req, res, next) {
     storeId: req.query.storeId,
     parentId: req.body.parentId,
     name: req.body.name,
+    describe: req.body.describe,
+    inHome: req.body.inHome,
     children: req.body.children,
     priority: req.body.priority,
 		createBy: req.session.user.id,
@@ -57,6 +59,8 @@ router.post('/', async function(req, res, next) {
     storeId: 'required|numeric|min:1',
     parentId: 'numeric|min:1',
     name: 'string',
+    describe: 'string',
+    inHome: 'numeric|min:0|max:1',
     children: 'numeric',
     priority: 'numeric'
   }, 'product');
@@ -84,6 +88,8 @@ router.put('/:productCategoryId', async function(req, res, next) {
     storeId: req.query.storeId,
     parentId: req.body.parentId,
     name: req.body.name,
+    describe: req.body.describe,
+    inHome: req.body.inHome,
     children: req.body.children,
     priority: req.body.priority,
 		createBy: req.session.user.id,
@@ -95,6 +101,8 @@ router.put('/:productCategoryId', async function(req, res, next) {
     storeId: 'required|numeric|min:1',
     parentId: 'numeric|min:1',
     name: 'string',
+    describe: 'string',
+    inHome: 'numeric|min:0|max:1',
     children: 'numeric',
     priority: 'numeric'
   }, 'product');

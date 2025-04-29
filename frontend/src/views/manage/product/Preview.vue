@@ -38,21 +38,13 @@
                 </span>
               </div>
               <div class="my-2">
-                <div v-for="(pItem, pKey) in product.options" :key="pKey" class="mb-1">
-                  <span class="fw-bold">{{ pItem.name }}</span>
-                  <div>
-                    <button
-                      class="mx-1 my-1 btn btn-outline-secondary btn-sm"
-                      :class="{ active: selectedOptions.indexOf(item) > -1 }"
-                      :disabled="!findOptionInVariant(pKey, item)"
-                      v-for="(item, key) in pItem.values"
-                      :key="key"
-                      @click="clickOption(pKey, item)"
-                    >
-                      {{ item }}
-                    </button>
-                  </div>
-                </div>
+                <ProductOptionsTags
+                  :productOptions="product.options"
+                  :proudctVariant="proudctVariant"
+                  v-model:selectedOptions="selectedOptions"
+                  v-model:selectedProductVariant="selectedProductVariant"
+                  @onClickOption="clickOption"
+                ></ProductOptionsTags>
               </div>
               <div class="d-flex mt-3">
                 <div class="product-number-group input-group me-2">
@@ -158,14 +150,13 @@
 import { onMounted, onActivated, ref, reactive } from 'vue';
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
-import { compareArraysWithRules } from '@/tools/libs'
+import ProductOptionsTags from '@/components/ProductOptionsTags.vue';
 
 const store = useStore()
 const route = useRoute()
-const router = useRouter()
 const emit = defineEmits(['updateLayoutStatus'])
 
 const storeInfo = ref(null)
@@ -208,11 +199,8 @@ function getProduct() {
     product.value = response.data
     getStore()
     barcode.value = []
-    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
     proudctVariant.value = response.data.variant
-    proudctVariant.value.forEach(element => {
-      if (element.barcode !== '') barcode.value.push(element.barcode)
-    });
+    initBarcodeText()
     productImages.value = response.data.image
   })
 }
@@ -231,26 +219,11 @@ function minus() {
   if (choiceNumber.value < 1) choiceNumber.value = 1
 }
 
-function clickOption(pKye, item) {
-  if (selectedOptions.value[pKye] === item) {
-    selectedOptions.value[pKye] = null
+function clickOption() {
+  if (selectedProductVariant.value) {
+    barcode.value = [selectedProductVariant.value.barcode]
   } else {
-    selectedOptions.value[pKye] = item
-  }
-  const found = proudctVariant.value.find(e => isSame(e.productOption, selectedOptions.value))
-  if (found) {
-    selectedProductVariant.value = {
-      id: found.id,
-      price: found.price,
-    }
-    if (found.barcode !== '') barcode.value = [found.barcode]
-  } else {
-    selectedProductVariant.value = false
-    barcode.value = []
-    if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
-    proudctVariant.value.forEach(element => {
-      if (element.barcode !== '') barcode.value.push(element.barcode)
-    });
+    initBarcodeText()
   }
   const foundKey = productImages.value.findIndex(e => isSame(e.productOption, selectedOptions.value))
   if (foundKey > -1) {
@@ -272,26 +245,12 @@ function doAddCart() {
   return
 }
 
-function findOptionInVariant(pKey, findItem) {
-  let check = false
-  let compareArray = [null, null, null]
-  compareArray[pKey] = findItem
-  let rules = ["ignore", "ignore", "ignore"]
-  rules[pKey] = 'exact'
-  for (let i in selectedOptions.value) {
-    if (selectedOptions.value[i] && !compareArray[i]) {
-      compareArray[i] = selectedOptions.value[i]
-      rules[i] = 'exact'
-    }
-  }
-
-  for (const item of proudctVariant.value) {
-    if (compareArraysWithRules(item.productOption, compareArray, rules)) {
-      check = true
-      break;
-    }
-  }
-  return check
+function initBarcodeText() {
+  barcode.value = []
+  if (product.value.barcode !== '') barcode.value.push(product.value.barcode)
+  proudctVariant.value.forEach(element => {
+    if (element.barcode !== '') barcode.value.push(element.barcode)
+  });
 }
 
 function getPaymentText() {

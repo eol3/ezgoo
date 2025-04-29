@@ -201,7 +201,8 @@ function setSelectedByQuery() {
       item.active = true
       selectedItems.value.push(item)
       setSelfHead(item.name + ' - ')
-      break
+    } else {
+      item.active = false
     }
   }
 }
