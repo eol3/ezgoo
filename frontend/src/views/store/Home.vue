@@ -222,12 +222,12 @@ function getProductsInHome() {
 function getProductInCategory(productLine) {
   axios.get('/product', {
     params: {
-      storeId: 2,
+      storeId: route.params.storeId,
       categoris: productLine.categoryIds,
       status: 1,
-      sortBy: 'priority',
-      orderBy: 'asc',
-      limit: 20,
+      sortBy: 'id',
+      orderBy: 'desc',
+      limit: 10,
       offset: 0,
     }
   }).then((response) => {

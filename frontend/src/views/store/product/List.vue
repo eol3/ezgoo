@@ -39,6 +39,9 @@
         <div v-if="list.length === 0 && !loading" class="text-center py-5" style="height: 60vh">
           尚無資料
         </div>
+        <div v-if="categoryDescribe !== ''" class="rounded-2 bg-white px-3 py-2">
+          {{ categoryDescribe }}
+        </div>
         <div v-if="!loading" class="col-6 col-md-4 col-lg-3" v-for="(item, key) in list" :key="key">
           <div class="product-card card">
             <router-link :to="'/product/'+item.id">
@@ -130,12 +133,14 @@ initQueryObj({
 const productCategory = ref([])
 const treeList = ref([])
 const selectedItems = ref([])
+const categoryDescribe = ref('')
 
 const storeInfo = ref(null)
 
 const addCartModal = ref(null)
 
 onMounted(() => {
+  console.log('mounted')
   setQueryObj(route)
   getListAndCount()
   getProductCategory()
@@ -194,14 +199,20 @@ function getProductCategory() {
 }
 
 function setSelectedByQuery() {
-  if (!route.query.categoris) return
-  let firstCategoryId = route.query.categoris.split('-')[0]
-  for (const item of productCategory.value) {
-    if (item.id == firstCategoryId) {
-      item.active = true
-      selectedItems.value.push(item)
-      setSelfHead(item.name + ' - ')
-    } else {
+  if (route.query.categoris) {
+    let firstCategoryId = route.query.categoris.split('-')[0]
+    for (const item of productCategory.value) {
+      if (item.id == firstCategoryId) {
+        item.active = true
+        selectedItems.value.push(item)
+        setSelfHead(item.name + ' - ')
+        setCateGoryDescribe(item.describe)
+      } else {
+        item.active = false
+      }
+    }
+  } else {
+    for (const item of productCategory.value) {
       item.active = false
     }
   }
@@ -221,6 +232,7 @@ function selectedItem(item) {
     delete query.categoris
     selectedItems.value = []
     setSelfHead('')
+    setCateGoryDescribe('')
   } else {
     let ids = ''
     traverseSubtree(treeList.value, item.id, (node) => {
@@ -229,6 +241,7 @@ function selectedItem(item) {
     ids = ids.slice(0, -1)
     query.categoris = ids
     setSelfHead(selectedItems.value[0].name + ' - ')
+    setCateGoryDescribe(selectedItems.value[0].describe)
   }
   if (query.page) delete query.page
   router.push({ query: query })
@@ -246,6 +259,7 @@ function unSelectedItem(item) {
   delete query.page
   router.push({ query: query })
   setSelfHead('')
+  setCateGoryDescribe('')
 }
 
 function unSelectedWord() {
@@ -263,6 +277,14 @@ async function setSelfHead(text) {
     description: text + storeInfo.value.about,
     url: document.URL
   })
+}
+
+function setCateGoryDescribe(describe) {
+  if (describe === '' || describe === null) {
+    categoryDescribe.value = ''
+  } else {
+    categoryDescribe.value = describe
+  }
 }
 
 async function doAddCart(product) {
