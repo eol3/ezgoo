@@ -140,7 +140,6 @@ const storeInfo = ref(null)
 const addCartModal = ref(null)
 
 onMounted(() => {
-  console.log('mounted')
   setQueryObj(route)
   getListAndCount()
   getProductCategory()
