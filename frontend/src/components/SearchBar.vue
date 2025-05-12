@@ -1,7 +1,7 @@
 <template>
   <div class="me-1">
     <div class="input-group">
-      <input type="text" class="search-input form-control form-control-sm" v-model="word" @keyup.enter="goSearch()">
+      <input type="text" class="search-input form-control form-control-sm" ref="inputText" v-model="word" @keyup.enter="goSearch()">
       <span class="input-group-text custom-input-text" v-if="word !== '' && word !== null" @click="clear()">
         <i class="far fa-times-circle"></i>
       </span>
@@ -15,13 +15,14 @@
 </template>
 
 <script setup>
-import { nextTick } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useRoute, useRouter } from "vue-router";
 import ScanBarcodeModal from '@/components/modals/ScanBarcodeModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const word = defineModel()
+const inputText = ref(null)
 
 const props = defineProps({
   showBarcode: {
@@ -50,6 +51,7 @@ function goSearch() {
 
 function clear() {
   word.value = ''
+  inputText.value.focus()
   nextTick(() => {
     goSearch()
   })

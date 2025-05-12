@@ -101,7 +101,7 @@ import SearchBar from "@/components/SearchBar.vue"
 import MobileFilterModal from "@/components/modals/MobileFilterModal.vue"
 import AddCartModal from "@/components/modals/AddCartModal.vue"
 import { setHead, checkStoreStateBeforeAddCart, addCart,
-  listToTree, traverseSubtree } from '@/tools/libs'
+  listToTree, traverseSubtree, findNodeWithPath } from '@/tools/libs'
 
 import CRUDTools from "@/tools/composition/CRUD";
 
@@ -149,6 +149,7 @@ onBeforeRouteUpdate((to) => {
 	// 只有在query改變，並且在同一個router view的時候觸發
 	setQueryObj(to)
 	getListAndCount()
+  setSelectedByQuery()
 });
 
 onBeforeRouteLeave((to, from) => {
@@ -192,46 +193,45 @@ function getProductCategory() {
     let rootArr = [{ id: 'root', name: 'root', parentId: null, children: null }]
     productCategory.value = rootArr.concat(response.data)
     if (productCategory.value.length === 0) return
-    setSelectedByQuery()
     treeList.value = listToTree(productCategory.value)
+    setSelectedByQuery()
   })
 }
 
 function setSelectedByQuery() {
-  if (route.query.categoris) {
-    let firstCategoryId = route.query.categoris.split('-')[0]
-    for (const item of productCategory.value) {
-      if (item.id == firstCategoryId) {
-        item.active = true
-        selectedItems.value.push(item)
-        setSelfHead(item.name + ' - ')
-        setCateGoryDescribe(item.describe)
-      } else {
-        item.active = false
-      }
+  for (const item of productCategory.value) {
+    item.active = false
+  }
+  selectedItems.value = []
+  if (queryObj.categoris) {
+    let firstCategoryId = Number(queryObj.categoris.split('-')[0])
+    const path = findNodeWithPath(treeList.value, firstCategoryId);
+
+    if (path) {
+      path.forEach(node => {
+        if (node.id !== firstCategoryId && node.children && node.children.length > 0) {
+          node.hasExpand = true
+          node.subExpand = true
+        }
+        if (node.id === firstCategoryId) {
+          node.active = true
+          selectedItems.value.push(node)
+          setSelfHead(node.name + ' - ')
+          setCateGoryDescribe(node.describe)
+        }
+      })
     }
   } else {
-    for (const item of productCategory.value) {
-      item.active = false
-    }
+    // root
+    setSelfHead('')
+    setCateGoryDescribe('')
   }
 }
 
 function selectedItem(item) {
-  selectedItems.value = []
-  productCategory.value.forEach((obj) => {
-    if (obj.id !== item.id) {
-      obj.active = false
-    } else {
-      selectedItems.value.push(obj)
-    }
-  })
   const query = Object.assign({}, route.query);
   if (item.id === 'root') {
     delete query.categoris
-    selectedItems.value = []
-    setSelfHead('')
-    setCateGoryDescribe('')
   } else {
     let ids = ''
     traverseSubtree(treeList.value, item.id, (node) => {
@@ -239,8 +239,6 @@ function selectedItem(item) {
     });
     ids = ids.slice(0, -1)
     query.categoris = ids
-    setSelfHead(selectedItems.value[0].name + ' - ')
-    setCateGoryDescribe(selectedItems.value[0].describe)
   }
   if (query.page) delete query.page
   router.push({ query: query })

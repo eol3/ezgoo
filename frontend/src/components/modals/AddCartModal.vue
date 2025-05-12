@@ -55,7 +55,13 @@
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
-            <button class="btn btn-outline-primary btn-sm" @click="doAddCart()" :disabled="loading">加入購物車</button>
+            <button
+                  class="btn btn-outline-primary btn-sm"
+                  :class="{ 'opacity-50': addCartButtonDisable(product, selectedOptions, selectedProductVariant) }"
+                  @click="doAddCart()"
+                >
+                  加入購物車
+                </button>
           </div>
         </div>
       </div>
@@ -68,7 +74,7 @@ import { Modal } from 'bootstrap'
 import { onMounted, ref, reactive, watch  } from 'vue'
 import { axios } from "@/tools/requestCache";
 import { useStore } from "vuex";
-import { addCart } from '@/tools/libs'
+import { addCart, addCartButtonDisable } from '@/tools/libs'
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import ProductOptionsTags from '@/components/ProductOptionsTags.vue';
 

@@ -56,7 +56,13 @@
                     <i class="fa-solid fa-plus"></i>
                   </button>
                 </div>
-                <button class="btn btn-outline-primary btn-sm" @click="doAddCart()">加入購物車</button>
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  :class="{ 'opacity-50': addCartButtonDisable(product, selectedOptions, selectedProductVariant) }"
+                  @click="doAddCart()"
+                >
+                  加入購物車
+                </button>
               </div>
             </div>
           </div>
@@ -158,7 +164,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
-import { checkStoreStateBeforeAddCart, addCart, setHead } from '@/tools/libs'
+import { checkStoreStateBeforeAddCart, addCart, addCartButtonDisable, setHead } from '@/tools/libs'
 import ProductOptionsTags from '@/components/ProductOptionsTags.vue';
 
 const store = useStore()
@@ -265,6 +271,17 @@ function isSame(array1, array2) {
       return element === array2[index]; 
   });
 }
+
+// function addCartButtonDisable() {
+//   return (
+//     (
+//       product.value.variantCount > 0 && isSame(selectedOptions.value, [null, null, null])
+//     ) ||
+//     (
+//       product.value.variantCount > 0 && !selectedProductVariant.value
+//     )
+//   )
+// }
 
 function doAddCart() {
   if (!checkStoreStateBeforeAddCart(storeInfo.value, store)) return

@@ -149,6 +149,17 @@ export function addCart(storeInfo, product, selectedOptions, selectedProductVari
   return true
 }
 
+export function addCartButtonDisable(product, selectedOptions, selectedProductVariant) {
+  return (
+    (
+      product.variantCount > 0 && isSame(selectedOptions, [null, null, null])
+    ) ||
+    (
+      product.variantCount > 0 && !selectedProductVariant
+    )
+  )
+}
+
 // product 必須包含choiceNumber, selectedOptions, variant, proudctVariantPrice
 export function setCart(storeInfo, product) {
   
@@ -375,6 +386,23 @@ export function traverseSubtree(treeArray, nodeId, callback) {
   }
 }
 
+export function findNodeWithPath(treeArray, nodeId, path = []) {
+  for (let node of treeArray) {
+    // 把當前節點加入路徑
+    const newPath = [...path, node];
+
+    if (node.id === nodeId) {
+      return newPath;  // 找到就回傳路徑陣列
+    }
+
+    if (node.children && node.children.length > 0) {
+      const foundPath = findNodeWithPath(node.children, nodeId, newPath);
+      if (foundPath) return foundPath;
+    }
+  }
+
+  return null; // 沒找到就回傳 null
+}
 
 function serialize(obj) {
   var str = [];

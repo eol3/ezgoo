@@ -79,11 +79,6 @@ function findOptionInVariant(pKey, findItem) {
 </script>
 
 <style lang="scss" scoped>
-.product-option-btn:hover {
-  color: #c53084;
-  background-color: #fff;
-  border-color: #c53084;
-}
 .product-option-btn.active {
   color: #fff;
   background-color: #c53084;
