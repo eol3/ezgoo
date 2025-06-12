@@ -200,7 +200,7 @@ async function save() {
   formData.value.productOption = selectedOptions.value
 
   const validator = wrapValidator(formData.value, {
-		price: 'required|numeric',
+		price: 'required|numeric|min:1',
 		number: 'numeric',
 		barcode: 'string',
 	}, 'product');

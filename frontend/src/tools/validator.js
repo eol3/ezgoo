@@ -1,12 +1,11 @@
 import validatorjs from 'validatorjs';
-import en from 'validatorjs/src/lang/en';
-validatorjs.setMessages('en', en);
+// import en from 'validatorjs/src/lang/en';
+// validatorjs.setMessages('en', en);
 // validatorjs.useLang('zh');
 
-// import zh_TW from 'validatorjs/src/lang/zh_TW';
-// validatorjs.setMessages('zh_TW', zh_TW);
-
-// validatorjs.useLang('zh_TW');
+import zh_TW from 'validatorjs/src/lang/zh_TW';
+validatorjs.setMessages('zh_TW', zh_TW);
+validatorjs.useLang('zh_TW');
 
 // 以下變更需和後端同步
 
@@ -49,13 +48,6 @@ validatorjs.register('length', function(value, requirement) { // requirement par
 }, 'The :attribute length must be :length');
 
 let errorMsg = {
-	required: '請輸入:attribute',
-	numeric: ':attribute必須是數字',
-	string: ':attribute必須是字串',
-  email: ':attribute格式不符',
-  min: ':attribute長度至少為:min',
-  max: ':attribute長度最多為:max',
-  confirmed: "輸入兩次:attribute不相符",
   script: "請勿輸入不合法字串",
   digits: ":attribute必須為:digits碼",
   idStringArray: ":attribute 必須是特殊字串",
@@ -108,12 +100,13 @@ function wrapValidator (data, rules, extModelName) {
 
 function transType(data, rules) {
 	for (const key in rules) {
-		if (data.hasOwnProperty(key)) {
+		if (data[key] !== undefined) {
 			if (rules[key].indexOf('boolean') > -1) {
-				data[key] = (data[key] === 'true')
+				if (typeof data[key] === 'string') {
+					data[key] = (data[key] === 'true')
+				}
 			} else if (rules[key].indexOf('numeric') > -1) {
-				// data[key] = Number(data[key])
-				if (data[key] === '') delete data[key]
+				data[key] = Number(data[key]) // 字元轉數字，字元'' => 0
 			} else if (rules[key] === 'idStringArray') {
 				let arr = data[key].split('-')
 				for (let i in arr) {

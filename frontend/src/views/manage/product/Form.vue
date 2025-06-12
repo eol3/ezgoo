@@ -294,7 +294,7 @@ async function save() {
 	
 	const validator = wrapValidator(formData.value, {
 		name: 'string',
-		price: 'required|numeric',
+		price: 'numeric',
 		number: 'numeric',
 		barcode: 'string',
 		describe: 'string',

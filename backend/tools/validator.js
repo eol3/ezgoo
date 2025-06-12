@@ -95,14 +95,13 @@ function wrapValidator (data, rules, extModelName) {
 
 function transType(data, rules) {
 	for (const key in rules) {
-		if (data.hasOwnProperty(key)) {
+		if (data[key] !== undefined) {
 			if (rules[key].indexOf('boolean') > -1) {
 				if (typeof data[key] === 'string') {
 					data[key] = (data[key] === 'true')
 				}
 			} else if (rules[key].indexOf('numeric') > -1) {
-				// data[key] = Number(data[key])
-				if (data[key] === '') delete data[key]
+				data[key] = Number(data[key]) // 字元轉數字，字元'' => 0
 			} else if (rules[key].indexOf('idStringArray') > -1) {
 				let arr = data[key].split('-')
 				for (let i in arr) {

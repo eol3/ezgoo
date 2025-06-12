@@ -92,7 +92,7 @@ router.post('/', async function(req, res, next) {
   const validator = wrapValidator(useData, {
     storeId: 'required|numeric|min:1',
     productId: 'required|numeric|min:1',
-    price: 'required|numeric',
+    price: 'required|numeric|min:1',
     number: 'numeric',
     barcode: 'string',
   }, 'product');
@@ -130,7 +130,7 @@ router.put('/:productVarintId', async function(req, res, next) {
     id: 'required|numeric|min:1',
     storeId: 'required|numeric|min:1',
     productId: 'required|numeric|min:1',
-    price: 'required|numeric',
+    price: 'required|numeric|min:1',
     number: 'numeric',
     barcode: 'string',
   }, 'product');
