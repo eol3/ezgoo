@@ -95,13 +95,14 @@ function wrapValidator (data, rules, extModelName) {
 
 function transType(data, rules) {
 	for (const key in rules) {
-		if (data[key]) {
+		if (data.hasOwnProperty(key)) {
 			if (rules[key].indexOf('boolean') > -1) {
 				if (typeof data[key] === 'string') {
 					data[key] = (data[key] === 'true')
 				}
 			} else if (rules[key].indexOf('numeric') > -1) {
 				// data[key] = Number(data[key])
+				if (data[key] === '') delete data[key]
 			} else if (rules[key].indexOf('idStringArray') > -1) {
 				let arr = data[key].split('-')
 				for (let i in arr) {
@@ -152,7 +153,8 @@ const extModel = {
 			id: '產品編號',
 			storeId: '商店編號',
 			name: '產品名稱',
-			status: '產品狀態'
+			status: '產品狀態',
+			price: '售價'
 		},
 		enumerationValues: {
 			statusQuery: ['all', '0', '1'],

@@ -101,7 +101,7 @@ app.use(function (err, req, res, next) {
     console.error(req.headers)
     console.error(err)
     res.status(500)
-    res.json({msg: 'Internal Server Error'})
+    res.json({msg: '系統發生錯誤'})
   }
 })
 

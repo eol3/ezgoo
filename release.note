@@ -1,4 +1,4 @@
 上線筆記
 
-CREATE TABLE `ezgoo`.`accessToken` (`id` INT NOT NULL AUTO_INCREMENT , `token` VARCHAR(255) NOT NULL , `userId` INT NOT NULL , `email` VARCHAR(255) NOT NULL , `status` INT NOT NULL COMMENT '0=未使用,1=已使用' , `createAt` DATETIME NOT NULL , `expireAt` DATETIME NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;
-ALTER TABLE `accessToken` ADD `action` VARCHAR(32) NOT NULL AFTER `status`;
+ALTER TABLE `productVariant` CHANGE `price` `price` INT NOT NULL DEFAULT '0';
+ALTER TABLE `productVariant` CHANGE `number` `number` INT NULL DEFAULT NULL;

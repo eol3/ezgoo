@@ -189,10 +189,6 @@ function isNoSelect() {
 	return isSame(selectedOptions.value, [null, null, null])
 }
 
-function needNewItem() {
-  
-}
-
 async function save() {
   if (isNoSelect()) {
     store.dispatch('showAlert', {
@@ -202,6 +198,20 @@ async function save() {
   	return
   }
   formData.value.productOption = selectedOptions.value
+
+  const validator = wrapValidator(formData.value, {
+		price: 'required|numeric',
+		number: 'numeric',
+		barcode: 'string',
+	}, 'product');
+	
+	if (validator.fail) {
+		formValid.value = {
+			fails: true,
+			...validator.errors
+		}
+		return
+	}
 
   let response = await saveItem()
   

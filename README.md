@@ -58,7 +58,7 @@ git push --set-upstream origin main        #指定推到main
 ```
 
 ### 筆記 ###
-
+* 2025/06/23 數字格式的欄位，資料庫允許null或設定預設值，後端收到空白字元，會刪除該欄位，給資料庫做預設動作，因為驗證套件，對空白字元不會驗證，前端做相應驗證
 * 2024/09/27 溝通時間格式，https://apiux.com/2013/03/20/5-laws-api-dates-and-times/
 * 2024/09/10 api溝通json格式都不要用字串，formData可以，因為formData欄位只允許帶字串
 * 2023/11/25 使用vite和validatorjs套件在設定語言上會有點問題，必須預設英文再複寫
