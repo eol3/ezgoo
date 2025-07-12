@@ -61,7 +61,6 @@
 
 <script>
 import SliderBar from "@/components/SliderBar.vue";
-import '@/assets/manage.scss';
 import { setHead } from '@/tools/libs'
 
 export default {
@@ -92,3 +91,7 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+@import '@/assets/manage.scss';
+</style>

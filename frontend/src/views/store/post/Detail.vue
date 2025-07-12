@@ -133,7 +133,8 @@ function getPostImages() {
 }
 
 function replaceNewLine(str) {
-	return str.replace(/\n/g, "<br />")
+  if (str === undefined) return ''
+  else return str.replace(/\n/g, "<br />")
 }
 </script>
 

@@ -51,13 +51,13 @@
 				  </label> -->
 				</div>
 			</div>
-			<div class="col-4 col-md-7">
+			<div class="col-5 col-md-7">
 				商品名稱
 			</div>
 			<div class="col-2 col-md-1">
 				售價
 			</div>
-			<div class="col-3 col-md-1 text-center">
+			<div class="col-2 col-md-1 text-center">
 				狀態
 			</div>
 			<div class="col-2 col-md-1 text-center">
@@ -70,10 +70,13 @@
 				  <input class="form-check-input" type="checkbox" :id="'productItemCheck' + item.id">
 				</div>
 			</div>
-			<div class="col-4 col-md-7 d-flex align-items-center">
+			<div class="col-5 col-md-7 py-0 d-flex align-items-center">
 				<router-link :to="baseUrl + item.id" class="w-100 d-flex align-items-center text-decoration-none" style="color: inherit;">
 					<div>
-						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
+						<img v-if="item.thumbnail" :src="item.thumbnail" width='50' height="50" class="me-3">
+						<div v-else class="product-list-no-image me-3 d-flex align-items-center justify-content-center">
+							<i>尚無圖片</i>
+						</div>
 					</div>
 					<div class="cut-text">
 						<i v-if="item.name === ''">(尚無商品名稱)</i>
@@ -82,10 +85,10 @@
 				</router-link>
 			</div>
 			<div class="col-2 col-md-1">
-				<span class="text-danger" v-if="item.price === 0">${{ item.price }}</span>
+				<span class="text-danger" v-if="item.price <= 0">${{ item.price }}</span>
 				<span v-else>${{ item.price }}</span>
 			</div>
-			<div class="col-3 col-md-1 text-center">
+			<div class="col-2 col-md-1 text-center">
 				<span v-if="item.status === 0">
 					<small>
 						<i class="fas fa-circle text-warning"></i>
@@ -260,3 +263,13 @@ function deleteItemInModal(item) {
 }
 
 </script>
+
+<style lang="scss">
+.product-list-no-image {
+	font-size: 10px;
+  width: 50px;
+  height: 50px;
+	background-color: var(--d-gray-200);
+	color: $gray-600;
+}
+</style>

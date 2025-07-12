@@ -21,7 +21,7 @@
 						</div>
 						<div class="form-group mt-2">
 							<label class="form-label">售價</label>
-							<input type="number" class="form-control" v-model="formData.price" @focus="formValidClear()" :disabled="loading">
+							<input type="text" class="form-control" inputmode="numeric" v-model="formData.price" @focus="formValidClear()" :disabled="loading">
 							<div class="form-text text-danger">
 								{{ formValidFeild('price') ? formValid.errors.price[0] : '' }}
 							</div>

@@ -54,9 +54,11 @@
           v-for="(item, key) in productList"
           :key="key"
         >
-          <router-link :to="'/product/'+item.id">
+          <router-link :to="'/product/'+item.id" class="text-decoration-none">
             <img v-if="item.thumbnail" :src="item.thumbnail" class="card-img-top">
-            <img v-else src="https://placehold.co/600x400" class="card-img-top">
+            <div v-else class="card-img-top product-card-no-image d-flex align-items-center justify-content-center">
+              <i>尚無圖片</i>
+            </div>
           </router-link>
           <div class="card-body">
             <div class="body-text-wrap">
@@ -93,9 +95,11 @@
           v-for="(item, key) in productLine.products"
           :key="key"
         >
-          <router-link :to="'/product/'+item.id">
+          <router-link :to="'/product/'+item.id" class="text-decoration-none">
             <img v-if="item.thumbnail" :src="item.thumbnail" class="card-img-top">
-            <img v-else src="https://placehold.co/600x400" class="card-img-top">
+            <div v-else class="card-img-top product-card-no-image d-flex align-items-center justify-content-center">
+              <i>尚無圖片</i>
+            </div>
           </router-link>
           <div class="card-body">
             <div class="body-text-wrap">
@@ -268,6 +272,12 @@ async function doAddCart(product) {
   text-overflow: ellipsis;
 }
 
+.product-card-no-image {
+  width: 100%;
+  height: 120px;
+	background-color: var(--d-gray-200);
+	color: $gray-600;
+}
 .product-card {
   width: 180px;
   height: 240px;
@@ -280,7 +290,6 @@ async function doAddCart(product) {
 .product-card .body-text-wrap {
   height: 70%;
 }
-
 .product-card .card-text {
   display: -webkit-box;
   -webkit-line-clamp: 2;

@@ -180,6 +180,7 @@ export default () => {
         response = await editItem(params)
       }
     } catch(error) {
+      loading.value = false
       throw error
     }
     store.dispatch('clearCache')

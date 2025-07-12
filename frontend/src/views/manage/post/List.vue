@@ -60,10 +60,10 @@
 				  <input class="form-check-input" type="checkbox" :id="'productItemCheck' + item.id">
 				</div>
 			</div>
-			<div class="col-6 col-md-7">
+			<div class="col-6 col-md-7 py-0">
 				<router-link :to="baseUrl + item.id" class="w-100 d-flex align-items-center text-decoration-none" style="color: inherit;">
 					<div>
-						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='30' height="30" class="me-3">
+						<img :src="item.thumbnail ? item.thumbnail : 'https://placehold.co/200'" width='50' height="50" class="me-3">
 					</div>
 					<div class="cut-text">
 						{{ item.content }}

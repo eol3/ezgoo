@@ -44,9 +44,11 @@
         </div>
         <div v-if="!loading" class="col-6 col-md-4 col-lg-3" v-for="(item, key) in list" :key="key">
           <div class="product-card card">
-            <router-link :to="'/product/'+item.id">
+            <router-link :to="'/product/'+item.id" class="text-decoration-none">
               <img v-if="item.thumbnail" :src="item.thumbnail" class="card-img-top">
-              <img v-else src="https://placehold.co/600x400" class="card-img-top">
+              <div v-else class="card-img-top product-card-no-image d-flex align-items-center justify-content-center">
+                <i>尚無圖片</i>
+              </div>
             </router-link>
             <div class="card-body">
               <div class="body-text-wrap">
@@ -299,11 +301,12 @@ async function doAddCart(product) {
 </script>
 
 <style scoped lang="scss">
-// .card img {
-//   height: 130px;
-//   object-fit: cover;
-// }
-
+.product-card-no-image {
+  width: 100%;
+  height: 120px;
+	background-color: var(--d-gray-200);
+	color: $gray-600;
+}
 .product-card {
   // width: 180px;
   height: 240px;

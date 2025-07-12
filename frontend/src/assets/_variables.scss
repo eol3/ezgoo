@@ -1,0 +1,33 @@
+
+
+// $primary: #ae2079;
+// $primary: #c33c9b;
+$primary: #c53084;
+// $primary: #c453c7;
+$success: #1ab188;
+
+$bs-heading-color: #364a63;
+
+$text-small: 0.8rem;
+
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+
+$white: #fff;
+
+// 匯入 Bootstrap 的 functions（因為 variables 裡有些變數依賴 functions）
+@import "bootstrap/scss/functions";
+
+// 匯入 Bootstrap 的 variables
+@import "bootstrap/scss/variables";
+
+// 匯入 Bootstrap 的 mixins（如果要用到）
+@import "bootstrap/scss/mixins";

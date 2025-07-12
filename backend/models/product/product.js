@@ -126,10 +126,10 @@ function attachCondition(condition, query) {
 	}
 	
 	if (condition.word) {
-		query.whereLike('name', '%'+condition.word+'%')
-		query.join('productVariant', 'product.id', 'productVariant.productId')
-		query.orWhereLike('product.barcode', '%'+condition.word+'%');
-		query.orWhereLike('productVariant.barcode', '%'+condition.word+'%');
+		query.where('name', 'LIKE', '%'+condition.word+'%')
+		query.leftJoin('productVariant', 'product.id', 'productVariant.productId')
+		query.orWhere('product.barcode', 'LIKE', '%'+condition.word+'%');
+		query.orWhere('productVariant.barcode', 'LIKE', '%'+condition.word+'%');
 	}
 
 	if (condition.status) {

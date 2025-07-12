@@ -106,7 +106,7 @@ function attachCondition(condition, query) {
 	}
 	
 	if (condition.word) {
-		query.whereLike('content', '%'+condition.word+'%')
+		query.where('content', 'LIKE', '%'+condition.word+'%')
 	}
 
 	if (condition.categoris) {
