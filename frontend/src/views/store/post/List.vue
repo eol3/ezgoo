@@ -53,7 +53,7 @@
           </div>
         </div>
       </div>
-      <div class="py-4 d-flex justify-content-center">
+      <div class="py-4">
         <pagination
           v-model="currentPage"
           :per-page="perPage"

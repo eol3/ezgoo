@@ -92,7 +92,7 @@ const pages = computed(() => {
 
 async function changePage(i) {
 	if (element) {
-		element.scrollIntoView({ behavior: 'smooth' })
+		element.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' })
 	} else {
 		window.scrollTo(0, 0)
 	}
