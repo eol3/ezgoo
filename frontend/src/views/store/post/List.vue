@@ -33,7 +33,7 @@
             <i class="ms-1 fa-regular fa-circle-xmark"></i>
           </button>
         </div>
-        <div v-if="loading" class="text-center py-5" style="height: 60vh">
+        <div v-if="loading" class="text-center py-5" style="height: 1500px">
           讀取中...
         </div>
         <div v-if="list.length === 0 && !loading" class="text-center py-5" style="height: 60vh">
@@ -53,11 +53,12 @@
           </div>
         </div>
       </div>
-      <div class="py-4">
+      <div class="py-4 d-flex justify-content-center">
         <pagination
           v-model="currentPage"
           :per-page="perPage"
           :total-data="totalData"
+          :changePageElementPosition="'#scrollHeadPosition'"
         ></pagination>
       </div>
     </div>

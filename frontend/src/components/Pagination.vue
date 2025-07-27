@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps({
@@ -43,13 +43,9 @@ const props = defineProps({
 		type: Number,
 		default: 10
 	},
-	showPageNum: {
-		type: Number,
-		default: 3
-	},
-	changePageYPosition: {
-		type: Number,
-		default: 0
+	changePageElementPosition: {
+		type: String,
+		default: ''
 	}
 })
 
@@ -60,18 +56,31 @@ const router = useRouter();
 
 const currentPage = defineModel()
 
+const showPageNum = ref(3)
 const totalPage = ref(5)
 const beforeHide = ref(false)
 const afterHide = ref(false)
+
+let element = null
+
+onMounted(() => {
+	if (props.changePageElementPosition !== '') {
+		element = document.querySelector(props.changePageElementPosition)
+	}
+	console.log(window.innerWidth)
+	if (window.innerWidth < 576) {
+		showPageNum.value = 2
+	}
+})
 
 const pages = computed(() => {
 	totalPage.value = Math.ceil(props.totalData / props.perPage)
 	beforeHide.value = false
 	afterHide.value = false
-	let start = currentPage.value - props.showPageNum
+	let start = currentPage.value - showPageNum.value
 	if (start <= 1) start = 1
 	else beforeHide.value = true
-	let end = currentPage.value + props.showPageNum
+	let end = currentPage.value + showPageNum.value
 	if (end >= totalPage.value) end = totalPage.value
 	else afterHide.value = true
 	let result = []
@@ -82,7 +91,11 @@ const pages = computed(() => {
 })
 
 async function changePage(i) {
-	window.scrollTo(0, props.changePageYPosition)
+	if (element) {
+		element.scrollIntoView({ behavior: 'smooth' })
+	} else {
+		window.scrollTo(0, 0)
+	}
 	emit('change-page', i)
 	currentPage.value = i
 	router.push({ query: {
