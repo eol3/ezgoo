@@ -45,7 +45,7 @@ const props = defineProps({
 	},
 	changePageElementPosition: {
 		type: String,
-		default: ''
+		default: null
 	}
 })
 
@@ -67,7 +67,6 @@ onMounted(() => {
 	if (props.changePageElementPosition !== '') {
 		element = document.querySelector(props.changePageElementPosition)
 	}
-	console.log(window.innerWidth)
 	if (window.innerWidth < 576) {
 		showPageNum.value = 2
 	}
@@ -91,16 +90,17 @@ const pages = computed(() => {
 })
 
 async function changePage(i) {
-	if (element) {
-		element.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' })
-	} else {
-		window.scrollTo(0, 0)
-	}
 	emit('change-page', i)
 	currentPage.value = i
 	router.push({ query: {
 			...route.query,
 			...{ page: i }
+		}
+	}).then(() => {
+		if (element) {
+			element.scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' })
+		} else {
+			window.scrollTo(0, 0)
 		}
 	})
 }

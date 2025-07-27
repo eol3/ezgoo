@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache";
