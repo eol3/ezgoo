@@ -51,14 +51,17 @@ const routes = [
       {
         path: "user/forgot",
         component: () => import("../views/user/Forgot.vue"),
+        meta: { checkAuth: true },
       },
       {
         path: "login",
-        component: () => import("../views/user/Login.vue")
+        component: () => import("../views/user/Login.vue"),
+        meta: { checkAuth: true },
       },
       {
         path: "register",
-        component: () => import("../views/user/Register.vue")
+        component: () => import("../views/user/Register.vue"),
+        meta: { checkAuth: true },
       },
       {
         path: "/store/create",
@@ -304,7 +307,17 @@ router.beforeEach((to, from) => {
         path: '/' + to.meta.redirect,
       }
     }
-	}
+	} else if (to.meta.checkAuth) {
+    if (store.state.localUser) {
+      store.dispatch("showAlert", {
+        type: "success",
+        text: "已經登入"
+      })
+      clearTimeout(loadingTime);
+      NProgress.done()
+      return '/'
+    }
+  }
 })
 
 router.afterEach((to, from) => {

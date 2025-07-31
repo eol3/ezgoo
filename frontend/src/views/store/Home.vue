@@ -3,7 +3,7 @@
     <div class="col-12 col-md-10 offset-md-1">
       <div class="d-flex justify-content-between my-3">
         <div class="fw-bold">最新消息</div>
-        <router-link :to="baseUrl + '/post'" class="text-decoration-none" v-if="!postLoading && postList.length > 5">
+        <router-link :to="baseUrl + '/post'" class="text-decoration-none" @click="goHead()" v-if="!postLoading && postList.length > 5">
           查看全部
           <i class="fa-solid fa-arrow-right"></i>
         </router-link>
@@ -38,7 +38,7 @@
     <div class="col-12 col-md-10 offset-md-1">
       <div class="d-flex justify-content-between my-3">
         <div class="fw-bold">最新商品</div>
-        <router-link :to="baseUrl + '/product'" class="text-decoration-none" v-if="!productLoading && productList.length > 5">
+        <router-link :to="baseUrl + '/product'" class="text-decoration-none" @click="goHead()" v-if="!productLoading && productList.length > 5">
           查看全部
           <i class="fa-solid fa-arrow-right"></i>
         </router-link>
@@ -85,7 +85,7 @@
     <div class="col-12 col-md-10 offset-md-1">
       <div class="d-flex justify-content-between my-3">
         <div class="fw-bold">{{ productLine.name }}</div>
-        <router-link :to="baseUrl + '/product?categoris=' +  productLine.categoryIds" class="text-decoration-none">
+        <router-link :to="baseUrl + '/product?categoris=' +  productLine.categoryIds" class="text-decoration-none" @click="goHead()" v-if="productLine.products.length > 5">
           查看全部
           <i class="fa-solid fa-arrow-right"></i>
         </router-link>
@@ -250,6 +250,10 @@ async function doAddCart(product) {
       [null, null, null], false, 1, store)
     
   }
+}
+
+function goHead() {
+  document.querySelector('#scrollHeadPosition').scrollIntoView({ behavior: 'instant', block: 'start', inline: 'nearest' })
 }
 
 </script>

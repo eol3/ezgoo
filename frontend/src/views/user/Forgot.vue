@@ -32,7 +32,7 @@
 			  </div>
 			  <div class="mb-1">
 			    <label class="col-form-label">新密碼</label>
-			    <input type="password" class="form-control" v-model="formData.password" @focus="formValidClear()">
+			    <input type="password" class="form-control" v-model="formData.password" @focus="formValidClear()" placeholder="長度至少6碼，其餘不限">
 			    <div class="form-text text-danger">
 			    	{{ formValidFeild('password') ? formValid.errors.password[0] : '&nbsp;' }}
 			    </div>
