@@ -38,75 +38,74 @@
 	</div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue';
+import { useStore } from "vuex";
+import { useRoute, useRouter } from "vue-router";
 import { axios } from "@/tools/requestCache"
 import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
-import { mergeCart, setHead } from '@/tools/libs'
+import { mergeCart, setHead } from "@/tools/libs"
+import { checkIsLoging } from '@/tools/composition/user'
 
-export default {
-	setup() {
-    const { formValid, formValidFeild, formValidClear } = formValidTools();
-    setHead({ title: '登入' })
-    return {
-      formValid,
-      formValidFeild,
-      formValidClear
-    }
-  },
-  data() {
-  	return {
-  		loading: false,
-  		formData: {
-        email: "",
-        password: "",
-      },
-  	}
-  },
-  methods: {
-  	login() {
-  		if (this.loading) return
-  		const validator = wrapValidator(this.formData, {
-		    email: 'required|string|email|max:64',
-		    password: 'required|min:6|max:32',
-		  }, 'user');
-		  if (validator.fail) {
-		  	this.formValid = {
-          fails: true,
-          ...validator.errors
-        }
-        return
-		  }
-		  this.loading = true
-		  axios.post('/user/login', this.formData).then(async (response) => {
-		  	this.loading = false
-      	this.formValid = {
-          fails: false
-        }
-        let localUser = { id: response.data.user.id }
-        localStorage.setItem('user', JSON.stringify(localUser))
-        this.$store.commit('setLocalUser', localUser)
-				await mergeCart()
-        // this.$store.commit('setUser', response.data.user)
-        if (this.$route.query.redirect) {
-					this.$router.push(decodeURI(this.$route.query.redirect))
-				} else {
-					this.$router.push('/')
-				}
-        this.$store.dispatch('showAlert', {
-					type: 'success',
-        	text: response.data.msg
-				})
-		  }).catch(error => {
-      	this.loading = false
-      	if (error.response && error.response.status === 400) {
-	        this.formValid = {
-	          fails: true,
-	          errors: error.response.data.errors
-	        }
-      	}
-      });
-  	}
-  }
+const { formValid, formValidFeild, formValidClear } = formValidTools();
+
+const store = useStore()
+const route = useRoute()
+const router = useRouter()
+
+const loading = ref(false)
+const formData = ref({
+	email: "",
+	password: "",
+})
+
+setHead({ title: '登入' })
+
+checkIsLoging(loading, axios, store, router)
+
+async function login() {
+	if (loading.value) return
+	const validator = wrapValidator(formData.value, {
+		email: 'required|string|email|max:64',
+		password: 'required|min:6|max:32',
+	}, 'user');
+	if (validator.fail) {
+		formValid.value = {
+			fails: true,
+			...validator.errors
+		}
+		return
+	}
+	loading.value = true
+	axios.post('/user/login', formData.value).then(async (response) => {
+		formValid.value = {
+			fails: false
+		}
+		let localUser = { id: response.data.user.id }
+		localStorage.setItem('user', JSON.stringify(localUser))
+		store.commit('setLocalUser', localUser)
+		await mergeCart()
+		loading.value = false
+		// store.commit('setUser', response.data.user)
+		if (route.query.redirect) {
+			router.push(decodeURI(route.query.redirect))
+		} else {
+			router.push('/')
+		}
+		store.dispatch('showAlert', {
+			type: 'success',
+			text: response.data.msg
+		})
+	}).catch(error => {
+		loading.value = false
+		if (error.response && error.response.status === 400) {
+			formValid.value = {
+				fails: true,
+				errors: error.response.data.errors
+			}
+		}
+	});
 }
+
 </script>

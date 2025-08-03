@@ -67,6 +67,7 @@ import { axios } from "@/tools/requestCache"
 import formValidTools from '@/tools/composition/formValid'
 import wrapValidator from '@/tools/validator'
 import { setHead } from "@/tools/libs"
+import { checkIsLoging } from '@/tools/composition/user'
 
 const { formValid, formValidFeild, formValidClear } = formValidTools();
 
@@ -82,6 +83,8 @@ const formData = ref({
 })
 
 setHead({ title: '註冊' })
+
+checkIsLoging(loading, axios, store, router)
 
 function getVerifyCode() {
 	if (loading.value) return
