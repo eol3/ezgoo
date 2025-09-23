@@ -2,6 +2,12 @@ import router from "../router/index";
 import store from "../store/index";
 import { axios } from "@/tools/requestCache"
 
+export function replaceNewLine(str) {
+  if (typeof str === 'string') {
+    return str.replace(/\n/g, "<br />")
+  }
+}
+
 export function setHead(data) {
 
   let url = 'https://www.ezgoo.biz/'

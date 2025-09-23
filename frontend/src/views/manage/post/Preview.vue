@@ -50,9 +50,7 @@
                   </div>
                 </div>
               </div>
-              <div>
-                {{ post.content }}
-              </div>
+              <div v-html="replaceNewLine(post.content)"></div>
             </div>
           </div>
         </div>
@@ -68,6 +66,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
+import { replaceNewLine } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()

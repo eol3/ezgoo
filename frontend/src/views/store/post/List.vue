@@ -169,7 +169,7 @@ function getPostCategory() {
   }).then((response) => {
     let rootArr = [{ id: 'root', name: 'root', parentId: null, children: null }]
     postCategory.value = rootArr.concat(response.data)
-    if (postCategory.value.length === 0) return
+    if (postCategory.value.length <= 1) return
     treeList.value = listToTree(postCategory.value)
     setSelectedByQuery()
   })

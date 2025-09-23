@@ -76,6 +76,11 @@ const productVariant = ref([])
 onMounted(() => {
   var modalEl = document.getElementById('productOptionsModal')
   modal = new Modal(modalEl)
+
+  // 讓瀏覽器 console 不要出現警告 Blocked aria-hidden on an element because its descendant retained focus....
+  modalEl.addEventListener('hide.bs.modal', () => {
+    document.activeElement.blur();
+  })
 })
 
 function confirm() {

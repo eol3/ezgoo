@@ -136,14 +136,14 @@
             </div>
           </div>
           <div class="row justify-content-md-center py-3">
-            <div class="col-12 col-md-10" v-if="product.describe !== ''">
-              <h5 class="mt-2 fw-bold">商品描述</h5>
-              {{ product.describe }}
+            <div class="col-12 col-md-10 my-2" v-if="product.describe !== ''">
+              <h5 class="fw-bold">商品描述</h5>
+              <div v-html="replaceNewLine(product.describe)"></div>
             </div>
-            <div class="col-12 col-md-10" v-if="barcode.length > 0">
-              <div class="mt-2">商品條碼：{{ barcode.join(', ') }}</div>
+            <div class="col-12 col-md-10 my-2" v-if="barcode.length > 0">
+              <div>商品條碼：{{ barcode.join(', ') }}</div>
             </div>
-            <div class="col-12 col-md-10">
+            <div class="col-12 col-md-10 my-2">
               <PublishedDate
                 :fieldText="'上架日期'"
                 :publishedAt="product.publishedAt">
@@ -166,6 +166,7 @@ import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
 import { checkStoreStateBeforeAddCart, addCart, addCartButtonDisable, setHead } from '@/tools/libs'
 import ProductOptionsTags from '@/components/ProductOptionsTags.vue';
+import { replaceNewLine } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()

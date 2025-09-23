@@ -71,6 +71,7 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import { useStore } from "vuex";
+import { replaceNewLine } from '@/tools/libs'
 
 const store = useStore()
 
@@ -105,7 +106,4 @@ function getShippingText() {
 	return text.slice(0, -2)
 }
 
-function replaceNewLine(str) {
-	return str.replace(/\n/g, "<br />")
-}
 </script>

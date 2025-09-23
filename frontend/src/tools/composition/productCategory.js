@@ -24,8 +24,9 @@ export default () => {
     return axios.get('/'+modelName.value+'/', {
       params: categoryQueryObj
     }).then((response) => {
-      categoryList.value = response.data
-      categoryList.value.splice(0, 0, { id: 'root', name: 'root', parentId: null, children: null })
+      let rootArr = [{ id: 'root', name: 'root', parentId: null, children: null }]
+      categoryList.value = rootArr.concat(response.data)
+      if (categoryList.value.length <= 1) return
       treeList.value = listToTree(categoryList.value)
     })
   }

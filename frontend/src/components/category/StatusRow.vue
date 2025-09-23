@@ -1,5 +1,5 @@
 <template>
-  <button class="btn btn-outline-secondary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#cagetgoryModal">選擇分類</button>
+  <button id="openCategoryModalBtn" class="btn btn-outline-secondary btn-sm text-nowrap" data-bs-toggle="modal" data-bs-target="#cagetgoryModal">選擇分類</button>
   <span class="ms-1 d-flex align-items-center overflow-x-auto">
     <SeletedList
       :selectedCategories="selectedCategories"

@@ -194,7 +194,7 @@ function getProductCategory() {
   }).then((response) => {
     let rootArr = [{ id: 'root', name: 'root', parentId: null, children: null }]
     productCategory.value = rootArr.concat(response.data)
-    if (productCategory.value.length === 0) return
+    if (productCategory.value.length <= 1) return
     treeList.value = listToTree(productCategory.value)
     setSelectedByQuery()
   })

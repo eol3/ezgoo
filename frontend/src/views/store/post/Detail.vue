@@ -66,7 +66,7 @@ import { useStore } from "vuex";
 import { useRoute, useRouter } from "vue-router";
 import LoadingSpin from "@/components/LoadingSpin.vue";
 import PublishedDate from "@/components/PublishedDate.vue";
-import { setHead } from '@/tools/libs'
+import { setHead, replaceNewLine } from '@/tools/libs'
 
 const store = useStore()
 const route = useRoute()
@@ -132,10 +132,6 @@ function getPostImages() {
   })
 }
 
-function replaceNewLine(str) {
-  if (str === undefined) return ''
-  else return str.replace(/\n/g, "<br />")
-}
 </script>
 
 <style lang="scss" scoped>
