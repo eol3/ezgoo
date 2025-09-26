@@ -17,7 +17,7 @@ router.get('/', async function(req, res, next) {
   }
 
   const validator = wrapValidator(useData, {
-		storeId: 'numeric|min:1',
+		storeId: 'required|numeric|min:1',
     productId: 'required|numeric|min:1',
 		status: 'enum:statusQuery', // all:查詢全部, 0:未公開, 1:已公開
   }, 'product')
