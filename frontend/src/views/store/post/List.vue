@@ -245,6 +245,7 @@ async function setSelfHead(text) {
   setHead({
     title: text + storeInfo.value.name,
     description: text + storeInfo.value.about,
+    image: storeInfo.value.thumbnail,
     url: document.URL
   })
 }
